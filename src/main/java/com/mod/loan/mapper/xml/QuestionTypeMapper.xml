@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mod.loan.mapper.QuestionTypeMapper">
+  <resultMap id="BaseResultMap" type="com.mod.loan.model.QuestionType">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="name" jdbcType="VARCHAR" property="name" />
+    <result column="status" jdbcType="TINYINT" property="status" />
+    <result column="idx" jdbcType="INTEGER" property="idx" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+  </resultMap>
+  
+   <select id="findQuestionRefList"   resultType="map">
+  select b.name as type,c.article_title as title,a.article_id from tb_question_ref a 
+  left join tb_question_type b on a.type_id=b.id 
+  left join tb_app_article c on a.article_id=c.id
+where b.status=1 and b.merchant=#{merchant} order by b.idx desc,a.idx desc
+  </select>
+</mapper>

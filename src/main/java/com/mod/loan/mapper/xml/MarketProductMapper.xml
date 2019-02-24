@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mod.loan.mapper.MarketProductMapper">
+  <resultMap id="BaseResultMap" type="com.mod.loan.model.MarketProduct">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="module_id" jdbcType="BIGINT" property="moduleId" />
+    <result column="product_name" jdbcType="VARCHAR" property="productName" />
+    <result column="product_img" jdbcType="VARCHAR" property="productImg" />
+    <result column="product_url" jdbcType="VARCHAR" property="productUrl" />
+    <result column="product_slogan" jdbcType="VARCHAR" property="productSlogan" />
+    <result column="product_type" jdbcType="TINYINT" property="productType" />
+    <result column="product_status" jdbcType="TINYINT" property="productStatus" />
+    <result column="product_idx" jdbcType="INTEGER" property="productIdx" />
+    <result column="loan_min" jdbcType="DECIMAL" property="loanMin" />
+    <result column="loan_max" jdbcType="DECIMAL" property="loanMax" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+    <result column="num" jdbcType="INTEGER" property="num" />
+  </resultMap>
+  
+  <select id="selectByModule"  resultMap="BaseResultMap">
+   select id,product_name,product_img,product_url,product_slogan,product_type,num from tb_market_product 
+   where 
+   module_id=#{module_id} and  product_status=1 
+   <if test="type!=null">
+   and  product_type=#{type}
+   </if>
+   order by product_idx desc
+  </select>
+</mapper>

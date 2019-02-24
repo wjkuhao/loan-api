@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mod.loan.mapper.AppStartupMapper">
+  <resultMap id="BaseResultMap" type="com.mod.loan.model.AppStartup">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="ad_imgurl" jdbcType="VARCHAR" property="adImgurl" />
+    <result column="ad_url" jdbcType="VARCHAR" property="adUrl" />
+    <result column="ad_idx" jdbcType="INTEGER" property="adIdx" />
+    <result column="ad_status" jdbcType="TINYINT" property="adStatus" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="start_time" jdbcType="TIMESTAMP" property="startTime" />
+    <result column="end_time" jdbcType="TIMESTAMP" property="endTime" />
+    <result column="merchant" jdbcType="VARCHAR" property="merchant" />
+  </resultMap>
+  
+  <select id="findAppStartupByMerchant"   resultMap="BaseResultMap">
+  select ad_imgurl, ad_url from tb_app_startup where ad_status=2 and merchant=#{merchant} limit 1;
+  </select>
+</mapper>

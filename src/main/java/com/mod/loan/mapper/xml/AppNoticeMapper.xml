@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mod.loan.mapper.AppNoticeMapper">
+  <resultMap id="BaseResultMap" type="com.mod.loan.model.AppNotice">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="notice_title" jdbcType="VARCHAR" property="noticeTitle" />
+    <result column="notice_url" jdbcType="VARCHAR" property="noticeUrl" />
+    <result column="notice_idx" jdbcType="INTEGER" property="noticeIdx" />
+    <result column="notice_status" jdbcType="TINYINT" property="noticeStatus" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="start_time" jdbcType="TIMESTAMP" property="startTime" />
+    <result column="end_time" jdbcType="TIMESTAMP" property="endTime" />
+    <result column="notice_tag" jdbcType="VARCHAR" property="noticeTag" />
+    <result column="merchant" jdbcType="VARCHAR" property="merchant" />
+  </resultMap>
+  <select id="findNoticeListByMerchant"  resultMap="BaseResultMap">
+  select notice_title,notice_url,notice_tag from tb_app_notice where notice_status=2 and merchant=#{merchant} order by notice_idx desc
+  </select>
+</mapper>

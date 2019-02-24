@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mod.loan.mapper.AppBannerMapper">
+  <resultMap id="BaseResultMap" type="com.mod.loan.model.AppBanner">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="banner_imgurl" jdbcType="VARCHAR" property="bannerImgurl" />
+    <result column="banner_url" jdbcType="VARCHAR" property="bannerUrl" />
+    <result column="banner_idx" jdbcType="INTEGER" property="bannerIdx" />
+    <result column="banner_remark" jdbcType="VARCHAR" property="bannerRemark" />
+    <result column="banner_status" jdbcType="TINYINT" property="bannerStatus" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="start_time" jdbcType="TIMESTAMP" property="startTime" />
+    <result column="end_time" jdbcType="TIMESTAMP" property="endTime" />
+    <result column="merchant" jdbcType="VARCHAR" property="merchant" />
+  </resultMap>
+  
+  <select id="findBannerListByMerchant"  resultMap="BaseResultMap">
+  select banner_imgurl,banner_url,banner_remark from tb_app_banner where banner_status=2 and merchant=#{merchant} order by banner_idx desc
+  </select>
+</mapper>

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mod.loan.mapper.AppFeedbackMapper">
+  <resultMap id="BaseResultMap" type="com.mod.loan.model.AppFeedback">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="uid" jdbcType="BIGINT" property="uid" />
+    <result column="question_type" jdbcType="VARCHAR" property="questionType" />
+    <result column="question_desc" jdbcType="VARCHAR" property="questionDesc" />
+    <result column="question_img" jdbcType="VARCHAR" property="questionImg" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="merchant" jdbcType="VARCHAR" property="merchant" />
+  </resultMap>
+</mapper>

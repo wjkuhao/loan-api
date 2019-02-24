@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mod.loan.mapper.MarketModuleMapper">
+  <resultMap id="BaseResultMap" type="com.mod.loan.model.MarketModule">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="channel_id" jdbcType="BIGINT" property="channelId" />
+    <result column="module_name" jdbcType="VARCHAR" property="moduleName" />
+    <result column="module_status" jdbcType="TINYINT" property="moduleStatus" />
+    <result column="module_idx" jdbcType="INTEGER" property="moduleIdx" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+  </resultMap>
+  
+  <select id="selectByChannel"  resultMap="BaseResultMap">
+   select id,module_name from tb_market_module where channel_id=#{channel_id} and  module_status=1 order by module_idx desc
+  </select>
+  
+  <select id="selectAllModule"  resultMap="BaseResultMap">
+   select id,module_name from tb_market_module where  module_status=1 order by module_idx desc
+  </select>
+</mapper>
