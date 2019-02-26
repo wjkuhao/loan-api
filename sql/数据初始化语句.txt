@@ -1,0 +1,93 @@
+#tb_bank
+INSERT INTO `tb_bank`(`code`, `bank_name`, `bank_status`, `money_unit_limit`, `money_day_limit`, `idx`, `create_time`, `code_helipay`) VALUES ('ABC', '农业银行', 1, 50000.00, 200000.00, 0, '2017-08-08 21:36:34', 'ABC');
+INSERT INTO `tb_bank`(`code`, `bank_name`, `bank_status`, `money_unit_limit`, `money_day_limit`, `idx`, `create_time`, `code_helipay`) VALUES ('BJBANK', '北京银行', 1, 5000.00, 5000.00, 0, '2018-05-09 18:40:23', 'BCCB');
+INSERT INTO `tb_bank`(`code`, `bank_name`, `bank_status`, `money_unit_limit`, `money_day_limit`, `idx`, `create_time`, `code_helipay`) VALUES ('BOC', '中国银行', 1, 50000.00, 500000.00, 0, '2017-08-08 21:09:32', 'BOC');
+INSERT INTO `tb_bank`(`code`, `bank_name`, `bank_status`, `money_unit_limit`, `money_day_limit`, `idx`, `create_time`, `code_helipay`) VALUES ('CCB', '建设银行', 1, 50000.00, 500000.00, 0, '2017-08-08 21:37:39', 'CCB');
+INSERT INTO `tb_bank`(`code`, `bank_name`, `bank_status`, `money_unit_limit`, `money_day_limit`, `idx`, `create_time`, `code_helipay`) VALUES ('CEB', '光大银行', 1, 50000.00, 50000.00, 0, '2017-08-12 20:00:29', 'CEB');
+INSERT INTO `tb_bank`(`code`, `bank_name`, `bank_status`, `money_unit_limit`, `money_day_limit`, `idx`, `create_time`, `code_helipay`) VALUES ('CIB', '兴业银行', 1, 50000.00, 50000.00, 0, '2017-08-11 14:46:32', 'CIB');
+INSERT INTO `tb_bank`(`code`, `bank_name`, `bank_status`, `money_unit_limit`, `money_day_limit`, `idx`, `create_time`, `code_helipay`) VALUES ('CITIC', '中信银行', 1, 5000.00, 20000.00, 0, '2017-08-11 14:42:02', 'ECITIC');
+INSERT INTO `tb_bank`(`code`, `bank_name`, `bank_status`, `money_unit_limit`, `money_day_limit`, `idx`, `create_time`, `code_helipay`) VALUES ('CMB', '招商银行', 1, 50000.00, 500000.00, 0, '2017-08-08 21:41:01', 'CMBCHINA');
+INSERT INTO `tb_bank`(`code`, `bank_name`, `bank_status`, `money_unit_limit`, `money_day_limit`, `idx`, `create_time`, `code_helipay`) VALUES ('CMBC', '民生银行', 1, 50000.00, 1000000.00, 0, '2017-08-11 14:45:42', 'CMBC');
+INSERT INTO `tb_bank`(`code`, `bank_name`, `bank_status`, `money_unit_limit`, `money_day_limit`, `idx`, `create_time`, `code_helipay`) VALUES ('COMM', '交通银行', 1, 9999.00, 500000.00, 0, '2017-08-12 20:01:39', 'BOCO');
+INSERT INTO `tb_bank`(`code`, `bank_name`, `bank_status`, `money_unit_limit`, `money_day_limit`, `idx`, `create_time`, `code_helipay`) VALUES ('GDB', '广发银行', 1, 50000.00, 500000.00, 0, '2017-08-12 20:01:56', 'CGB');
+INSERT INTO `tb_bank`(`code`, `bank_name`, `bank_status`, `money_unit_limit`, `money_day_limit`, `idx`, `create_time`, `code_helipay`) VALUES ('HXBANK', '华夏银行', 1, 50000.00, 300000.00, 0, '2017-08-12 20:02:03', 'HXB');
+INSERT INTO `tb_bank`(`code`, `bank_name`, `bank_status`, `money_unit_limit`, `money_day_limit`, `idx`, `create_time`, `code_helipay`) VALUES ('ICBC', '工商银行', 1, 50000.00, 100000.00, 0, '2017-08-08 21:40:35', 'ICBC');
+INSERT INTO `tb_bank`(`code`, `bank_name`, `bank_status`, `money_unit_limit`, `money_day_limit`, `idx`, `create_time`, `code_helipay`) VALUES ('PSBC', '邮储银行', 0, 5000.00, 5000.00, 0, '2017-08-12 20:01:08', 'PSBC');
+INSERT INTO `tb_bank`(`code`, `bank_name`, `bank_status`, `money_unit_limit`, `money_day_limit`, `idx`, `create_time`, `code_helipay`) VALUES ('SHBANK', '上海银行', 1, 5000.00, 10000.00, 0, '2017-08-12 20:00:55', 'SHB');
+INSERT INTO `tb_bank`(`code`, `bank_name`, `bank_status`, `money_unit_limit`, `money_day_limit`, `idx`, `create_time`, `code_helipay`) VALUES ('SPABANK', '平安银行', 1, 50000.00, 50000.00, 0, '2017-08-12 20:01:17', 'PINGAN');
+INSERT INTO `tb_bank`(`code`, `bank_name`, `bank_status`, `money_unit_limit`, `money_day_limit`, `idx`, `create_time`, `code_helipay`) VALUES ('SPDB', '浦发银行', 1, 50000.00, 50000.00, 0, '2017-08-12 20:01:30', 'SPDB');
+
+
+#tb_manager（商户管理后台主账号admin，初始密码123456）
+INSERT INTO `tb_manager`(`id`, `login_name`, `login_password`, `user_role_id`, `user_phone`, `user_name`, `user_qq`, `user_work_number`, `company_id`, `department_id`, `last_login_time`, `last_login_ip`, `account_status`, `account_type`) VALUES (1, 'admin', 'e10adc3949ba59abbe56e057f20f883e', NULL, '18100000001', 'administrator', '123456789', '001', 1, 1, NULL, NULL, 0, 1);
+
+#tb_manager_resource
+INSERT INTO `tb_manager_resource`(`id`, `pid`, `resource_name`, `resource_url`, `resource_icon`, `resource_order`, `resource_status`) VALUES (1, 0, '系统管理', '#', NULL, 1, 0);
+INSERT INTO `tb_manager_resource`(`id`, `pid`, `resource_name`, `resource_url`, `resource_icon`, `resource_order`, `resource_status`) VALUES (2, 1, '账号管理', '/system/manager_list', NULL, 4, 0);
+INSERT INTO `tb_manager_resource`(`id`, `pid`, `resource_name`, `resource_url`, `resource_icon`, `resource_order`, `resource_status`) VALUES (3, 1, '菜单管理', '/system/resource_list', NULL, 1, 0);
+INSERT INTO `tb_manager_resource`(`id`, `pid`, `resource_name`, `resource_url`, `resource_icon`, `resource_order`, `resource_status`) VALUES (4, 1, '角色管理', '/system/role_list', NULL, 3, 0);
+INSERT INTO `tb_manager_resource`(`id`, `pid`, `resource_name`, `resource_url`, `resource_icon`, `resource_order`, `resource_status`) VALUES (45, 1, '商户菜单管理', '/system/merchant_resource_list', NULL, 2, 0);
+INSERT INTO `tb_manager_resource`(`id`, `pid`, `resource_name`, `resource_url`, `resource_icon`, `resource_order`, `resource_status`) VALUES (5, 0, '贷款超市', '#', NULL, 5, 0);
+INSERT INTO `tb_manager_resource`(`id`, `pid`, `resource_name`, `resource_url`, `resource_icon`, `resource_order`, `resource_status`) VALUES (6, 5, '栏目管理', '/market/channel_list', NULL, 1, 1);
+INSERT INTO `tb_manager_resource`(`id`, `pid`, `resource_name`, `resource_url`, `resource_icon`, `resource_order`, `resource_status`) VALUES (7, 5, '分类管理', '/market/module_list', NULL, 2, 0);
+INSERT INTO `tb_manager_resource`(`id`, `pid`, `resource_name`, `resource_url`, `resource_icon`, `resource_order`, `resource_status`) VALUES (9, 5, '数据统计', '/market/flow_list', NULL, 4, 0);
+INSERT INTO `tb_manager_resource`(`id`, `pid`, `resource_name`, `resource_url`, `resource_icon`, `resource_order`, `resource_status`) VALUES (44, 5, '渠道控制', 'market/config_list', NULL, 5, 0);
+INSERT INTO `tb_manager_resource`(`id`, `pid`, `resource_name`, `resource_url`, `resource_icon`, `resource_order`, `resource_status`) VALUES (10, 5, '产品管理', '/market/product_list', NULL, 3, 0);
+INSERT INTO `tb_manager_resource`(`id`, `pid`, `resource_name`, `resource_url`, `resource_icon`, `resource_order`, `resource_status`) VALUES (27, 0, '商户管理', '#', NULL, 2, 0);
+INSERT INTO `tb_manager_resource`(`id`, `pid`, `resource_name`, `resource_url`, `resource_icon`, `resource_order`, `resource_status`) VALUES (28, 27, '商户列表', 'merchant/merchant_list', NULL, 1, 0);
+INSERT INTO `tb_manager_resource`(`id`, `pid`, `resource_name`, `resource_url`, `resource_icon`, `resource_order`, `resource_status`) VALUES (29, 27, '用户列表', '/user/user_list', NULL, 3, 0);
+INSERT INTO `tb_manager_resource`(`id`, `pid`, `resource_name`, `resource_url`, `resource_icon`, `resource_order`, `resource_status`) VALUES (48, 27, '订单列表', '/order/order_list', NULL, 4, 0);
+
+#tb_market_channel
+INSERT INTO `tb_market_channel`(`id`, `channel_name`, `channel_idx`, `channel_status`, `product_id`, `create_time`, `update_time`) VALUES (1, '推荐', 0, 1, NULL, '2018-03-19 13:43:59', '2018-03-20 10:25:41');
+
+#tb_merchant_resource
+INSERT INTO `tb_merchant_resource`(`id`, `pid`, `resource_name`, `resource_url`, `resource_icon`, `resource_order`, `resource_status`) VALUES (1, 0, '系统管理', '#', NULL, 1, 0);
+INSERT INTO `tb_merchant_resource`(`id`, `pid`, `resource_name`, `resource_url`, `resource_icon`, `resource_order`, `resource_status`) VALUES (2, 1, '账号管理', '/system/manager_list', NULL, 3, 0);
+INSERT INTO `tb_merchant_resource`(`id`, `pid`, `resource_name`, `resource_url`, `resource_icon`, `resource_order`, `resource_status`) VALUES (4, 1, '角色管理', '/system/role_list', NULL, 2, 0);
+INSERT INTO `tb_merchant_resource`(`id`, `pid`, `resource_name`, `resource_url`, `resource_icon`, `resource_order`, `resource_status`) VALUES (5, 0, '贷后管理', '#', NULL, 6, 0);
+INSERT INTO `tb_merchant_resource`(`id`, `pid`, `resource_name`, `resource_url`, `resource_icon`, `resource_order`, `resource_status`) VALUES (6, 25, '催收分配', '/recycle/recycle_list', NULL, 2, 0);
+INSERT INTO `tb_merchant_resource`(`id`, `pid`, `resource_name`, `resource_url`, `resource_icon`, `resource_order`, `resource_status`) VALUES (7, 25, '我的催单', '/recycle/my_recycle_list', NULL, 3, 0);
+INSERT INTO `tb_merchant_resource`(`id`, `pid`, `resource_name`, `resource_url`, `resource_icon`, `resource_order`, `resource_status`) VALUES (8, 25, '催收记录', '/recycle/all_recycle_list', NULL, 4, 0);
+INSERT INTO `tb_merchant_resource`(`id`, `pid`, `resource_name`, `resource_url`, `resource_icon`, `resource_order`, `resource_status`) VALUES (10, 0, '用户管理', '#', NULL, 2, 0);
+INSERT INTO `tb_merchant_resource`(`id`, `pid`, `resource_name`, `resource_url`, `resource_icon`, `resource_order`, `resource_status`) VALUES (11, 0, '订单管理', '#', NULL, 3, 0);
+INSERT INTO `tb_merchant_resource`(`id`, `pid`, `resource_name`, `resource_url`, `resource_icon`, `resource_order`, `resource_status`) VALUES (12, 0, '贷前管理', '#', NULL, 4, 0);
+INSERT INTO `tb_merchant_resource`(`id`, `pid`, `resource_name`, `resource_url`, `resource_icon`, `resource_order`, `resource_status`) VALUES (13, 0, '贷中管理', '#', NULL, 5, 0);
+INSERT INTO `tb_merchant_resource`(`id`, `pid`, `resource_name`, `resource_url`, `resource_icon`, `resource_order`, `resource_status`) VALUES (14, 10, '用户列表', '/user/user_list', NULL, 1, 0);
+INSERT INTO `tb_merchant_resource`(`id`, `pid`, `resource_name`, `resource_url`, `resource_icon`, `resource_order`, `resource_status`) VALUES (15, 11, '订单总列表', '/order/order_list', NULL, 1, 0);
+INSERT INTO `tb_merchant_resource`(`id`, `pid`, `resource_name`, `resource_url`, `resource_icon`, `resource_order`, `resource_status`) VALUES (16, 12, '贷前订单', '/order/order_pre_list', NULL, 1, 0);
+INSERT INTO `tb_merchant_resource`(`id`, `pid`, `resource_name`, `resource_url`, `resource_icon`, `resource_order`, `resource_status`) VALUES (17, 13, '订单放款', '/order/order_middle_list', NULL, 1, 0);
+INSERT INTO `tb_merchant_resource`(`id`, `pid`, `resource_name`, `resource_url`, `resource_icon`, `resource_order`, `resource_status`) VALUES (18, 5, '线下还款', '/order/order_repay_for_offline_list', NULL, 1, 0);
+INSERT INTO `tb_merchant_resource`(`id`, `pid`, `resource_name`, `resource_url`, `resource_icon`, `resource_order`, `resource_status`) VALUES (19, 0, '渠道管理', '#', NULL, 8, 0);
+INSERT INTO `tb_merchant_resource`(`id`, `pid`, `resource_name`, `resource_url`, `resource_icon`, `resource_order`, `resource_status`) VALUES (20, 0, '数据统计', '#', NULL, 9, 0);
+INSERT INTO `tb_merchant_resource`(`id`, `pid`, `resource_name`, `resource_url`, `resource_icon`, `resource_order`, `resource_status`) VALUES (21, 19, '代理商管理', '/origin/origin_list', NULL, 0, 0);
+INSERT INTO `tb_merchant_resource`(`id`, `pid`, `resource_name`, `resource_url`, `resource_icon`, `resource_order`, `resource_status`) VALUES (22, 19, '我的客户', '/origin/my_origin_data_list', NULL, 0, 0);
+INSERT INTO `tb_merchant_resource`(`id`, `pid`, `resource_name`, `resource_url`, `resource_icon`, `resource_order`, `resource_status`) VALUES (24, 10, '黑名单', 'user/blacklist_list', NULL, 2, 0);
+INSERT INTO `tb_merchant_resource`(`id`, `pid`, `resource_name`, `resource_url`, `resource_icon`, `resource_order`, `resource_status`) VALUES (25, 0, '催收管理', '#', NULL, 7, 0);
+INSERT INTO `tb_merchant_resource`(`id`, `pid`, `resource_name`, `resource_url`, `resource_icon`, `resource_order`, `resource_status`) VALUES (26, 13, '放款记录', 'order/order_pay_list', NULL, 2, 0);
+INSERT INTO `tb_merchant_resource`(`id`, `pid`, `resource_name`, `resource_url`, `resource_icon`, `resource_order`, `resource_status`) VALUES (27, 5, '还款记录', 'order/order_repay_list', NULL, 2, 0);
+INSERT INTO `tb_merchant_resource`(`id`, `pid`, `resource_name`, `resource_url`, `resource_icon`, `resource_order`, `resource_status`) VALUES (28, 12, '信审记录', 'order/order_audit_list', NULL, 3, 0);
+INSERT INTO `tb_merchant_resource`(`id`, `pid`, `resource_name`, `resource_url`, `resource_icon`, `resource_order`, `resource_status`) VALUES (29, 12, '信审工作台', 'order/order_audit_workbench', NULL, 2, 0);
+INSERT INTO `tb_merchant_resource`(`id`, `pid`, `resource_name`, `resource_url`, `resource_icon`, `resource_order`, `resource_status`) VALUES (30, 20, '还款报表', 'statistics/repay_report_list', NULL, 3, 0);
+INSERT INTO `tb_merchant_resource`(`id`, `pid`, `resource_name`, `resource_url`, `resource_icon`, `resource_order`, `resource_status`) VALUES (31, 20, '放款报表', 'statistics/loan_report_list', NULL, 2, 0);
+INSERT INTO `tb_merchant_resource`(`id`, `pid`, `resource_name`, `resource_url`, `resource_icon`, `resource_order`, `resource_status`) VALUES (32, 20, '渠道统计', 'statistics/partner_report_list', NULL, 4, 0);
+INSERT INTO `tb_merchant_resource`(`id`, `pid`, `resource_name`, `resource_url`, `resource_icon`, `resource_order`, `resource_status`) VALUES (33, 10, '意见反馈', 'operation/feedback_list', NULL, 3, 0);
+INSERT INTO `tb_merchant_resource`(`id`, `pid`, `resource_name`, `resource_url`, `resource_icon`, `resource_order`, `resource_status`) VALUES (34, 20, '当日统计', 'statistics/day', NULL, 0, 0);
+INSERT INTO `tb_merchant_resource`(`id`, `pid`, `resource_name`, `resource_url`, `resource_icon`, `resource_order`, `resource_status`) VALUES (35, 0, '运营信息', '#', NULL, 10, 0);
+INSERT INTO `tb_merchant_resource`(`id`, `pid`, `resource_name`, `resource_url`, `resource_icon`, `resource_order`, `resource_status`) VALUES (36, 35, '启动广告', '/operation/startup_list', NULL, 1, 0);
+INSERT INTO `tb_merchant_resource`(`id`, `pid`, `resource_name`, `resource_url`, `resource_icon`, `resource_order`, `resource_status`) VALUES (37, 35, '首页banner', '/operation/banner_list', NULL, 2, 0);
+INSERT INTO `tb_merchant_resource`(`id`, `pid`, `resource_name`, `resource_url`, `resource_icon`, `resource_order`, `resource_status`) VALUES (38, 35, '平台公告', '/operation/notice_list', NULL, 3, 0);
+INSERT INTO `tb_merchant_resource`(`id`, `pid`, `resource_name`, `resource_url`, `resource_icon`, `resource_order`, `resource_status`) VALUES (39, 35, '自定义文章', '/operation/article_list', NULL, 4, 0);
+INSERT INTO `tb_merchant_resource`(`id`, `pid`, `resource_name`, `resource_url`, `resource_icon`, `resource_order`, `resource_status`) VALUES (40, 35, '快捷入口', '/operation/entry_list', NULL, 5, 0);
+INSERT INTO `tb_merchant_resource`(`id`, `pid`, `resource_name`, `resource_url`, `resource_icon`, `resource_order`, `resource_status`) VALUES (41, 35, '帮助中心', '/question/question_type_list', NULL, 6, 0);
+INSERT INTO `tb_merchant_resource`(`id`, `pid`, `resource_name`, `resource_url`, `resource_icon`, `resource_order`, `resource_status`) VALUES (42, 25, '催收组', '/recycle/recycle_group_list', NULL, 5, 0);
+INSERT INTO `tb_merchant_resource`(`id`, `pid`, `resource_name`, `resource_url`, `resource_icon`, `resource_order`, `resource_status`) VALUES (43, 25, '催收人员', '/recycle/recycle_user_list', NULL, 6, 0);
+INSERT INTO `tb_merchant_resource`(`id`, `pid`, `resource_name`, `resource_url`, `resource_icon`, `resource_order`, `resource_status`) VALUES (44, 35, '首页弹窗', '/operation/home_list', NULL, 7, 0);
+INSERT INTO `tb_merchant_resource`(`id`, `pid`, `resource_name`, `resource_url`, `resource_icon`, `resource_order`, `resource_status`) VALUES (45, 25, '组内催单分配', '/recycle/recycle_fenpei_list', '', 2, 0);
+INSERT INTO `tb_merchant_resource`(`id`, `pid`, `resource_name`, `resource_url`, `resource_icon`, `resource_order`, `resource_status`) VALUES (46, 20, '用户报表', 'statistics/report_register_order_list', NULL, 1, 0);
+INSERT INTO `tb_merchant_resource`(`id`, `pid`, `resource_name`, `resource_url`, `resource_icon`, `resource_order`, `resource_status`) VALUES (47, 25, '催收质检', '/recycle/recycle_quality_list', NULL, 7, 0);
+INSERT INTO `tb_merchant_resource`(`id`, `pid`, `resource_name`, `resource_url`, `resource_icon`, `resource_order`, `resource_status`) VALUES (48, 20, '订单审核统计', '/order/order_pass_list', NULL, 5, 0);
+INSERT INTO `tb_merchant_resource`(`id`, `pid`, `resource_name`, `resource_url`, `resource_icon`, `resource_order`, `resource_status`) VALUES (49, 20, '信审逾期统计', '/recycle/audit_overdue_list', NULL, 6, 0);
+INSERT INTO `tb_merchant_resource`(`id`, `pid`, `resource_name`, `resource_url`, `resource_icon`, `resource_order`, `resource_status`) VALUES (50, 20, '催收还款统计', '/recycle/recycle_repay_list', NULL, 7, 0);
+
+#report开头的四张表添加merchant-daykey组合唯一索引
