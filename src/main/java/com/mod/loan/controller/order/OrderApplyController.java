@@ -188,8 +188,7 @@ public class OrderApplyController {
 		JSONObject jsonObject = new JSONObject();
 		jsonObject.put("orderId", order.getId());
 		jsonObject.put("merchant", order.getMerchant());
-	//todo 风控暂不用
-		// 	rabbitTemplate.convertAndSend("queue_risk_order_notify", jsonObject);
+		rabbitTemplate.convertAndSend("queue_risk_order_notify", jsonObject);
 
 		return new ResultMessage(ResponseEnum.M2000);
 	}
