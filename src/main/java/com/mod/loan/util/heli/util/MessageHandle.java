@@ -13,7 +13,7 @@ import com.mod.loan.util.heli.annotation.SignExclude;
 
 public class MessageHandle {
 
-	private static final String CERT_PATH = "/home/developer/helipay/helipay.cer"; // 合利宝cert
+	private static final String CERT_PATH = "/data/conf/mx.cer"; // 合利宝cert
 	private static final String ENCRYPTION_KEY = "encryptionKey";
 
 	/**
