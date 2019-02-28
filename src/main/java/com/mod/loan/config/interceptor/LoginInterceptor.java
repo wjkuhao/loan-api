@@ -56,6 +56,9 @@ public class LoginInterceptor implements HandlerInterceptor {
 		RequestThread.setIp(ip);
 		RequestThread.setRequestTime(System.currentTimeMillis());
 		HandlerMethod hm = (HandlerMethod) handler;
+
+		logger.info("ip={},version={},type={},alias={}, hm={}", ip,clientVersion,clientType,clientAlias,hm);
+
 		Api api = hm.getMethodAnnotation(Api.class);
 		if (api!=null) {
 			if (StringUtils.isEmpty(clientType)||! ("android".equals(clientType)|| "ios".equals(clientType))) {
