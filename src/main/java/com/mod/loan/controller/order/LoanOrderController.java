@@ -176,12 +176,17 @@ public class LoanOrderController {
 			loanBefore.setEventDescribe(String.format("申请周转资金%s元，周期%s天，服务费%s元，到账%s元", order.getBorrowMoney(),order.getBorrowDay(),order.getTotalFee(),order.getActualMoney()));
 
 			LoanBefore loanBefore2 = new LoanBefore();
-			loanBefore2.setEvent("初审通过");
+			loanBefore2.setEvent("抱歉，你没有通过审核");
 			loanBefore2.setEventTime(TimeUtils.parseTime(order.getAuditTime(),TimeUtils.dateformat0));
-			loanBefore2.setEventDescribe("鑫乐贷、朱八戒等40+优质资金方可供您借款，点击详情查看");
+			loanBefore2.setEventDescribe("距下次可申请借款时间");
 
 			loanBeforeList.add(loanBefore);
 			loanBeforeList.add(loanBefore2);
+
+			map.put("orderStatus",2);//2-审核失败图
+			int nextOrderRemainDays = 7 - Days.daysBetween(dd1, DateTime.now()).getDays();
+			map.put("nextOrderRemainDays",nextOrderRemainDays);//下次下单剩余天数
+
 
 			map.put("orderStatus",2);//2-审核失败图
 
