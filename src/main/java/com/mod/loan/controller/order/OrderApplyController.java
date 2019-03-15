@@ -5,6 +5,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.mod.loan.common.enums.OrderEnum;
 import org.joda.time.DateTime;
 import org.joda.time.Days;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
@@ -182,8 +183,17 @@ public class OrderApplyController {
 		orderPhone.setParamValue(paramValue);
 		orderPhone.setPhoneModel(phoneModel + "|" + phoneMemory);
 		orderPhone.setPhoneType(phoneType);
-		orderService.addOrder(order, orderPhone);
 
+		// 老客户不走风控，直接进入放款列表
+		Integer borrowType = orderService.countPaySuccessByUid(uid);
+		if(borrowType!=null && borrowType>0){
+			order.setAuditTime(new Date());
+			order.setStatus(OrderEnum.DAI_FANGKUAN.getCode());
+			orderService.addOrder(order, orderPhone);
+			return new ResultMessage(ResponseEnum.M2000);
+		}
+
+		orderService.addOrder(order, orderPhone);
 		// 发送消息，等待请求风控
 		JSONObject jsonObject = new JSONObject();
 		jsonObject.put("orderId", order.getId());
