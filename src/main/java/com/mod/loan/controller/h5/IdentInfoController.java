@@ -28,6 +28,9 @@ public class IdentInfoController {
 	@RequestMapping(value = "user_ident_info")
 	public ResultMessage user_ident() {
 		UserIdent ident = identMapper.selectByPrimaryKey(RequestThread.getUid());
+		if(ident == null){
+			return new ResultMessage(ResponseEnum.M3002);
+		}
 		ident.setUid(null);
 		ident.setAlipayTime(null);
 		ident.setBindbankTime(null);

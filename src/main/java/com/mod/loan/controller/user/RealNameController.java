@@ -67,8 +67,11 @@ public class RealNameController {
 	@RequestMapping(value = "user_info")
 	public ResultMessage user_info() {
 		UserInfo userInfo = userInfoMapper.selectByPrimaryKey(RequestThread.getUid());
-		userInfo.setUid(null);
-		return new ResultMessage(ResponseEnum.M2000, userInfo);
+		if(userInfo != null){
+			userInfo.setUid(null);
+			return new ResultMessage(ResponseEnum.M2000, userInfo);
+		}
+		return new ResultMessage(ResponseEnum.M3002);
 	}
 
 	@Api
