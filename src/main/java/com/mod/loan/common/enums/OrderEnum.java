@@ -2,7 +2,7 @@ package com.mod.loan.common.enums;
 
 public enum OrderEnum {
         DAI_FUKUAN(11, "待付款"),
-        DAI_FAHUO(21, "待发货"),
+        DAI_FANGKUAN(21, "待放款"),
         DAI_SHOUHUO(31, "待收货"),
         JIAOYI_WANCHENG(41, "交易成功"),
         JIAOYI_QUXIAO(51, "交易取消"),
