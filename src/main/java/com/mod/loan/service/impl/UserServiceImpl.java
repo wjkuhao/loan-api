@@ -44,7 +44,7 @@ public class UserServiceImpl  extends BaseServiceImpl< User,Long> implements Use
 	}
 
 	@Override
-	public void addUser(String phone,String password,String userOrigin,String merchant) {
+	public Long addUser(String phone,String password,String userOrigin,String merchant) {
 		// TODO Auto-generated method stub
 		User user=new User();
 		user.setUserPhone(phone);
@@ -64,6 +64,8 @@ public class UserServiceImpl  extends BaseServiceImpl< User,Long> implements Use
 		userInfo.setUid(user.getId());
 		userInfo.setCreateTime(new Date());
 		userInfoMapper.insertSelective(userInfo);
+
+		return  user.getId();
 	}
 
 	@Override

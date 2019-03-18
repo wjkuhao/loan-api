@@ -537,6 +537,7 @@ CREATE TABLE `tb_merchant_origin`  (
   `merchant` varchar(20) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '所属商户',
   `origin_name` varchar(20) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '渠道别名',
   `create_time` datetime(0) NULL DEFAULT CURRENT_TIMESTAMP,
+  `deduction_rate` tinyint(3) NOT NULL COMMENT '扣量比例',
   PRIMARY KEY (`id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 4822 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '商户渠道' ROW_FORMAT = Dynamic;
 
@@ -1063,3 +1064,56 @@ CREATE TABLE `tb_order_risk_info`  (
 ) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '用户风控信息' ROW_FORMAT = Dynamic;
 
 SET FOREIGN_KEY_CHECKS = 1;
+
+
+DROP TABLE IF EXISTS `report_partner_effect_deduction`;
+CREATE TABLE `report_partner_effect_deduction`  (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键',
+  `day_key` date NULL DEFAULT NULL COMMENT '注册日期',
+  `merchant` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '商户',
+  `user_origin` varchar(16) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '注册渠道，来源',
+  `reg_cnt` int(11) NULL DEFAULT NULL COMMENT '注册人数',
+  `login_cnt` int(11) NULL DEFAULT NULL COMMENT '注册的登录数量',
+  `real_name_cnt` int(11) NULL DEFAULT NULL COMMENT '实名人数',
+  `submit_order_cnt` int(11) NULL DEFAULT NULL COMMENT '提单人数',
+  `first_submit_cnt` int(11) NULL DEFAULT NULL COMMENT '首借人数',
+  `first_submit_amount` decimal(20, 2) NULL DEFAULT NULL COMMENT '首借金额',
+  `create_time` timestamp(0) NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '插入时间',
+  PRIMARY KEY (`id`) USING BTREE,
+  UNIQUE INDEX `report_partner_effect_deduction`(`day_key`, `merchant`, `user_origin`) USING BTREE,
+  INDEX `idx_merchant`(`merchant`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '渠道统计报表(扣量)' ROW_FORMAT = Dynamic;
+
+DROP TABLE IF EXISTS `tb_user_deduction`;
+CREATE TABLE `tb_user_deduction`  (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `user_origin` varchar(30) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '注册渠道，来源',
+  `create_time` datetime(0) NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `merchant` varchar(20) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '所属商户',
+  PRIMARY KEY (`id`) USING BTREE,
+  INDEX `idx_user_origin`(`user_origin`) USING BTREE,
+  INDEX `idx_merchant`(`merchant`) USING BTREE,
+  INDEX `idx_create_time`(`create_time`) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '扣量用户' ROW_FORMAT = Dynamic;;
+
+
+DROP TABLE IF EXISTS `report_register_order_deduction`;
+CREATE TABLE `report_register_order_deduction`  (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `day_key` date NULL DEFAULT NULL,
+  `merchant` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL,
+  `register_cnt` int(11) NULL DEFAULT NULL,
+  `realname_cnt` int(11) NULL DEFAULT NULL,
+  `zfb_cnt` int(11) NULL DEFAULT NULL,
+  `mobile_cnt` int(11) NULL DEFAULT NULL,
+  `order_cnt` int(11) NULL DEFAULT NULL,
+  `first_cnt` int(11) NULL DEFAULT NULL,
+  `second_cnt` int(11) NULL DEFAULT NULL,
+  `old_cnt` int(11) NULL DEFAULT NULL,
+  `create_time` datetime(0) NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP(0),
+  PRIMARY KEY (`id`) USING BTREE,
+  UNIQUE INDEX `idx_day_merchant`(`day_key`, `merchant`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 8402 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '注册量统计报表(扣量)' ROW_FORMAT = Dynamic;
+
+ALTER TABLE `loan_db`.`tb_merchant_origin`
+ADD COLUMN `deduction_rate` tinyint(3) NULL AFTER `create_time`;

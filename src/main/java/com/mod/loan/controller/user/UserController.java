@@ -1,22 +1,5 @@
 package com.mod.loan.controller.user;
 
-import java.awt.image.BufferedImage;
-import java.io.ByteArrayOutputStream;
-import java.util.HashMap;
-import java.util.Map;
-
-import javax.imageio.ImageIO;
-import javax.servlet.ServletOutputStream;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.math.NumberUtils;
-import org.springframework.amqp.rabbit.core.RabbitTemplate;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
 import com.google.code.kaptcha.impl.DefaultKaptcha;
 import com.mod.loan.common.annotation.Api;
 import com.mod.loan.common.annotation.LoginRequired;
@@ -32,6 +15,7 @@ import com.mod.loan.mapper.UserMapper;
 import com.mod.loan.model.AppFeedback;
 import com.mod.loan.model.User;
 import com.mod.loan.model.UserDevice;
+import com.mod.loan.service.UserDeductionService;
 import com.mod.loan.service.UserService;
 import com.mod.loan.util.CheckUtils;
 import com.mod.loan.util.RandomUtils;
@@ -39,6 +23,21 @@ import com.mod.loan.util.StringReplaceUtil;
 import com.mod.loan.util.jwtUtil;
 import com.mod.loan.util.sms.EnumSmsTemplate;
 import com.mod.loan.util.sms.SmsMessage;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.math.NumberUtils;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import javax.imageio.ImageIO;
+import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
+import java.util.HashMap;
+import java.util.Map;
 
 @RestController
 @RequestMapping(value = "user")
@@ -58,6 +57,9 @@ public class UserController {
 	private UserMapper userMapper;
 	@Autowired
 	private AppFeedbackMapper feedbackMapper;
+
+	@Autowired
+	UserDeductionService userDeductionService;
 
 	/**
 	 * 用户额度与借款周期配置
@@ -170,8 +172,10 @@ public class UserController {
 		if (userService.selectUserByPhone(phone, RequestThread.getClientAlias()) != null) {
 			return new ResultMessage(ResponseEnum.M4000.getCode(), "手机号已注册");
 		}
-		userService.addUser(phone, password, origin, RequestThread.getClientAlias());
+
+		Long uid = userService.addUser(phone, password, origin, RequestThread.getClientAlias());
 		redisMapper.remove(RedisConst.USER_PHONE_CODE + phone);
+		userDeductionService.AddUser(uid, origin, RequestThread.getClientAlias());
 		return new ResultMessage(ResponseEnum.M2000);
 	}
 

@@ -207,7 +207,7 @@ public class HelipayRepayController {
 			response  = HttpClientService.getHttpResp(handleMap, helipay_url);
 			BindCardPayResponseVo responseVo = JSONObject.parseObject(response, BindCardPayResponseVo.class);
 			if (!"0000".equals(responseVo.getRt2_retCode())) {
-				logger.info("绑卡支付受理失败，result={}", response);
+				logger.error("绑卡支付受理失败，result={}", response);
 				OrderRepay orderRepay1 = new OrderRepay();
 				orderRepay1.setRepayNo(repayNo);
 				orderRepay1.setRepayStatus(2);

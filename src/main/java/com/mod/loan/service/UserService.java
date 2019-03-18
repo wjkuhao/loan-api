@@ -23,7 +23,7 @@ public interface UserService extends BaseService< User,Long>{
 	 */
 	User selectUserByCertNo(String userCertNo,String merchant);
 	
-	void addUser(String phone,String password,String userOrigin,String merchant);
+	Long addUser(String phone,String password,String userOrigin,String merchant);
 	
 	void updateUserRealName(User user,UserIdent userIdent);
 	
