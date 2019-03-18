@@ -40,6 +40,7 @@ public class IdentInfoController {
 		ident.setUserDetailsTime(null);
 		ident.setCreateTime(null);
 		ident.setUpdateTime(null);
+		ident.setTaobaoTime(null);
 		return new ResultMessage(ResponseEnum.M2000, ident);
 	}
 

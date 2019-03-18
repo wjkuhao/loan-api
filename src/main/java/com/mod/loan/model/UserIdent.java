@@ -95,6 +95,18 @@ public class UserIdent {
     private Date updateTime;
 
     /**
+     * 淘宝认证状态
+     * */
+    @Column(name = "taobao")
+    private Integer taobao;
+
+    /**
+     * 淘宝认证时间
+     */
+    @Column(name = "taobao_time")
+    private Date taobaoTime;
+
+    /**
      * 获取用户id
      *
      * @return uid - 用户id
@@ -362,5 +374,41 @@ public class UserIdent {
      */
     public void setUpdateTime(Date updateTime) {
         this.updateTime = updateTime;
+    }
+
+    /**
+     * 获取淘宝认证状态
+     *
+     * @return taobao - 淘宝认证状态
+     */
+    public Integer getTaobao() {
+        return taobao;
+    }
+
+    /**
+     * 设置淘宝认证状态
+     *
+     * @param taobao 淘宝认证状态
+     */
+    public void setTaobao(Integer taobao) {
+        this.taobao = taobao;
+    }
+
+    /**
+     * 获取淘宝认证时间
+     *
+     * @return taobao_time - 认证时间
+     */
+    public Date getTaobaoTime() {
+        return taobaoTime;
+    }
+
+    /**
+     * 设置淘宝认证时间
+     *
+     * @param taobaoTime 淘宝认证时间
+     */
+    public void setTaobaoTime(Date taobaoTime) {
+        this.taobaoTime = taobaoTime;
     }
 }

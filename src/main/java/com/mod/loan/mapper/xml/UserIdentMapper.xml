@@ -18,6 +18,8 @@
     <result column="liveness_time" jdbcType="TIMESTAMP" property="livenessTime" />
     <result column="alipay" jdbcType="TINYINT" property="alipay" />
     <result column="alipay_time" jdbcType="TIMESTAMP" property="alipayTime" />
+    <result column="taobao" jdbcType="TINYINT" property="taobao" />
+    <result column="taobao_time" jdbcType="TIMESTAMP" property="taobaoTime" />
     <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
     <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
   </resultMap>
