@@ -16,8 +16,10 @@ import com.mod.loan.model.*;
 import com.mod.loan.model.dto.UserContact;
 import com.mod.loan.service.OrderService;
 import com.mod.loan.service.UserService;
+import com.mod.loan.util.Base64ToMultipartFileUtil;
 import com.mod.loan.util.CheckUtils;
 import com.mod.loan.util.StringReplaceUtil;
+import com.mod.loan.util.UdcreditUtils;
 import com.mod.loan.util.aliyun.OSSUtil;
 import com.mod.loan.util.baidu.FaceUtils;
 import org.apache.commons.lang.StringUtils;
@@ -228,6 +230,8 @@ public class RealNameController {
 		return new ResultMessage(ResponseEnum.M2000, map);
 	}
 
+    //换成有盾
+    @Deprecated
 	@Api
 	@LoginRequired(check = true)
 	@RequestMapping(value = "real_name_save")
@@ -290,6 +294,8 @@ public class RealNameController {
 	}
 
 
+	//原百度活体换成有盾
+	@Deprecated
 	@RequestMapping(value = "face_save")
 	@LoginRequired(check = true)
 	public ResultMessage face_save(@RequestParam("file")MultipartFile file) {
@@ -334,4 +340,47 @@ public class RealNameController {
 		return  new ResultMessage(ResponseEnum.M4000);
 	}
 
+
+	@RequestMapping(value = "udcredit_callback")
+	public ResultMessage udcredit_callback(@RequestParam("param")String param) {
+		try {
+            logger.debug("udcredit_callback param = {} ", param);
+
+            com.alibaba.fastjson.JSONObject jsonObject = JSON.parseObject(param);
+            //app端透传uid
+            Long uid = Long.parseLong(jsonObject.getString("partner_order_id"));
+            UserIdent userIdent= userIdentMapper.selectByPrimaryKey(uid);
+            if (userIdent != null && (userIdent.getLiveness() == 2 || userIdent.getRealName() == 2)) {
+                return new ResultMessage(ResponseEnum.M4000.getCode(), "请不要重复认证");
+            }
+
+            ResultMessage faceDTO = UdcreditUtils.checkArgs(jsonObject);
+            if(!ResponseEnum.M2000.getCode().equals(faceDTO.getStatus())){
+                return  faceDTO;
+            }
+
+            String livingPhotoBase64 = jsonObject.getString("living_photo");
+            logger.debug("livingPhotoBase64 = {} ", livingPhotoBase64);
+            MultipartFile livingPhotoFile = Base64ToMultipartFileUtil.base64ToMultipart(livingPhotoBase64);
+            String filePath = OSSUtil.upload(livingPhotoFile);
+            if(StringUtils.isBlank(filePath)){
+                return new ResultMessage(ResponseEnum.M4000.getCode(), "认证失败！");
+            }
+
+            UserIdent userIdentUpd = new UserIdent();
+            userIdentUpd.setUid(uid);
+            userIdentUpd.setLiveness(2);
+            userIdentUpd.setRealName(2);//有盾实名和活体一起认证的
+            userIdentUpd.setLivenessTime(new Date());
+            userIdentUpd.setRealNameTime(new Date());
+            User user = new User();
+            user.setId(uid);
+            user.setImgFace(filePath);
+            userService.updateUserRealName(user, userIdentUpd);
+        } catch (Exception e) {
+			logger.error("上传人脸头像异常！",e);
+            return  new ResultMessage(ResponseEnum.M4000);
+        }
+		return  new ResultMessage(ResponseEnum.M2000);
+	}
 }
