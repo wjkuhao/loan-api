@@ -1117,8 +1117,6 @@ CREATE TABLE `report_register_order_deduction`  (
   UNIQUE INDEX `idx_day_merchant`(`day_key`, `merchant`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 8402 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '注册量统计报表(扣量)' ROW_FORMAT = Dynamic;
 
-ALTER TABLE `loan_db`.`tb_merchant_origin`
-ADD COLUMN `deduction_rate` tinyint(3) NULL AFTER `create_time`;
 
 -- ----------------------------
 -- Table structure for tb_tongdun_taobao
@@ -1157,3 +1155,8 @@ CREATE TABLE `tb_tongdun_mobile`  (
   UNIQUE INDEX `idx_task_id`(`task_id`) USING BTREE,
   INDEX `idx_uid`(`uid`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
+
+
+ALTER TABLE `loan_db`.`tb_user_device`
+ADD COLUMN `black_box` varchar(255) NULL COMMENT '设备指纹' AFTER `create_time`,
+ADD COLUMN `imei` varchar(64) NULL COMMENT '设备编号, ios取idfa' AFTER `black_box`;

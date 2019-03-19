@@ -226,7 +226,7 @@ public class UserController {
 	@LoginRequired(check = true)
 	@Api
 	public ResultMessage user_device(String deviceid, String location, String city, String netType, String phoneBrand,
-			String phoneModel, String phoneSystem, String phoneResolution, String phoneMemory, String imei,
+			String phoneModel, String phoneSystem, String phoneResolution, String phoneMemory, String imei, String blackBox,
 			String isp) {
 		UserDevice userDevice = new UserDevice();
 		userDevice.setUid(RequestThread.getUid());
@@ -246,7 +246,9 @@ public class UserController {
 		userDevice.setIsp(isp);
 		userDevice.setClientAlias(RequestThread.getClientAlias());
 		userDevice.setClientVersion(RequestThread.getClientVersion());
-		userDeviceMapper.insertSelective(userDevice);
+		userDevice.setImei(imei);
+		userDevice.setBlackBox(blackBox);
+        userDeviceMapper.insertSelective(userDevice);
 		return new ResultMessage(ResponseEnum.M2000);
 	}
 
