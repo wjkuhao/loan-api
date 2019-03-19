@@ -1121,10 +1121,10 @@ ALTER TABLE `loan_db`.`tb_merchant_origin`
 ADD COLUMN `deduction_rate` tinyint(3) NULL AFTER `create_time`;
 
 -- ----------------------------
--- Table structure for tb_tongdun_tb
+-- Table structure for tb_tongdun_taobao
 -- ----------------------------
-DROP TABLE IF EXISTS `tb_tongdun_tb`;
-CREATE TABLE `tb_tongdun_tb`  (
+DROP TABLE IF EXISTS `tb_tongdun_taobao`;
+CREATE TABLE `tb_tongdun_taobao`  (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `uid` bigint(20) NULL DEFAULT NULL,
   `task_id` varchar(40) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '同盾唯一标识',
@@ -1140,16 +1140,20 @@ CREATE TABLE `tb_tongdun_tb`  (
 ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
--- Table structure for tb_tongdun_tb_fail
+-- Table structure for tb_tongdun_mobile
 -- ----------------------------
-DROP TABLE IF EXISTS `tb_tongdun_tb_fail`;
-CREATE TABLE `tb_tongdun_tb_fail`  (
+DROP TABLE IF EXISTS `tb_tongdun_mobile`;
+CREATE TABLE `tb_tongdun_mobile`  (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
-  `task_id` varchar(40) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '同盾唯一标识',
-  `uid` bigint(20) NOT NULL,
-  `status` varchar(10) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT 'task.submit-任务创建通知,task-任务授权登录结果通知,task.fail-任务采集失败通知,bill-账单通知, report-用户报告通知',
-  `remark` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '错误描述',
-  `create_time` datetime(0) NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP(0),
+  `uid` bigint(20) NULL DEFAULT NULL,
+  `task_id` varchar(40) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '同盾唯一标识',
+  `message` varchar(64) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '消息',
+  `status` varchar(16) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT 'task.submit-任务创建通知,task-任务授权登录结果通知,task.fail-任务采集失败通知,bill-账单通知, report-用户报告通知',
+  `remark` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '备注',
+  `create_time` datetime(0) NULL DEFAULT CURRENT_TIMESTAMP,
+  `update_time` datetime(0) NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP(0),
+  `tag` tinyint(4) NULL DEFAULT 0 COMMENT '0-未抓取数据，1-已抓取数据',
   PRIMARY KEY (`id`) USING BTREE,
-  UNIQUE INDEX `id_task_id`(`task_id`) USING BTREE
+  UNIQUE INDEX `idx_task_id`(`task_id`) USING BTREE,
+  INDEX `idx_uid`(`uid`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
