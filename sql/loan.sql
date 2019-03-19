@@ -984,6 +984,8 @@ CREATE TABLE `tb_user_device`  (
   `phone_memory` varchar(8) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '内存',
   `isp` varchar(8) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '运营商',
   `client_alias` varchar(16) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '应用名称',
+  `black_box` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '设备指纹',
+  `imei` varchar(64) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT 'andorid imei,ios idfa',
   `client_version` varchar(16) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '应用版本',
   `create_time` datetime(0) NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   PRIMARY KEY (`id`) USING BTREE,
@@ -1115,5 +1117,7 @@ CREATE TABLE `report_register_order_deduction`  (
   UNIQUE INDEX `idx_day_merchant`(`day_key`, `merchant`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 8402 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '注册量统计报表(扣量)' ROW_FORMAT = Dynamic;
 
-ALTER TABLE `loan_db`.`tb_merchant_origin`
-ADD COLUMN `deduction_rate` tinyint(3) NULL AFTER `create_time`;
+
+ALTER TABLE `loan_db`.`tb_user_device`
+ADD COLUMN `black_box` varchar(255) NULL COMMENT '设备指纹' AFTER `create_time`,
+ADD COLUMN `imei` varchar(64) NULL COMMENT '设备编号, ios取idfa' AFTER `black_box`;

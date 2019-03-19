@@ -88,6 +88,27 @@ public class UserDevice {
     @Column(name = "create_time")
     private Date createTime;
 
+    @Column(name = "black_box")
+    private String blackBox;
+
+    @Column(name = "imei")
+    private String imei;
+
+    public String getBlackBox() {
+        return blackBox;
+    }
+
+    public void setBlackBox(String blackBox) {
+        this.blackBox = blackBox;
+    }
+
+    public String getImei() {
+        return imei;
+    }
+
+    public void setImei(String imei) {
+        this.imei = imei;
+    }
     /**
      * @return id
      */
