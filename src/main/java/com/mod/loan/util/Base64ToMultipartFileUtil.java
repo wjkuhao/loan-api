@@ -55,13 +55,17 @@ public class Base64ToMultipartFileUtil implements MultipartFile {
         new FileOutputStream(dest).write(imgContent);
     }
 
+    //传过来的base64字符串没有带头，头就是这样的，
+    //“data:image/png;base64,iVBORw0KGgo...”
+    //如果base64文件中没有这部分，
+    //使用代码中的baseStrs[0]，然后文件类型让前台单独给你传过来，或者让前台传完整的base64字符串过来
     public static MultipartFile base64ToMultipart(String base64) {
         try {
             String[] baseStrs = base64.split(",");
 
             BASE64Decoder decoder = new BASE64Decoder();
-            byte[] b;
-            b = decoder.decodeBuffer(baseStrs[1]);
+            byte[] b = new byte[0];
+            b = decoder.decodeBuffer(baseStrs[0]);
 
             for(int i = 0; i < b.length; ++i) {
                 if (b[i] < 0) {

@@ -28,9 +28,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.*;
@@ -342,10 +340,8 @@ public class RealNameController {
 
 
 	@RequestMapping(value = "udcredit_callback")
-	public ResultMessage udcredit_callback(@RequestParam("param")String param) {
+	public ResultMessage udcredit_callback(@RequestBody String param) {
 		try {
-            logger.debug("udcredit_callback param = {} ", param);
-
             com.alibaba.fastjson.JSONObject jsonObject = JSON.parseObject(param);
             //app端透传uid
             Long uid = Long.parseLong(jsonObject.getString("partner_order_id"));
@@ -354,33 +350,22 @@ public class RealNameController {
                 return new ResultMessage(ResponseEnum.M4000.getCode(), "请不要重复认证");
             }
 
-            ResultMessage faceDTO = UdcreditUtils.checkArgs(jsonObject);
-            if(!ResponseEnum.M2000.getCode().equals(faceDTO.getStatus())){
-                return  faceDTO;
+            String errMsg = UdcreditUtils.checkArgs(jsonObject);
+            if(null!=errMsg){
+                logger.error("认证失败:{}！", errMsg);
+                return new ResultMessage(ResponseEnum.M4000, errMsg);
             }
 
-            String livingPhotoBase64 = jsonObject.getString("living_photo");
-            logger.debug("livingPhotoBase64 = {} ", livingPhotoBase64);
-            MultipartFile livingPhotoFile = Base64ToMultipartFileUtil.base64ToMultipart(livingPhotoBase64);
-            String filePath = OSSUtil.upload(livingPhotoFile);
-            if(StringUtils.isBlank(filePath)){
-                return new ResultMessage(ResponseEnum.M4000.getCode(), "认证失败！");
+            errMsg = userService.saveRealNameAuthInfo(jsonObject, uid);
+            if (errMsg!=null){
+                logger.error("更新认证信息失败:{}！", errMsg);
+                return new ResultMessage(ResponseEnum.M4000, errMsg);
             }
 
-            UserIdent userIdentUpd = new UserIdent();
-            userIdentUpd.setUid(uid);
-            userIdentUpd.setLiveness(2);
-            userIdentUpd.setRealName(2);//有盾实名和活体一起认证的
-            userIdentUpd.setLivenessTime(new Date());
-            userIdentUpd.setRealNameTime(new Date());
-            User user = new User();
-            user.setId(uid);
-            user.setImgFace(filePath);
-            userService.updateUserRealName(user, userIdentUpd);
         } catch (Exception e) {
-			logger.error("上传人脸头像异常！",e);
-            return  new ResultMessage(ResponseEnum.M4000);
+			logger.error("认证信息异常！",e);
+            return new ResultMessage(ResponseEnum.M4000);
         }
-		return  new ResultMessage(ResponseEnum.M2000);
+		return new ResultMessage(ResponseEnum.M2000);
 	}
 }

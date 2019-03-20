@@ -1,24 +1,17 @@
 package com.mod.loan.util;
 
 import com.alibaba.fastjson.JSONObject;
-import com.mod.loan.common.enums.ResponseEnum;
-import com.mod.loan.common.model.ResultMessage;
 
 
 public class UdcreditUtils {
 
-	public static ResultMessage checkArgs(JSONObject authJson) {
-		ResultMessage faceDTO = new ResultMessage();
-
+	public static String checkArgs(JSONObject authJson) {
         String authResult = authJson.getString("auth_result");
         if (!authResult.equals("T")){
-            faceDTO.setMessage(authJson.getString("fail_reason"));
-            faceDTO.setStatus(ResponseEnum.M4000.getCode());
-            return faceDTO;
+            return authJson.getString("fail_reason");
         }
 
-		faceDTO.setStatus(ResponseEnum.M2000.getCode());
-		return faceDTO;
+		return null;
 	}
 
 	public static void main(String[] args) {

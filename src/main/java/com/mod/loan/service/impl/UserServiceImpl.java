@@ -1,24 +1,18 @@
 package com.mod.loan.service.impl;
 
-import java.util.Date;
-
+import com.alibaba.fastjson.JSONObject;
+import com.mod.loan.common.mapper.BaseServiceImpl;
+import com.mod.loan.mapper.*;
+import com.mod.loan.model.*;
+import com.mod.loan.service.UserService;
+import com.mod.loan.util.aliyun.OSSUtil;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.mod.loan.common.mapper.BaseServiceImpl;
-import com.mod.loan.mapper.UserAddressListMapper;
-import com.mod.loan.mapper.UserBankMapper;
-import com.mod.loan.mapper.UserIdentMapper;
-import com.mod.loan.mapper.UserInfoMapper;
-import com.mod.loan.mapper.UserMapper;
-import com.mod.loan.model.User;
-import com.mod.loan.model.UserAddressList;
-import com.mod.loan.model.UserBank;
-import com.mod.loan.model.UserIdent;
-import com.mod.loan.model.UserInfo;
-import com.mod.loan.service.UserService;
+import java.util.Date;
 
 @Service
 public class UserServiceImpl  extends BaseServiceImpl< User,Long> implements UserService{
@@ -113,4 +107,47 @@ public class UserServiceImpl  extends BaseServiceImpl< User,Long> implements Use
 		userBankMapper.insertSelective(userBank);
 		return true;
 	}
+
+    @Override
+    public String saveRealNameAuthInfo(JSONObject jsonObject, Long uid) {
+
+        String livingFilePath = OSSUtil.uploadAuthImage(jsonObject.getString("living_photo"), ".jpg");
+	    if(StringUtils.isBlank(livingFilePath)){
+            return "上传活体认证失败";
+        }
+
+        String idCardBackFilePath = OSSUtil.uploadAuthImage(jsonObject.getString("idcard_back_photo"), ".jpg");
+        if(StringUtils.isBlank(idCardBackFilePath)){
+            return "上传身份证背面失败";
+        }
+
+        String idCardFrontPhotoFile = OSSUtil.uploadAuthImage(jsonObject.getString("idcard_front_photo"), ".jpg");
+        if(StringUtils.isBlank(idCardFrontPhotoFile)){
+            return "上传身份证正面失败";
+        }
+
+        UserIdent userIdentUpd = new UserIdent();
+        userIdentUpd.setUid(uid);
+        userIdentUpd.setLiveness(2);
+        userIdentUpd.setRealName(2);//有盾实名和活体一起认证的
+        userIdentUpd.setLivenessTime(new Date());
+        userIdentUpd.setRealNameTime(new Date());
+
+        User user = new User();
+        user.setId(uid);
+        user.setUserName(jsonObject.getString("id_name"));
+        user.setUserCertNo(jsonObject.getString("id_number"));
+        user.setIa(jsonObject.getString("issuing_authority"));
+        user.setIndate(jsonObject.getString("validity_period"));
+        user.setAddress(jsonObject.getString("address"));
+        user.setNation(jsonObject.getString("nation"));
+        user.setImgFace(livingFilePath);
+        user.setImgCertBack(idCardBackFilePath);
+        user.setImgCertFront(idCardFrontPhotoFile);
+
+        updateUserRealName(user, userIdentUpd);
+
+	    return null;
+    }
+
 }

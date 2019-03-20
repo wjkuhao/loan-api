@@ -1,5 +1,6 @@
 package com.mod.loan.service;
 
+import com.alibaba.fastjson.JSONObject;
 import com.mod.loan.common.mapper.BaseService;
 import com.mod.loan.model.User;
 import com.mod.loan.model.UserBank;
@@ -30,4 +31,6 @@ public interface UserService extends BaseService< User,Long>{
 	void updateUserInfo(UserInfo userInfo,UserIdent userIdent);
 	
 	boolean insertUserBank(Long uid,UserBank userBank);
+
+	String saveRealNameAuthInfo(JSONObject jsonObject, Long uid);
 }
