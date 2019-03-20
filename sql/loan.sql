@@ -1156,7 +1156,3 @@ CREATE TABLE `tb_tongdun_mobile`  (
   INDEX `idx_uid`(`uid`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
 
-
-ALTER TABLE `loan_db`.`tb_user_device`
-ADD COLUMN `black_box` varchar(255) NULL COMMENT '设备指纹' AFTER `create_time`,
-ADD COLUMN `imei` varchar(64) NULL COMMENT '设备编号, ios取idfa' AFTER `black_box`;
