@@ -72,7 +72,7 @@ public class LoanOrderController {
         map.put("descMid","获取额度");
         map.put("descBottom","目前已有50000+人在这里成功借款");
         map.put("amount", "1000-5000");
-		map.put("url", Constant.SERVER_H5_URL + "user/cert_center.html");
+		map.put("url", Constant.SERVER_H5_URL + "user/cert_center2.html");
 		if (StringUtils.isBlank(token)) {
 			return new ResultMessage(ResponseEnum.M2000.getCode(), map);
 		}
