@@ -352,18 +352,18 @@ public class RealNameController {
 
             String errMsg = UdcreditUtils.checkArgs(jsonObject);
             if(null!=errMsg){
-                logger.error("认证失败:{}！", errMsg);
+                logger.error("uid={},认证失败:{}！", uid, errMsg);
                 return new ResultMessage(ResponseEnum.M4000, errMsg);
             }
 
             errMsg = userService.saveRealNameAuthInfo(jsonObject, uid);
             if (errMsg!=null){
-                logger.error("更新认证信息失败:{}！", errMsg);
+                logger.error("uid={},更新认证信息失败:{}！", uid, errMsg);
                 return new ResultMessage(ResponseEnum.M4000, errMsg);
             }
 
         } catch (Exception e) {
-			logger.error("认证信息异常！",e);
+			logger.error("认证信息异常:{}", e);
             return new ResultMessage(ResponseEnum.M4000);
         }
 		return new ResultMessage(ResponseEnum.M2000);

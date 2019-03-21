@@ -537,9 +537,9 @@ CREATE TABLE `tb_merchant_origin`  (
   `merchant` varchar(20) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '所属商户',
   `origin_name` varchar(20) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '渠道别名',
   `create_time` datetime(0) NULL DEFAULT CURRENT_TIMESTAMP,
-  `deduction_rate` tinyint(3) NOT NULL COMMENT '扣量比例',
+  `deduction_rate` tinyint(3) NOT NULL DEFAULT 0 COMMENT '扣量比例',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 4822 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '商户渠道' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '商户渠道' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Table structure for tb_merchant_rate
@@ -986,10 +986,12 @@ CREATE TABLE `tb_user_device`  (
   `client_alias` varchar(16) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '应用名称',
   `client_version` varchar(16) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '应用版本',
   `create_time` datetime(0) NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `black_box` varchar(4096) NULL COMMENT '设备指纹',
+  `imei` varchar(64) NULL COMMENT '设备编号, ios取idfa',
   PRIMARY KEY (`id`) USING BTREE,
   INDEX `idx_uid`(`uid`) USING BTREE,
   INDEX `idx_deviceid`(`deviceid`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 9131519 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Table structure for tb_user_ident
@@ -1156,3 +1158,6 @@ CREATE TABLE `tb_tongdun_mobile`  (
   INDEX `idx_uid`(`uid`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
 
+ALTER TABLE `loan_db`.`tb_user_device`
+ADD COLUMN `black_box` varchar(4096) NULL COMMENT '设备指纹' AFTER `create_time`,
+ADD COLUMN `imei` varchar(64) NULL COMMENT '设备编号, ios取idfa' AFTER `black_box`;
