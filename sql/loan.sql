@@ -1055,19 +1055,17 @@ DROP TABLE IF EXISTS `tb_order_risk_info`;
 CREATE TABLE `tb_order_risk_info`  (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `order_id` bigint(20) NOT NULL,
-  `risk_id` varchar(30) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '风控id',
-  `risk_code` varchar(20) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '风控结果码, ACCEPT建议通过，REVIEW建议复核，REJECT建议拒绝',
+  `risk_id` varchar(20) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '风控id',
+  `risk_status` TINYINT(1) DEFAULT NULL COMMENT '风控状态, 0-未知 1-通过 2-拒绝 3-人审',
   `risk_result` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '风控结果',
-  `user_phone`  varchar(20) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL,
+  `user_phone`  varchar(20) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '用户手机',
   `user_name`   varchar(30) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT ' 用户姓名',
   `user_cert_no` varchar(20) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT ' 身份证号',
-  `create_time` datetime(0) NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-  `update_time` datetime(0) NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP(0) COMMENT '更新时间',
+  `create_time` char(19) DEFAULT NULL COMMENT '创建时间',
+  `update_time` char(19) DEFAULT NULL COMMENT '更新时间',
   PRIMARY KEY (`id`) USING BTREE,
   INDEX `idx_risk_id`(`risk_id`) USING BTREE
 ) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '用户风控信息' ROW_FORMAT = Dynamic;
-
-SET FOREIGN_KEY_CHECKS = 1;
 
 
 DROP TABLE IF EXISTS `report_partner_effect_deduction`;
