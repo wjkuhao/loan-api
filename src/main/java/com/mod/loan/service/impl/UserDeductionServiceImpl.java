@@ -36,6 +36,9 @@ public class UserDeductionServiceImpl extends BaseServiceImpl<UserDeduction,Long
         merchantOrigin.setOriginName(userOrigin);
         merchantOrigin.setMerchant(merchant);
         merchantOrigin = merchantOriginService.selectOne(merchantOrigin);
+        if (merchantOrigin==null) {
+            return;
+        }
 
         Integer deductionNum = merchantOrigin.getDeductionRate();
         int randomNum = new Random().nextInt(100);
