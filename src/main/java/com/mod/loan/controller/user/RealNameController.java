@@ -9,6 +9,7 @@ import com.mod.loan.common.enums.ResponseEnum;
 import com.mod.loan.common.model.RequestThread;
 import com.mod.loan.common.model.ResultMessage;
 import com.mod.loan.config.Constant;
+import com.mod.loan.config.rabbitmq.RabbitConst;
 import com.mod.loan.mapper.UserAddressListMapper;
 import com.mod.loan.mapper.UserIdentMapper;
 import com.mod.loan.mapper.UserInfoMapper;
@@ -26,6 +27,7 @@ import org.apache.commons.lang.StringUtils;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
@@ -60,6 +62,8 @@ public class RealNameController {
 	UserAddressListMapper addressListMapper;
 	@Autowired
 	UserService userService;
+	@Autowired
+	private RabbitTemplate rabbitTemplate;
 
 
 	@Api
@@ -188,6 +192,7 @@ public class RealNameController {
 		userAddressList.setStatus(2);
 		userAddressList.setUpdateTime(new Date());
 		addressListMapper.updateByPrimaryKeySelective(userAddressList);
+		rabbitTemplate.convertAndSend(RabbitConst.QUEUE_TONGDUN_ADDRESS_LIST, RequestThread.getUid());
 		return new ResultMessage(ResponseEnum.M2000);
 	}
 
