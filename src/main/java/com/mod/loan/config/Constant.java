@@ -24,6 +24,15 @@ public class Constant {
 
 	public static String JWT_SERCETKEY;
 
+	/**
+	 * 同盾数据魔盒报告
+	 * */
+	public static String MOHE_PARTNER_CODE;
+	public static String MOHE_PARTNER_KEY;
+	public static String MOHE_TOKEN_URL;
+	public static String MOHE_REPORT_URL;
+	public static String MOHE_LOGIN_REPORT_URL;
+
 	public static Integer SMS_EXPIRATION_TIME = 60*5; //5分钟
 
 
@@ -90,6 +99,31 @@ public class Constant {
 	@Value("${oss.accesskey.secret:}")
 	public void setOSS_ACCESS_KEY_SECRET(String oSS_ACCESS_KEY_SECRET) {
 		OSS_ACCESS_KEY_SECRET = oSS_ACCESS_KEY_SECRET;
+	}
+
+	@Value("${mohe.partner_code:}")
+	public void setMohePartnerCode(String mohePartnerCode) {
+		Constant.MOHE_PARTNER_CODE = mohePartnerCode;
+	}
+
+	@Value("${mohe.partner_key:}")
+	public void setMohePartnerKey(String mohePartnerKey) {
+		Constant.MOHE_PARTNER_KEY = mohePartnerKey;
+	}
+
+	@Value("${mohe.token_url:}")
+	public void setMoheTokenUrl(String moheTokenUrl) {
+		Constant.MOHE_TOKEN_URL = moheTokenUrl;
+	}
+
+	@Value("${mohe.report_url:}")
+	public void setMoheReportUrl(String moheReportUrl) {
+		Constant.MOHE_REPORT_URL = moheReportUrl;
+	}
+
+	@Value("${mohe.login_report_url:}")
+	public void setMoheLoginReportUrl(String moheLoginReportUrl) {
+		Constant.MOHE_LOGIN_REPORT_URL = moheLoginReportUrl;
 	}
 
 }
