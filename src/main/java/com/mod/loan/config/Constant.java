@@ -24,6 +24,9 @@ public class Constant {
 
 	public static String JWT_SERCETKEY;
 
+	public static Integer SMS_EXPIRATION_TIME = 60*5; //5分钟
+
+
 	@Value("${environment:}")
 	public void setENVIROMENT(String environment) {
 		Constant.ENVIROMENT = environment;

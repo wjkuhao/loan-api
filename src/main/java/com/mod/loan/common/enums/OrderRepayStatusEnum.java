@@ -1,22 +1,24 @@
 package com.mod.loan.common.enums;
 
-public enum MerchantEnum {
-        helibao(1, "合利宝"),
-        fuyou(2, "富友"),
-        huiju(3, "汇聚"),
-        yeepay(4, "易宝"),
+public enum OrderRepayStatusEnum {
+        INIT(0, "初始"),
+        ACCEPT_SUCCESS(1, "受理成功"),
+        ACCEPT_FAILED(2, "受理失败"),
+        REPAY_SUCCESS(3, "还款成功"),
+        REPAY_FAILED(4, "还款成功"),
+        CALLBACK_EXCEPTION(5, "回调信息异常"),
         ;
 
         private Integer code;
         private String desc;
 
-    MerchantEnum(Integer code, String desc) {
+    OrderRepayStatusEnum(Integer code, String desc) {
             this.code = code;
             this.desc = desc;
         }
 
         public static String getDesc(Integer code) {
-            for (MerchantEnum status : MerchantEnum.values()) {
+            for (OrderRepayStatusEnum status : OrderRepayStatusEnum.values()) {
                 if (status.getCode().equals(code)) {
                     return status.getDesc();
                 }

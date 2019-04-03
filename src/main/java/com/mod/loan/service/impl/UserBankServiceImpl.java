@@ -1,18 +1,5 @@
 package com.mod.loan.service.impl;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-
-import org.dom4j.Document;
-import org.dom4j.DocumentHelper;
-import org.joda.time.DateTime;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
-
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.fuiou.mpay.encrypt.DESCoderFUIOU;
@@ -32,6 +19,7 @@ import com.mod.loan.model.UserBank;
 import com.mod.loan.service.MerchantService;
 import com.mod.loan.service.UserBankService;
 import com.mod.loan.service.UserService;
+import com.mod.loan.service.YeepayService;
 import com.mod.loan.util.HttpUtils;
 import com.mod.loan.util.MD5;
 import com.mod.loan.util.StringUtil;
@@ -47,6 +35,18 @@ import com.mod.loan.util.heli.vo.request.BindCardVo;
 import com.mod.loan.util.heli.vo.response.AgreementSendValidateCodeResponseVo;
 import com.mod.loan.util.heli.vo.response.BindCardResponseVo;
 import com.mod.loan.util.huiju.CreateLinkStringByGet;
+import org.dom4j.Document;
+import org.dom4j.DocumentHelper;
+import org.joda.time.DateTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 @Service
 public class UserBankServiceImpl extends BaseServiceImpl<UserBank, Long> implements UserBankService {
@@ -61,6 +61,8 @@ public class UserBankServiceImpl extends BaseServiceImpl<UserBank, Long> impleme
 	private MerchantService merchantService;
 	@Autowired
 	private RedisMapper redisMapper;
+	@Autowired
+    YeepayService yeepayService;
 
 	@Value("${helipay.path:}")
 	String helipay_path;
@@ -78,6 +80,13 @@ public class UserBankServiceImpl extends BaseServiceImpl<UserBank, Long> impleme
 	String huiju_bind_smg_url;
 	@Value("${huiju.bind.commit.url:}")
 	String huiju_bind_commit_url;
+
+    @Value("${yeepay.bind.smg.url:}")
+    String yeepay_bind_smg_url;
+    @Value("${yeepay.bind.commit.url:}")
+    String yeepay_bind_commit_url;
+    @Value("${yeepay.app_key:}")
+    String yeepay_app_key;
 
 	@Override
 	public UserBank selectUserCurrentBankCard(Long uid) {
@@ -117,7 +126,7 @@ public class UserBankServiceImpl extends BaseServiceImpl<UserBank, Long> impleme
 			if ("0000".equals(responseVo.getRt2_retCode())) {
 				requestVo.setBankCode(bank.getCode());
 				requestVo.setBankName(bank.getBankName());
-				redisMapper.set(RedisConst.user_bank_bind + user.getId(), requestVo, 600);
+				redisMapper.set(RedisConst.user_bank_bind + user.getId(), requestVo, Constant.SMS_EXPIRATION_TIME);
 				return new ResultMessage(ResponseEnum.M2000);
 			} else {
 				log.error("合利宝鉴权绑卡短信发送失败，请求参数为={},响应参数为={}", JSON.toJSONString(requestVo), response);
@@ -246,7 +255,7 @@ public class UserBankServiceImpl extends BaseServiceImpl<UserBank, Long> impleme
 				requestVo.setP10_payerName(user.getUserName());
 				requestVo.setBankName(bank.getBankName());
 				requestVo.setBankCode(bank.getCode());
-				redisMapper.set(RedisConst.user_bank_bind + user.getId(), requestVo, 600);
+				redisMapper.set(RedisConst.user_bank_bind + user.getId(), requestVo, Constant.SMS_EXPIRATION_TIME);
 				return new ResultMessage(ResponseEnum.M2000);
 			}
 			log.error("富友鉴权绑卡短信发送失败，请求参数为={},响应参数为={}", xml, result);
@@ -407,7 +416,7 @@ public class UserBankServiceImpl extends BaseServiceImpl<UserBank, Long> impleme
 				requestVo.setP10_payerName(user.getUserName());
 				requestVo.setBankName(bank.getBankName());
 				requestVo.setBankCode(bank.getCode());
-				redisMapper.set(RedisConst.user_bank_bind + user.getId(), requestVo, 600);
+				redisMapper.set(RedisConst.user_bank_bind + user.getId(), requestVo, Constant.SMS_EXPIRATION_TIME);
 				return new ResultMessage(ResponseEnum.M2000.getCode(), result.get("rb_Msg").toString());
 			}
 			log.error("汇聚鉴权绑卡短信发送失败，请求参数为={},响应参数为={}", JSON.toJSONString(map), response);
@@ -478,6 +487,58 @@ public class UserBankServiceImpl extends BaseServiceImpl<UserBank, Long> impleme
 			log.info("汇聚绑卡异常，请求参数为={},响应参数为={}", map, response);
 		}
 		return new ResultMessage(ResponseEnum.M4000);
+	}
+
+	@Override
+	public ResultMessage sendYeepaySms(Long uid, String cardNo, String cardPhone, Bank bank) {
+        User user = userService.selectByPrimaryKey(uid);
+        if (user == null) {
+            return new ResultMessage(ResponseEnum.M4000,"用户信息不存在");
+        }
+
+        String seriesNo = StringUtil.getOrderNumber("c");
+        String err = yeepayService.authBindCardRequest(seriesNo, String.valueOf(uid),
+                             cardNo, user.getUserCertNo(), user.getUserName(), cardPhone);
+        if (err!=null){
+            return new ResultMessage(ResponseEnum.M4000,err);
+        }
+
+        AgreementBindCardValidateCodeVo requestVo = new AgreementBindCardValidateCodeVo();
+        requestVo.setP4_orderId(seriesNo);
+        requestVo.setP6_cardNo(cardNo);
+        requestVo.setP7_phone(cardPhone);
+        requestVo.setBankName(bank.getBankName());
+        requestVo.setBankCode(bank.getCode());
+        redisMapper.set(RedisConst.user_bank_bind + user.getId(), requestVo, Constant.SMS_EXPIRATION_TIME);
+
+        return new ResultMessage(ResponseEnum.M2000);
+	}
+
+	@Override
+	public ResultMessage bindYeepaySms(String validateCode, Long uid, String bindInfo) {
+        AgreementBindCardValidateCodeVo validateCodeVo = JSON.parseObject(bindInfo, AgreementBindCardValidateCodeVo.class);
+        if (validateCodeVo == null) {
+            return new ResultMessage(ResponseEnum.M4000.getCode(), "验证码失效,请重新获取");
+        }
+
+        String err = yeepayService.authBindCardConfirm(validateCodeVo.getP4_orderId(), validateCode);
+        if (err!=null){
+            return new ResultMessage(ResponseEnum.M4000, err);
+        }
+
+        UserBank userBank = new UserBank();
+        userBank.setCardNo(validateCodeVo.getP6_cardNo());
+        userBank.setCardPhone(validateCodeVo.getP7_phone());
+        userBank.setCardName(validateCodeVo.getBankName());
+        userBank.setCardCode(validateCodeVo.getBankCode());
+        userBank.setCardStatus(1);
+        userBank.setCreateTime(new Date());
+        userBank.setUid(uid);
+        userBank.setBindType(MerchantEnum.yeepay.getCode());
+        userService.insertUserBank(uid, userBank);
+        redisMapper.remove(RedisConst.user_bank_bind + uid);
+
+        return new ResultMessage(ResponseEnum.M2000);
 	}
 
 }
