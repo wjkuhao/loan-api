@@ -21,7 +21,7 @@ import java.security.PublicKey;
 
 @Service
 public class YeepayServiceImpl implements YeepayService {
-    private static Logger log = LoggerFactory.getLogger(UserBankServiceImpl.class);
+    private static Logger log = LoggerFactory.getLogger(YeepayServiceImpl.class);
 
     @Value("${yeepay.bind.smg.url:}")
     String yeepay_bind_smg_url;
@@ -176,6 +176,8 @@ public class YeepayServiceImpl implements YeepayService {
             if (!"PAY_SUCCESS".equals(JSONObject.parseObject(stringResult).getString("status"))){
                 return JSONObject.parseObject(stringResult).getString("errormsg");
             }
+            String requestno = JSONObject.parseObject(stringResult).getString("requestno");
+            requestNo.append(requestno);
         } catch (Exception e) {
             e.printStackTrace();
             log.error("callback error={}",e.getMessage());
