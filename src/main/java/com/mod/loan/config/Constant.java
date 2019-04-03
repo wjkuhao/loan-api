@@ -33,6 +33,9 @@ public class Constant {
 	public static String MOHE_REPORT_URL;
 	public static String MOHE_LOGIN_REPORT_URL;
 
+	public static Integer SMS_EXPIRATION_TIME = 60*5; //5分钟
+
+
 	@Value("${environment:}")
 	public void setENVIROMENT(String environment) {
 		Constant.ENVIROMENT = environment;

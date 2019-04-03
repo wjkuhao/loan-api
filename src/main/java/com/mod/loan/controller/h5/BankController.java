@@ -190,7 +190,7 @@ public class BankController {
 		}
 		Merchant merchant = merchantService.findMerchantByAlias(RequestThread.getClientAlias());
 		Integer bindType = merchant.getBindType() == null ? 1 : merchant.getBindType();
-		switch (bindType) {
+        switch (bindType) {
 		case 1:
 			message = userBankService.sendHeliSms(uid, cardNo, cardPhone, bank);
 			break;
@@ -200,6 +200,9 @@ public class BankController {
 		case 3:
 			message = userBankService.sendHuijuSms(uid, cardNo, cardPhone, bank);
 			break;
+        case 4:
+            message = userBankService.sendYeepaySms(uid, cardNo, cardPhone, bank);
+            break;
 		default:
 			log.error("绑卡异常,该商户未开通相关绑卡渠道,merchant={},bindType={}", merchant.getMerchantAlias(), bindType);
 			message = new ResultMessage(ResponseEnum.M4000);
@@ -259,6 +262,9 @@ public class BankController {
 		case 3:
 			message = userBankService.bindByHuijuSms(validateCode, uid, bindInfo);
 			break;
+        case 4:
+            message = userBankService.bindYeepaySms(validateCode, uid, bindInfo);
+            break;
 		default:
 			log.error("绑卡异常,该商户未开通相关绑卡渠道,merchant={},bindType={}", merchant.getMerchantAlias(), bindType);
 			message = new ResultMessage(ResponseEnum.M4000);
@@ -267,4 +273,19 @@ public class BankController {
 		return message;
 	}
 
+	@RequestMapping(value = "bank_bind_req")
+	public ResultMessage bank_bind_req(String cardNo, String cardPhone) {
+		Bank bank = new Bank();
+		bank.setBankName("中信银行");
+		bank.setCode("CITIC");
+		return  userBankService.sendYeepaySms(7951897L,"6217710805581675","15757127746", bank);
+		//return  userBankService.sendYeepaySms(7951895L,"6228480329322167670","18557530599", new Bank());
+
+	}
+
+    @RequestMapping(value = "bank_bind_confirm")
+    public ResultMessage bank_bind_confirm(String cardNo, String cardPhone) {
+		String bindInfo = redisMapper.get(RedisConst.user_bank_bind + 7951897);
+        return  userBankService.bindYeepaySms("278905",7951897L, bindInfo);
+    }
 }
