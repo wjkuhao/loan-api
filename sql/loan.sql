@@ -1124,38 +1124,36 @@ CREATE TABLE `report_register_order_deduction`  (
 -- ----------------------------
 DROP TABLE IF EXISTS `tb_tongdun_taobao`;
 CREATE TABLE `tb_tongdun_taobao`  (
-  `id` bigint(20) NOT NULL AUTO_INCREMENT,
-  `uid` bigint(20) NULL DEFAULT NULL,
-  `task_id` varchar(40) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '同盾唯一标识',
-  `message` varchar(64) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '消息',
-  `status` varchar(16) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT 'task.submit-任务创建通知,task-任务授权登录结果通知,task.fail-任务采集失败通知,bill-账单通知, report-用户报告通知',
-  `remark` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '备注',
-  `create_time` datetime(0) NULL DEFAULT CURRENT_TIMESTAMP,
-  `update_time` datetime(0) NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP(0),
-  `tag` tinyint(4) NULL DEFAULT 0 COMMENT '0-未抓取数据，1-已抓取数据',
-  PRIMARY KEY (`id`) USING BTREE,
-  UNIQUE INDEX `idx_task_id`(`task_id`) USING BTREE,
-  INDEX `idx_uid`(`uid`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
+  `uid` bigint(20) NOT NULL,
+  `task_id` varchar(40) DEFAULT NULL COMMENT '同盾唯一标识',
+  `message` varchar(64) DEFAULT NULL COMMENT '消息',
+  `status` varchar(16) DEFAULT NULL COMMENT 'task.submit-任务创建通知,task-任务授权登录结果通知,task.fail-任务采集失败通知,bill-账单通知, report-用户报告通知',
+  `remark` varchar(32) DEFAULT NULL COMMENT '备注',
+  `create_time` datetime DEFAULT CURRENT_TIMESTAMP,
+  `update_time` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `tag` tinyint(4) DEFAULT '0' COMMENT '0-未抓取数据，1-已抓取数据',
+  PRIMARY KEY (`uid`),
+  UNIQUE KEY `idx_task_id` (`task_id`) USING BTREE,
+  KEY `idx_uid` (`uid`) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Table structure for tb_tongdun_mobile
 -- ----------------------------
 DROP TABLE IF EXISTS `tb_tongdun_mobile`;
 CREATE TABLE `tb_tongdun_mobile`  (
-  `id` bigint(20) NOT NULL AUTO_INCREMENT,
-  `uid` bigint(20) NULL DEFAULT NULL,
-  `task_id` varchar(40) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '同盾唯一标识',
-  `message` varchar(64) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '消息',
-  `status` varchar(16) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT 'task.submit-任务创建通知,task-任务授权登录结果通知,task.fail-任务采集失败通知,bill-账单通知, report-用户报告通知',
-  `remark` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '备注',
-  `create_time` datetime(0) NULL DEFAULT CURRENT_TIMESTAMP,
-  `update_time` datetime(0) NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP(0),
-  `tag` tinyint(4) NULL DEFAULT 0 COMMENT '0-未抓取数据，1-已抓取数据',
-  PRIMARY KEY (`id`) USING BTREE,
-  UNIQUE INDEX `idx_task_id`(`task_id`) USING BTREE,
-  INDEX `idx_uid`(`uid`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
+  `uid` bigint(20) NOT NULL,
+  `task_id` varchar(40) DEFAULT NULL COMMENT '同盾唯一标识',
+  `message` varchar(64) DEFAULT NULL COMMENT '消息',
+  `status` varchar(16) DEFAULT NULL COMMENT 'task.submit-任务创建通知,task-任务授权登录结果通知,task.fail-任务采集失败通知,bill-账单通知, report-用户报告通知',
+  `remark` varchar(32) DEFAULT NULL COMMENT '备注',
+  `create_time` datetime DEFAULT CURRENT_TIMESTAMP,
+  `update_time` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `tag` tinyint(4) DEFAULT '0' COMMENT '0-未抓取数据，1-已抓取数据',
+  PRIMARY KEY (`uid`),
+  UNIQUE KEY `idx_task_id` (`task_id`) USING BTREE,
+  KEY `idx_uid` (`uid`) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
 
 ALTER TABLE `loan_db`.`tb_user_device`
 ADD COLUMN `black_box` varchar(4096) NULL COMMENT '设备指纹' AFTER `create_time`,
