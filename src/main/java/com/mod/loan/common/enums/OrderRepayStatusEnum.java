@@ -5,7 +5,7 @@ public enum OrderRepayStatusEnum {
         ACCEPT_SUCCESS(1, "受理成功"),
         ACCEPT_FAILED(2, "受理失败"),
         REPAY_SUCCESS(3, "还款成功"),
-        REPAY_FAILED(4, "还款成功"),
+        REPAY_FAILED(4, "还款失败"),
         CALLBACK_EXCEPTION(5, "回调信息异常"),
         ;
 
