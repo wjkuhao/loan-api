@@ -1,14 +1,20 @@
 package com.mod.loan.controller.h5;
 
-import java.awt.image.BufferedImage;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
-
-import javax.imageio.ImageIO;
-
+import com.google.code.kaptcha.impl.DefaultKaptcha;
+import com.mod.loan.common.enums.ResponseEnum;
+import com.mod.loan.common.model.RequestThread;
+import com.mod.loan.common.model.ResultMessage;
+import com.mod.loan.config.rabbitmq.RabbitConst;
+import com.mod.loan.config.redis.RedisConst;
+import com.mod.loan.config.redis.RedisMapper;
+import com.mod.loan.service.MerchantService;
+import com.mod.loan.service.UserDeductionService;
+import com.mod.loan.service.UserService;
+import com.mod.loan.util.CheckUtils;
+import com.mod.loan.util.MD5;
+import com.mod.loan.util.RandomUtils;
+import com.mod.loan.util.sms.EnumSmsTemplate;
+import com.mod.loan.util.sms.SmsMessage;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
@@ -18,19 +24,13 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.google.code.kaptcha.impl.DefaultKaptcha;
-import com.mod.loan.common.enums.ResponseEnum;
-import com.mod.loan.common.model.ResultMessage;
-import com.mod.loan.config.rabbitmq.RabbitConst;
-import com.mod.loan.config.redis.RedisConst;
-import com.mod.loan.config.redis.RedisMapper;
-import com.mod.loan.service.MerchantService;
-import com.mod.loan.service.UserService;
-import com.mod.loan.util.CheckUtils;
-import com.mod.loan.util.MD5;
-import com.mod.loan.util.RandomUtils;
-import com.mod.loan.util.sms.EnumSmsTemplate;
-import com.mod.loan.util.sms.SmsMessage;
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 
 /**
  * 用户注册
@@ -52,6 +52,8 @@ public class RegisterController {
 	private RabbitTemplate rabbitTemplate;
 	@Autowired
 	private MerchantService merchantService;
+	@Autowired
+    private UserDeductionService userDeductionService;
 
 	@RequestMapping(value = "graph_code")
 	public ResultMessage graph_code() throws IOException {
@@ -125,8 +127,9 @@ public class RegisterController {
 		if (userService.selectUserByPhone(phone, alias) != null) {
 			return new ResultMessage(ResponseEnum.M2001);
 		}
-		userService.addUser(phone, MD5.toMD5(password), origin_id, alias);
+		Long uid = userService.addUser(phone, MD5.toMD5(password), origin_id, alias);
 		redisMapper.remove(RedisConst.USER_PHONE_CODE + phone);
+		userDeductionService.AddUser(uid, origin_id, RequestThread.getClientAlias());
 		return new ResultMessage(ResponseEnum.M2000);
 	}
 }
