@@ -13,9 +13,8 @@ import com.mod.loan.util.heli.annotation.SignExclude;
 
 public class MessageHandle {
 
-	private static final String CERT_PATH = "/data/conf/mx.cer"; // 合利宝cert
+	//private static final String CERT_PATH = "/data/conf/mx.cer"; // 合利宝cert
 	private static final String ENCRYPTION_KEY = "encryptionKey";
-
 	/**
 	 * 获取map
 	 */
@@ -49,7 +48,10 @@ public class MessageHandle {
 		}
 		// 如果有加密的，需要用合利宝的公钥将AES加密的KEY进行加密使用BASE64编码上送
 		if (isEncrypt) {
-			PublicKey publicKey = RSA.getPublicKeyByCert(CERT_PATH);
+            //获取商户名称对应的公钥路径
+			String cerPath = pfxPath.substring(0,pfxPath.indexOf("."));
+			cerPath = cerPath.concat(".cer");
+            PublicKey publicKey = RSA.getPublicKeyByCert(cerPath);
 			String encrytionKey = RSA.encodeToBase64(aesKey, publicKey, "RSA");
 			retMap.put(ENCRYPTION_KEY, encrytionKey);
 		}
