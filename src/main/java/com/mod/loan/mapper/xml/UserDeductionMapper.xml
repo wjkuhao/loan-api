@@ -13,8 +13,8 @@
   </resultMap>
 
   <insert id="insertUser" parameterType="com.mod.loan.model.UserDeduction">
-   insert into tb_user_deduction(id, user_origin, create_time, merchant)
-   values(#{id}, #{userOrigin}, #{createTime}, #{merchant})
+   insert into tb_user_deduction(id, user_origin, create_time, merchant, user_phone)
+   values(#{id}, #{userOrigin}, #{createTime}, #{merchant}, #{userPhone})
   </insert>
 
 

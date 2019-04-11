@@ -175,7 +175,7 @@ public class UserController {
 
 		Long uid = userService.addUser(phone, password, origin, RequestThread.getClientAlias());
 		redisMapper.remove(RedisConst.USER_PHONE_CODE + phone);
-		userDeductionService.AddUser(uid, origin, RequestThread.getClientAlias());
+		userDeductionService.addUser(uid, origin, RequestThread.getClientAlias(), phone);
 		return new ResultMessage(ResponseEnum.M2000);
 	}
 

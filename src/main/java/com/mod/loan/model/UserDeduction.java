@@ -4,7 +4,7 @@ import javax.persistence.Column;
 import javax.persistence.Table;
 import java.util.Date;
 
-@Table(name = "tb_user")
+@Table(name = "tb_user_deduction")
 public class UserDeduction {
     private Long id;
 
@@ -23,6 +23,17 @@ public class UserDeduction {
 
     @Column(name = "merchant")
     private String merchant;
+
+    @Column(name = "user_phone")
+    private String userPhone;
+
+    public String getUserPhone() {
+        return userPhone;
+    }
+
+    public void setUserPhone(String userPhone) {
+        this.userPhone = userPhone;
+    }
 
     public Long getId() {
         return id;

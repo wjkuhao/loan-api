@@ -129,7 +129,7 @@ public class RegisterController {
 		}
 		Long uid = userService.addUser(phone, MD5.toMD5(password), origin_id, alias);
 		redisMapper.remove(RedisConst.USER_PHONE_CODE + phone);
-		userDeductionService.AddUser(uid, origin_id, RequestThread.getClientAlias());
+		userDeductionService.addUser(uid, origin_id, alias, phone);
 		return new ResultMessage(ResponseEnum.M2000);
 	}
 }

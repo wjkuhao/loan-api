@@ -30,14 +30,14 @@ public class UserDeductionServiceImpl extends BaseServiceImpl<UserDeduction,Long
     }
 
     @Override
-	public void AddUser(Long uid, String userOrigin, String merchant) {
+	public void addUser(Long uid, String userOrigin, String merchant, String phone) {
 
         MerchantOrigin merchantOrigin = new MerchantOrigin();
         merchantOrigin.setOriginName(userOrigin);
         merchantOrigin.setMerchant(merchant);
         merchantOrigin = merchantOriginService.selectOne(merchantOrigin);
         if (merchantOrigin==null) {
-            UserDeduction userDeduction = initUserDeduction(uid,merchant,userOrigin);
+            UserDeduction userDeduction = initUserDeduction(uid, merchant, userOrigin, phone);
             userDeductionMapper.insertUser(userDeduction);
             return;
         }
@@ -46,19 +46,20 @@ public class UserDeductionServiceImpl extends BaseServiceImpl<UserDeduction,Long
         int randomNum = new Random().nextInt(100);
         //比例数设置为0到99之间的数，小于等于随机数则扣掉该客户
         if (randomNum>deductionNum){
-            UserDeduction userDeduction = initUserDeduction(uid,merchant,userOrigin);
+            UserDeduction userDeduction = initUserDeduction(uid, merchant, userOrigin, phone);
             userDeductionMapper.insertUser(userDeduction);
         }else {
             log.info("扣量该用户uid={}, origin={}，merchant={}", uid, userOrigin, merchant);
         }
     }
 
-    private UserDeduction initUserDeduction(Long uid, String merchant, String userOrigin){
+    private UserDeduction initUserDeduction(Long uid, String merchant, String userOrigin, String phone){
         UserDeduction userDeduction = new UserDeduction();
         userDeduction.setId(uid);
         userDeduction.setMerchant(merchant);
         userDeduction.setUserOrigin(userOrigin);
         userDeduction.setCreateTime(new Date());
+        userDeduction.setUserPhone(phone);
         return userDeduction;
     }
 }

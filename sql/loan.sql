@@ -1090,6 +1090,7 @@ CREATE TABLE `report_partner_effect_deduction`  (
 DROP TABLE IF EXISTS `tb_user_deduction`;
 CREATE TABLE `tb_user_deduction`  (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `user_phone` varchar(20) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL,
   `user_origin` varchar(30) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '注册渠道，来源',
   `create_time` datetime(0) NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   `merchant` varchar(20) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '所属商户',

@@ -6,5 +6,5 @@ import com.mod.loan.model.UserDeduction;
 
 public interface UserDeductionService extends BaseService<UserDeduction,Long>{
 
-    void AddUser(Long uid, String userOrigin, String merchant);
+    void addUser(Long uid, String userOrigin, String merchant, String phone);
 }

@@ -57,7 +57,7 @@ public class LoginInterceptor implements HandlerInterceptor {
 		RequestThread.setRequestTime(System.currentTimeMillis());
 		HandlerMethod hm = (HandlerMethod) handler;
 
-		logger.info("ip={},version={},type={},alias={}, hm={}", ip,clientVersion,clientType,clientAlias,hm);
+		//logger.info("ip={},version={},type={},alias={}, hm={}", ip,clientVersion,clientType,clientAlias,hm);
 
 		Api api = hm.getMethodAnnotation(Api.class);
 		if (api!=null) {
@@ -98,12 +98,12 @@ public class LoginInterceptor implements HandlerInterceptor {
 
 	private boolean isLogin(HttpServletRequest request){
 		String token = request.getParameter("token");
-		logger.info("isLogin token:{}", token);
+		//logger.info("isLogin token:{}", token);
 		if(StringUtils.isBlank(token)){
 				return false;
 		}
 		Claims verifyToken = jwtUtil.ParseJwt(token);
-		logger.info("isLogin verifyToken:{}", verifyToken);
+		//logger.info("isLogin verifyToken:{}", verifyToken);
 		if (verifyToken == null) {
 			return false;
 		}
@@ -112,7 +112,7 @@ public class LoginInterceptor implements HandlerInterceptor {
 		String clientVersion = String.valueOf(verifyToken.get("clientVersion"));
 		String clientAlias = String.valueOf(verifyToken.get("clientAlias"));
 		String token_redis =redisMapper.get(RedisConst.USER_TOKEN_PREFIX + uid);
-		logger.info("isLogin token_redis:{}", token_redis);
+		//logger.info("isLogin token_redis:{}", token_redis);
 		if(!token.equals(token_redis)){
 			return false;
 		}
