@@ -31,11 +31,7 @@ public class UserDeductionServiceImpl extends BaseServiceImpl<UserDeduction,Long
 
     @Override
 	public void addUser(Long uid, String userOrigin, String merchant, String phone) {
-
-        MerchantOrigin merchantOrigin = new MerchantOrigin();
-        merchantOrigin.setOriginName(userOrigin);
-        merchantOrigin.setMerchant(merchant);
-        merchantOrigin = merchantOriginService.selectOne(merchantOrigin);
+        MerchantOrigin merchantOrigin = merchantOriginService.selectByPrimaryKey(Long.valueOf(userOrigin));
         if (merchantOrigin==null) {
             UserDeduction userDeduction = initUserDeduction(uid, merchant, userOrigin, phone);
             userDeductionMapper.insertUser(userDeduction);
