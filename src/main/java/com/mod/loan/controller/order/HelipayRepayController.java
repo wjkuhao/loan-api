@@ -93,10 +93,11 @@ public class HelipayRepayController {
 			requestVo.setP8_orderAmount(amount);
 			requestVo.setP9_phone(userBank.getCardPhone());
 			requestVo.setSignatureType("MD5WITHRSA");
+			String response = null;
 			try {
 				String pfxPath = helipay_path + merchant.getMerchantAlias()+".pfx";
 				Map handleMap = MessageHandle.getReqestMap(requestVo,pfxPath,helipay_pfx_pwd);
-				String response = HttpClientService.getHttpResp(handleMap, helipay_url);
+				response = HttpClientService.getHttpResp(handleMap, helipay_url);
 				BindPayValidateCodeResponseVo responseVo = JSONObject.parseObject(response, BindPayValidateCodeResponseVo.class);
 				if ("0000".equals(responseVo.getRt2_retCode())) {
 					redisMapper.set(RedisConst.repay_text + repayNo, orderId, 300);
@@ -107,7 +108,7 @@ public class HelipayRepayController {
 				}
 
 			} catch (Exception e) {
-				logger.info("绑卡支付短信受理异常，订单号为：{}", order.getId());
+				logger.info("绑卡支付短信受理异常，订单号为：{}，response={}, 错误信息={}", order.getId(),  response, e.getStackTrace());
 				message = new ResultMessage(ResponseEnum.M4000.getCode(), "绑卡支付短信受理失败");
 			}
 			return  message;
