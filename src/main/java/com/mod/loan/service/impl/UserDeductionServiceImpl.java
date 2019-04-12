@@ -31,21 +31,26 @@ public class UserDeductionServiceImpl extends BaseServiceImpl<UserDeduction,Long
 
     @Override
 	public void addUser(Long uid, String userOrigin, String merchant, String phone) {
-        MerchantOrigin merchantOrigin = merchantOriginService.selectByPrimaryKey(Long.valueOf(userOrigin));
-        if (merchantOrigin==null) {
-            UserDeduction userDeduction = initUserDeduction(uid, merchant, userOrigin, phone);
-            userDeductionMapper.insertUser(userDeduction);
-            return;
-        }
+        try {
+            MerchantOrigin merchantOrigin = merchantOriginService.selectByPrimaryKey(Long.valueOf(userOrigin));
+            if (merchantOrigin==null || merchantOrigin.getDeductionRate()==0) {
+                UserDeduction userDeduction = initUserDeduction(uid, merchant, userOrigin, phone);
+                userDeductionMapper.insertUser(userDeduction);
+                return;
+            }
 
-        Integer deductionNum = merchantOrigin.getDeductionRate();
-        int randomNum = new Random().nextInt(100);
-        //比例数设置为0到99之间的数，小于等于随机数则扣掉该客户
-        if (randomNum>deductionNum){
-            UserDeduction userDeduction = initUserDeduction(uid, merchant, userOrigin, phone);
-            userDeductionMapper.insertUser(userDeduction);
-        }else {
-            log.info("扣量该用户uid={}, origin={}，merchant={}", uid, userOrigin, merchant);
+            Integer deductionNum = merchantOrigin.getDeductionRate();
+            int randomNum = new Random().nextInt(100);
+            //比例数设置为0到99之间的数，小于等于随机数则扣掉该客户
+            if (randomNum>deductionNum){
+                UserDeduction userDeduction = initUserDeduction(uid, merchant, userOrigin, phone);
+                userDeductionMapper.insertUser(userDeduction);
+            }else {
+                log.info("扣量该用户uid={}, origin={}，merchant={}", uid, userOrigin, merchant);
+            }
+        }
+        catch (Exception e){
+            log.error("自然流量,uid={},userOrigin={},phone={}, error={}", uid,  userOrigin,  phone, e.getMessage());
         }
     }
 
