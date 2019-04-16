@@ -17,8 +17,8 @@ import java.util.Random;
 @Service
 public class UserDeductionServiceImpl extends BaseServiceImpl<UserDeduction,Long> implements UserDeductionService {
 
-	private static Logger log = LoggerFactory.getLogger(UserDeductionServiceImpl.class);
-
+    private static final long NATURE_ORIGIN_ID = 61L; //自然流量配置的ID号
+    private static Logger log = LoggerFactory.getLogger(UserDeductionServiceImpl.class);
 	private final MerchantOriginService merchantOriginService;
 
 	@Autowired
@@ -31,26 +31,30 @@ public class UserDeductionServiceImpl extends BaseServiceImpl<UserDeduction,Long
 
     @Override
 	public void addUser(Long uid, String userOrigin, String merchant, String phone) {
+        Long originId;
         try {
-            MerchantOrigin merchantOrigin = merchantOriginService.selectByPrimaryKey(Long.valueOf(userOrigin));
-            if (merchantOrigin==null || merchantOrigin.getDeductionRate()==0) {
-                UserDeduction userDeduction = initUserDeduction(uid, merchant, userOrigin, phone);
-                userDeductionMapper.insertUser(userDeduction);
-                return;
-            }
-
-            Integer deductionNum = merchantOrigin.getDeductionRate();
-            int randomNum = new Random().nextInt(100);
-            //比例数设置为0到99之间的数，小于等于随机数则扣掉该客户
-            if (randomNum>deductionNum){
-                UserDeduction userDeduction = initUserDeduction(uid, merchant, userOrigin, phone);
-                userDeductionMapper.insertUser(userDeduction);
-            }else {
-                log.info("扣量该用户uid={}, origin={}，merchant={}", uid, userOrigin, merchant);
-            }
+            originId = Long.valueOf(userOrigin);
         }
         catch (Exception e){
             log.error("自然流量,uid={},userOrigin={},phone={}, error={}", uid,  userOrigin,  phone, e.getMessage());
+            originId = NATURE_ORIGIN_ID;
+        }
+
+        MerchantOrigin merchantOrigin = merchantOriginService.selectByPrimaryKey(originId);
+        if (merchantOrigin==null || merchantOrigin.getDeductionRate()==0) {//不存在或者扣量为0，则保留该客户
+            UserDeduction userDeduction = initUserDeduction(uid, merchant, userOrigin, phone);
+            userDeductionMapper.insertUser(userDeduction);
+            return;
+        }
+
+        Integer deductionNum = merchantOrigin.getDeductionRate();
+        int randomNum = new Random().nextInt(100);
+        //比例数设置为0到99之间的数，小于等于随机数则扣掉该客户
+        if (randomNum>deductionNum){
+            UserDeduction userDeduction = initUserDeduction(uid, merchant, userOrigin, phone);
+            userDeductionMapper.insertUser(userDeduction);
+        }else {
+            log.info("扣量该用户uid={}, origin={}，merchant={}", uid, userOrigin, merchant);
         }
     }
 
