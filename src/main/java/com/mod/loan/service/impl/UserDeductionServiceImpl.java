@@ -36,7 +36,7 @@ public class UserDeductionServiceImpl extends BaseServiceImpl<UserDeduction,Long
             originId = Long.valueOf(userOrigin);
         }
         catch (Exception e){
-            log.error("自然流量,uid={},userOrigin={},phone={}, error={}", uid,  userOrigin,  phone, e.getMessage());
+            //log.info("自然流量,uid={},userOrigin={},phone={}, error={}", uid,  userOrigin,  phone, e.getMessage());
             originId = Constant.NATURE_ORIGIN_ID;
             userOrigin = String.valueOf(originId); //暂时自然流量记录到61上面
         }
@@ -54,8 +54,6 @@ public class UserDeductionServiceImpl extends BaseServiceImpl<UserDeduction,Long
         if (randomNum>deductionNum){
             UserDeduction userDeduction = initUserDeduction(uid, merchant, userOrigin, phone);
             userDeductionMapper.insertUser(userDeduction);
-        }else {
-            log.info("扣量该用户uid={}, origin={}，merchant={}", uid, userOrigin, merchant);
         }
     }
 

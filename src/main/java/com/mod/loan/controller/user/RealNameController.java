@@ -357,13 +357,13 @@ public class RealNameController {
 
             String errMsg = UdcreditUtils.checkArgs(jsonObject);
             if(null!=errMsg){
-                logger.error("uid={},认证失败:{}！", uid, errMsg);
+                logger.info("uid={},认证失败:{}！", uid, errMsg);
                 return new ResultMessage(ResponseEnum.M4000, errMsg);
             }
 
             errMsg = userService.saveRealNameAuthInfo(jsonObject, uid);
             if (errMsg!=null){
-                logger.error("uid={},更新认证信息失败:{}！", uid, errMsg);
+                logger.info("uid={},更新认证信息失败:{}！", uid, errMsg);
                 return new ResultMessage(ResponseEnum.M4000, errMsg);
             }
 
