@@ -34,6 +34,7 @@ public class Constant {
 	public static String MOHE_LOGIN_REPORT_URL;
 
 	public static Integer SMS_EXPIRATION_TIME = 60*5; //5分钟
+	public static long NATURE_ORIGIN_ID = 61L; //自然流量配置的ID号
 
 
 	@Value("${environment:}")

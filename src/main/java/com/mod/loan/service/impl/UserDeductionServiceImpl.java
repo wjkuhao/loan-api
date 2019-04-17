@@ -1,6 +1,7 @@
 package com.mod.loan.service.impl;
 
 import com.mod.loan.common.mapper.BaseServiceImpl;
+import com.mod.loan.config.Constant;
 import com.mod.loan.mapper.UserDeductionMapper;
 import com.mod.loan.model.MerchantOrigin;
 import com.mod.loan.model.UserDeduction;
@@ -17,7 +18,6 @@ import java.util.Random;
 @Service
 public class UserDeductionServiceImpl extends BaseServiceImpl<UserDeduction,Long> implements UserDeductionService {
 
-    private static final long NATURE_ORIGIN_ID = 61L; //自然流量配置的ID号
     private static Logger log = LoggerFactory.getLogger(UserDeductionServiceImpl.class);
 	private final MerchantOriginService merchantOriginService;
 
@@ -37,7 +37,8 @@ public class UserDeductionServiceImpl extends BaseServiceImpl<UserDeduction,Long
         }
         catch (Exception e){
             log.error("自然流量,uid={},userOrigin={},phone={}, error={}", uid,  userOrigin,  phone, e.getMessage());
-            originId = NATURE_ORIGIN_ID;
+            originId = Constant.NATURE_ORIGIN_ID;
+            userOrigin = String.valueOf(originId); //暂时自然流量记录到61上面
         }
 
         MerchantOrigin merchantOrigin = merchantOriginService.selectByPrimaryKey(originId);

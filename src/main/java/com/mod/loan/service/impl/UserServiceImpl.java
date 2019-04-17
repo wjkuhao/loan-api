@@ -2,6 +2,7 @@ package com.mod.loan.service.impl;
 
 import com.alibaba.fastjson.JSONObject;
 import com.mod.loan.common.mapper.BaseServiceImpl;
+import com.mod.loan.config.Constant;
 import com.mod.loan.mapper.*;
 import com.mod.loan.model.*;
 import com.mod.loan.service.UserService;
@@ -39,7 +40,11 @@ public class UserServiceImpl  extends BaseServiceImpl< User,Long> implements Use
 
 	@Override
 	public Long addUser(String phone,String password,String userOrigin,String merchant) {
-		// TODO Auto-generated method stub
+        //自然流量暂时记录到指定渠道上
+		if (userOrigin.equalsIgnoreCase("ios")
+				||userOrigin.equalsIgnoreCase("android")){
+			userOrigin = String.valueOf(Constant.NATURE_ORIGIN_ID);
+		}
 		User user=new User();
 		user.setUserPhone(phone);
 		user.setUserPwd(password);
