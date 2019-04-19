@@ -470,9 +470,22 @@ CREATE TABLE `tb_merchant`  (
   `fuyou_h5key` varchar(64) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '富友B2C/B2B网关支付密钥或手机银行App支付密钥',
   `huiju_id` varchar(30) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '汇聚商编',
   `huiju_md5_key` varchar(64) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '汇聚md5私钥',
-  `mx_risk_token` varchar(1000) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '风控token',
   `create_time` datetime(0) NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`merchant_alias`) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Table structure for tb_merchant_config
+-- ----------------------------
+DROP TABLE IF EXISTS `tb_merchant_config`;
+CREATE TABLE `tb_merchant_config`  (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `merchant` VARCHAR(50) DEFAULT NULL COMMENT '商户名称',
+  `mx_risk_token` VARCHAR(1000) DEFAULT NULL COMMENT '风控默认token',
+  `mx_risk_renew_token` VARCHAR(1000) DEFAULT NULL COMMENT '风控续借token',
+  `create_time` CHAR(19) DEFAULT NULL COMMENT '插入时间',
+  `update_time` CHAR(19) DEFAULT NULL COMMENT '更新时间',
+  PRIMARY KEY (`id`) USING BTREE
 ) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
