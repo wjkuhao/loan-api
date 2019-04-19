@@ -8,8 +8,10 @@ import com.mod.loan.common.model.ResultMessage;
 import com.mod.loan.config.Constant;
 import com.mod.loan.config.redis.RedisConst;
 import com.mod.loan.config.redis.RedisMapper;
+import com.mod.loan.model.Merchant;
 import com.mod.loan.model.Order;
 import com.mod.loan.model.OrderRepay;
+import com.mod.loan.service.MerchantService;
 import com.mod.loan.service.OrderRepayService;
 import com.mod.loan.service.OrderService;
 import com.mod.loan.service.YeepayService;
@@ -38,13 +40,15 @@ public class YeepayRepayController {
 	private final OrderRepayService orderRepayService;
 	private final YeepayService yeepayService;
     private final RedisMapper redisMapper;
+    private final MerchantService merchantService;
 
     @Autowired
-    public YeepayRepayController(OrderService orderService, OrderRepayService orderRepayService, YeepayService yeepayService, RedisMapper redisMapper) {
+    public YeepayRepayController(OrderService orderService, OrderRepayService orderRepayService, YeepayService yeepayService, RedisMapper redisMapper, MerchantService merchantService) {
         this.orderService = orderService;
         this.orderRepayService = orderRepayService;
         this.yeepayService = yeepayService;
         this.redisMapper = redisMapper;
+        this.merchantService = merchantService;
     }
 
     @LoginRequired
@@ -60,13 +64,16 @@ public class YeepayRepayController {
         }
 
         Long uid = RequestThread.getUid();
+
         Order order = orderService.selectByPrimaryKey(NumberUtils.toLong(orderId));
         if (order.getStatus() == 31 || order.getStatus() == 33 || order.getStatus() == 34) { // 已放款，逾期，坏账状态
             try {
                 String repayNo = StringUtil.getOrderNumber("r");// 支付流水号
                 String amount = "dev".equals(Constant.ENVIROMENT)?"0.11":order.getShouldRepay().toString();
+                String alias = RequestThread.getClientAlias();
+                Merchant merchant = merchantService.findMerchantByAlias(alias);
 
-                String err = yeepayService.payRequest(repayNo, String.valueOf(uid), cardNo, amount);
+                String err = yeepayService.payRequest(merchant.getYeepay_appkey(), merchant.getYeepay_private_key(), repayNo, String.valueOf(uid), cardNo, amount);
                 if(err!=null){
                     return new ResultMessage(ResponseEnum.M4000, err);
                 }
@@ -129,7 +136,9 @@ public class YeepayRepayController {
             OrderRepay orderRepayUpd = new OrderRepay();
             orderRepayUpd.setRepayNo(repayNo);
 
-            String err = yeepayService.payConfirm(repayNo, validateCode);
+            String alias = RequestThread.getClientAlias();
+            Merchant merchant = merchantService.findMerchantByAlias(alias);
+            String err = yeepayService.payConfirm(merchant.getYeepay_appkey(), merchant.getYeepay_private_key(), repayNo, validateCode);
             if (err!=null) {
                 orderRepayUpd.setRepayStatus(OrderRepayStatusEnum.ACCEPT_FAILED.getCode());
                 orderRepayUpd.setRemark("易宝支付失败:" + err);
@@ -185,10 +194,12 @@ public class YeepayRepayController {
     @RequestMapping(value = "repay_text_test")
     public ResultMessage yeepay_repay_text_test(String orderId,String cardNo ) {
         Long uid = 7951897L;
-        String amount = "0.01";
+        String amount = "0.11";
 
         String repayNo = StringUtil.getOrderNumber("r");// 支付流水号
-        String err = yeepayService.payRequest(repayNo, String.valueOf(uid), cardNo, amount);
+        String appkey = "";
+        String privateKey = "";
+        String err = yeepayService.payRequest(appkey, privateKey, repayNo, String.valueOf(uid), cardNo, amount);
         if(err!=null){
             return new ResultMessage(ResponseEnum.M4000, err);
         }
@@ -200,6 +211,9 @@ public class YeepayRepayController {
     @RequestMapping(value = "repay_active_test")
     public ResultMessage yeepay_repay_active_test(String repayNo, String validateCode, String cardNo, String cardName) {
         Long uid = 7951897L;
+        String appkey = "";
+        String privateKey = "";
+
         long orderId = NumberUtils.toLong(redisMapper.get(RedisConst.repay_text + repayNo));
 
         OrderRepay orderRepay = orderRepayService.selectByPrimaryKey(repayNo);
@@ -223,7 +237,7 @@ public class YeepayRepayController {
             OrderRepay orderRepayUpd = new OrderRepay();
             orderRepayUpd.setRepayNo(repayNo);
 
-            String err = yeepayService.payConfirm(repayNo, validateCode);
+            String err = yeepayService.payConfirm(appkey, privateKey, repayNo, validateCode);
             if (err!=null) {
                 orderRepayUpd.setRepayStatus(OrderRepayStatusEnum.ACCEPT_FAILED.getCode());
                 orderRepayUpd.setRemark("易宝受理失败 :" + err);

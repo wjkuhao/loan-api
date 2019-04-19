@@ -14,7 +14,7 @@ public interface YeepayService {
      * @param cardPhone 银行卡预留手机号
      * @return 错误信息
      */
-    String authBindCardRequest(String requestNo, String identityId, String cardNo,
+    String authBindCardRequest(String appKey, String privateKey, String requestNo, String identityId, String cardNo,
                              String certNo, String userName, String cardPhone);
 
     /**
@@ -23,7 +23,7 @@ public interface YeepayService {
      * @param validateCode 短信验证码
      * @return 错误信息
      */
-    String authBindCardConfirm(String requestNo, String validateCode);
+    String authBindCardConfirm(String appKey, String privateKey, String requestNo, String validateCode);
 
     /**
      * 绑卡支付请求
@@ -33,7 +33,7 @@ public interface YeepayService {
      * @param amount 支付单位：元，精确到两位小数，大于等于 0.01
      * @return 错误信息
      */
-    String payRequest(String requestNo, String identityId, String cardNo, String amount);
+    String payRequest(String appKey, String privateKey, String requestNo, String identityId, String cardNo, String amount);
 
     /**
      * 绑卡支付确认
@@ -41,7 +41,7 @@ public interface YeepayService {
      * @param validateCode 短信验证码
      * @return 错误信息
      */
-    String payConfirm(String requestNo, String validateCode);
+    String payConfirm(String appKey, String privateKey, String requestNo, String validateCode);
 
     /**
      * 返回结果解析
@@ -58,5 +58,6 @@ public interface YeepayService {
      * @return 错误信息
      */
     String repayCallback(String responseMsg, StringBuffer requestNo);
+
 }
 

@@ -35,16 +35,14 @@ public class YeepayServiceImpl implements YeepayService {
     @Value("${yeepay.repay.commit.url:}")
     String yeepay_repay_commit_url;
 
-    @Value("${yeepay.app_key:}")
-    String yeepay_app_key;
-
     @Value("${yeepay.callback.url:}")
     String yeepay_callback_url;
 
     @Override
-    public String authBindCardRequest(String requestNo, String identityId, String cardNo,
+    public String authBindCardRequest(String appKey, String privateKey, String requestNo, String identityId, String cardNo,
                                     String certNo, String userName,String cardPhone) {
-        YopRequest yoprequest = new YopRequest(yeepay_app_key);
+
+        YopRequest yoprequest = new YopRequest(appKey, privateKey);
         yoprequest.addParam("requestno", requestNo);
         yoprequest.addParam("identityid", identityId);
         yoprequest.addParam("identitytype", "USER_ID"); //用户标识类型
@@ -74,8 +72,8 @@ public class YeepayServiceImpl implements YeepayService {
     }
 
     @Override
-    public String authBindCardConfirm(String requestNo, String validateCode) {
-        YopRequest yoprequest = new YopRequest(yeepay_app_key);
+    public String authBindCardConfirm(String appKey, String privateKey, String requestNo, String validateCode) {
+        YopRequest yoprequest = new YopRequest(appKey, privateKey);
         yoprequest.addParam("requestno", requestNo);
         yoprequest.addParam("validatecode", validateCode);
 
@@ -93,8 +91,8 @@ public class YeepayServiceImpl implements YeepayService {
     }
 
     @Override
-    public String payRequest(String requestNo, String identityId, String cardNo, String amount) {
-        YopRequest yoprequest = new YopRequest(yeepay_app_key);
+    public String payRequest(String appKey, String privateKey, String requestNo, String identityId, String cardNo, String amount) {
+        YopRequest yoprequest = new YopRequest(appKey, privateKey);
         yoprequest.addParam("requestno", requestNo);
         yoprequest.addParam("issms", "true");
         yoprequest.addParam("identityid", identityId);
@@ -104,7 +102,7 @@ public class YeepayServiceImpl implements YeepayService {
         yoprequest.addParam("avaliabletime", Constant.SMS_EXPIRATION_TIME/60); //验证码有效时间 单位：分钟
         yoprequest.addParam("requesttime", TimeUtils.getTime());
         yoprequest.addParam("advicesmstype", "MESSAGE"); //建议短验发送类型： MESSAGE 短信
-        yoprequest.addParam("productname", yeepay_app_key);
+        yoprequest.addParam("productname", appKey);
         yoprequest.addParam("cardtop", cardNo.substring(0, 6));
         yoprequest.addParam("cardlast", cardNo.substring(cardNo.length() - 4));
         yoprequest.addParam("callbackurl", yeepay_callback_url);
@@ -124,8 +122,8 @@ public class YeepayServiceImpl implements YeepayService {
     }
 
     @Override
-    public String payConfirm(String requestNo, String validateCode) {
-        YopRequest yoprequest = new YopRequest(yeepay_app_key);
+    public String payConfirm(String appKey, String privateKey, String requestNo, String validateCode) {
+        YopRequest yoprequest = new YopRequest(appKey, privateKey);
         yoprequest.addParam("requestno", requestNo);
         yoprequest.addParam("validatecode", validateCode);
 
@@ -185,5 +183,4 @@ public class YeepayServiceImpl implements YeepayService {
 
         return null;
     }
-
 }
