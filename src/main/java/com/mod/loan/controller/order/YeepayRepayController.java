@@ -11,12 +11,11 @@ import com.mod.loan.config.redis.RedisMapper;
 import com.mod.loan.model.Merchant;
 import com.mod.loan.model.Order;
 import com.mod.loan.model.OrderRepay;
-import com.mod.loan.service.MerchantService;
-import com.mod.loan.service.OrderRepayService;
-import com.mod.loan.service.OrderService;
-import com.mod.loan.service.YeepayService;
+import com.mod.loan.model.User;
+import com.mod.loan.service.*;
 import com.mod.loan.util.CheckUtils;
 import com.mod.loan.util.StringUtil;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,14 +40,16 @@ public class YeepayRepayController {
 	private final YeepayService yeepayService;
     private final RedisMapper redisMapper;
     private final MerchantService merchantService;
+    private final UserService userService;
 
     @Autowired
-    public YeepayRepayController(OrderService orderService, OrderRepayService orderRepayService, YeepayService yeepayService, RedisMapper redisMapper, MerchantService merchantService) {
+    public YeepayRepayController(OrderService orderService, OrderRepayService orderRepayService, YeepayService yeepayService, RedisMapper redisMapper, MerchantService merchantService, UserService userService) {
         this.orderService = orderService;
         this.orderRepayService = orderRepayService;
         this.yeepayService = yeepayService;
         this.redisMapper = redisMapper;
         this.merchantService = merchantService;
+        this.userService = userService;
     }
 
     @LoginRequired
@@ -159,9 +160,20 @@ public class YeepayRepayController {
     @RequestMapping(value = "repay_callback")
     public String repay_callback(HttpServletRequest request, HttpServletResponse response){
         String responseMsg = request.getParameter("response");
-        StringBuffer repayNo = new StringBuffer();
+        String param = request.getParameter("param");
 
-        String callbackErr = yeepayService.repayCallback(responseMsg, repayNo);
+        if (StringUtils.isEmpty(responseMsg) || StringUtils.isEmpty(param)){
+            logger.error("responseMsg={},param={}",responseMsg,param);
+            logger.error("易宝异步通知:返回为空");
+            return "SUCCESS";
+        }
+
+        Long uid = Long.valueOf(param);
+        User user = userService.selectByPrimaryKey(uid);
+        Merchant merchant = merchantService.findMerchantByAlias(user.getMerchant());
+
+        StringBuffer repayNo = new StringBuffer();
+        String callbackErr = yeepayService.repayCallbackMultiAcct(merchant.getYeepay_private_key(), responseMsg, repayNo);
 
         //设置OrderRepay
         OrderRepay orderRepay = orderRepayService.selectByPrimaryKey(repayNo.toString());
@@ -173,6 +185,7 @@ public class YeepayRepayController {
         if (callbackErr==null){
             orderRepay.setRepayStatus(OrderRepayStatusEnum.REPAY_SUCCESS.getCode());
         }else {
+            logger.error("易宝异步通知:订单错误信息{}",callbackErr);
             orderRepay.setRepayStatus(OrderRepayStatusEnum.REPAY_FAILED.getCode());
         }
         orderRepay.setUpdateTime(new Date());
@@ -191,67 +204,5 @@ public class YeepayRepayController {
         return "SUCCESS"; //收到通知 固定格式
     }
 
-    @RequestMapping(value = "repay_text_test")
-    public ResultMessage yeepay_repay_text_test(String orderId,String cardNo ) {
-        Long uid = 7951897L;
-        String amount = "0.11";
 
-        String repayNo = StringUtil.getOrderNumber("r");// 支付流水号
-        String appkey = "";
-        String privateKey = "";
-        String err = yeepayService.payRequest(appkey, privateKey, repayNo, String.valueOf(uid), cardNo, amount);
-        if(err!=null){
-            return new ResultMessage(ResponseEnum.M4000, err);
-        }
-        redisMapper.set(RedisConst.repay_text + repayNo, orderId, Constant.SMS_EXPIRATION_TIME);
-
-        return new ResultMessage(ResponseEnum.M2000);
-    }
-
-    @RequestMapping(value = "repay_active_test")
-    public ResultMessage yeepay_repay_active_test(String repayNo, String validateCode, String cardNo, String cardName) {
-        Long uid = 7951897L;
-        String appkey = "";
-        String privateKey = "";
-
-        long orderId = NumberUtils.toLong(redisMapper.get(RedisConst.repay_text + repayNo));
-
-        OrderRepay orderRepay = orderRepayService.selectByPrimaryKey(repayNo);
-        if(orderRepay == null){
-            String amount = "0.01";
-            orderRepay = new OrderRepay();
-            orderRepay.setRepayNo(repayNo);
-            orderRepay.setUid(uid);
-            orderRepay.setOrderId(orderId);
-            orderRepay.setRepayType(1);
-            orderRepay.setRepayMoney(new BigDecimal(amount));
-            orderRepay.setBank(cardName);
-            orderRepay.setBankNo(cardNo);
-            orderRepay.setCreateTime(new Date());
-            orderRepay.setUpdateTime(new Date());
-            orderRepay.setRepayStatus(0);//初始状态
-            orderRepayService.insertSelective(orderRepay);
-        }
-
-        try {
-            OrderRepay orderRepayUpd = new OrderRepay();
-            orderRepayUpd.setRepayNo(repayNo);
-
-            String err = yeepayService.payConfirm(appkey, privateKey, repayNo, validateCode);
-            if (err!=null) {
-                orderRepayUpd.setRepayStatus(OrderRepayStatusEnum.ACCEPT_FAILED.getCode());
-                orderRepayUpd.setRemark("易宝受理失败 :" + err);
-                orderRepayService.updateByPrimaryKeySelective(orderRepayUpd);
-                return new ResultMessage(ResponseEnum.M4000.getCode(), err);
-            }
-
-            orderRepay.setRepayStatus(OrderRepayStatusEnum.ACCEPT_SUCCESS.getCode());
-            orderRepay.setRemark("易宝受理中");
-            orderRepayService.updateByPrimaryKeySelective(orderRepay);
-            return new ResultMessage(ResponseEnum.M2000, orderId);// 成功返回订单号，便于查看详情
-        } catch (Exception e) {
-            logger.error("易宝受理异常，result={}", e.getMessage());
-            return new ResultMessage(ResponseEnum.M4000);
-        }
-    }
 }

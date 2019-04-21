@@ -59,5 +59,22 @@ public interface YeepayService {
      */
     String repayCallback(String responseMsg, StringBuffer requestNo);
 
+    /**
+     * 多账号，需要指定私钥
+     * @param strPrivateKey 私钥字符串
+     * @param responseMsg 易宝返回数据
+     * @param requestNo 输出参数：申请时的还款订单
+     * @return 错误信息
+     */
+    String repayCallbackMultiAcct(String strPrivateKey, String responseMsg, StringBuffer requestNo);
+
+    /**
+     * 查询订单状态
+     * @param requestNo 申请流水号
+     * @param yborderid 易宝的流水号
+     * @return 错误信息
+     */
+    String repayQuery(String appKey, String privateKey, String requestNo, String yborderid);
+
 }
 
