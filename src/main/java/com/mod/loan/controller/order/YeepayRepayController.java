@@ -74,7 +74,7 @@ public class YeepayRepayController {
                 String alias = RequestThread.getClientAlias();
                 Merchant merchant = merchantService.findMerchantByAlias(alias);
 
-                String err = yeepayService.payRequest(merchant.getYeepay_appkey(), merchant.getYeepay_private_key(), repayNo, String.valueOf(uid), cardNo, amount);
+                String err = yeepayService.payRequest(merchant.getYeepay_repay_appkey(), merchant.getYeepay_repay_private_key(), repayNo, String.valueOf(uid), cardNo, amount);
                 if(err!=null){
                     return new ResultMessage(ResponseEnum.M4000, err);
                 }
@@ -139,7 +139,7 @@ public class YeepayRepayController {
 
             String alias = RequestThread.getClientAlias();
             Merchant merchant = merchantService.findMerchantByAlias(alias);
-            String err = yeepayService.payConfirm(merchant.getYeepay_appkey(), merchant.getYeepay_private_key(), repayNo, validateCode);
+            String err = yeepayService.payConfirm(merchant.getYeepay_repay_appkey(), merchant.getYeepay_repay_private_key(), repayNo, validateCode);
             if (err!=null) {
                 orderRepayUpd.setRepayStatus(OrderRepayStatusEnum.ACCEPT_FAILED.getCode());
                 orderRepayUpd.setRemark("易宝支付失败:" + err);
@@ -173,7 +173,7 @@ public class YeepayRepayController {
         Merchant merchant = merchantService.findMerchantByAlias(user.getMerchant());
 
         StringBuffer repayNo = new StringBuffer();
-        String callbackErr = yeepayService.repayCallbackMultiAcct(merchant.getYeepay_private_key(), responseMsg, repayNo);
+        String callbackErr = yeepayService.repayCallbackMultiAcct(merchant.getYeepay_repay_private_key(), responseMsg, repayNo);
 
         //设置OrderRepay
         OrderRepay orderRepay = orderRepayService.selectByPrimaryKey(repayNo.toString());

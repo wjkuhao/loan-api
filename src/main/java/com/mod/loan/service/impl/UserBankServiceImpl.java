@@ -498,7 +498,7 @@ public class UserBankServiceImpl extends BaseServiceImpl<UserBank, Long> impleme
 
 		Merchant merchant = merchantService.findMerchantByAlias(user.getMerchant());
 		String seriesNo = StringUtil.getOrderNumber("c");
-        String err = yeepayService.authBindCardRequest(merchant.getYeepay_appkey(), merchant.getYeepay_private_key(),
+        String err = yeepayService.authBindCardRequest(merchant.getYeepay_repay_appkey(), merchant.getYeepay_repay_private_key(),
 				seriesNo, String.valueOf(uid), cardNo, user.getUserCertNo(), user.getUserName(), cardPhone);
         if (err!=null){
             return new ResultMessage(ResponseEnum.M4000,err);
@@ -527,7 +527,7 @@ public class UserBankServiceImpl extends BaseServiceImpl<UserBank, Long> impleme
 		}
 
 		Merchant merchant = merchantService.findMerchantByAlias(user.getMerchant());
-		String err = yeepayService.authBindCardConfirm(merchant.getYeepay_appkey(), merchant.getYeepay_private_key(), validateCodeVo.getP4_orderId(), validateCode);
+		String err = yeepayService.authBindCardConfirm(merchant.getYeepay_repay_appkey(), merchant.getYeepay_repay_private_key(), validateCodeVo.getP4_orderId(), validateCode);
         if (err!=null){
             return new ResultMessage(ResponseEnum.M4000, err);
         }

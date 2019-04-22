@@ -47,6 +47,12 @@ public class YeepayServiceImpl implements YeepayService {
     @Value("${yeepay.repay.query.url:}")
     String yeepay_repay_query_url;
 
+    @Value("${yeepay.pay.send.url:}")
+    String yeepay_pay_send_url;
+
+    @Value("${yeepay.pay.query.url:}")
+    String yeepay_pay_query_url;
+
     @Override
     public String authBindCardRequest(String appKey, String privateKey, String requestNo, String identityId, String cardNo,
                                     String certNo, String userName,String cardPhone) {
@@ -268,6 +274,55 @@ public class YeepayServiceImpl implements YeepayService {
             return parseResult(response, "status", "PAY_SUCCESS");
         } catch (Exception e) {
             log.error("send yeepay repayQuery has error={}", e.getMessage());
+            e.printStackTrace();
+            return e.getMessage();
+        }
+    }
+
+    @Override
+    public String payToCustom(String groupNo, String appKey, String privateKey, String batchNo, String orderId, String amount,
+    String accountName, String accountNumber, String bankCode) {
+        YopRequest yoprequest = new YopRequest(appKey, privateKey);
+
+        yoprequest.addParam("groupNumber", groupNo);
+        yoprequest.addParam("batchNo", batchNo);  //批次号 必须唯一长度15-20位之间，仅数字
+        yoprequest.addParam("orderId", orderId);  //最长50位，允许数字、字母
+        yoprequest.addParam("amount", amount);
+        yoprequest.addParam("accountName", accountName);
+        yoprequest.addParam("accountNumber", accountNumber);
+        yoprequest.addParam("bankCode", bankCode);
+    //    yoprequest.addParam("product", "WTJS"); //代付代发
+        log.info(yoprequest.getParams().toString());
+        try {
+            YopResponse response = YopRsaClient.post(yeepay_pay_send_url, yoprequest);
+            log.info("send yeepay pay response :" + response);
+
+            return parseResult(response, "errorCode", "BAC001");
+        } catch (Exception e) {
+            log.error("send yeepay pay has error={}", e.getMessage());
+            e.printStackTrace();
+            return e.getMessage();
+        }
+    }
+
+    @Override
+    public String payToCustomQuery(String groupNo, String appKey, String privateKey, String batchNo){
+        YopRequest yoprequest = new YopRequest(appKey, privateKey);
+
+        yoprequest.addParam("customerNumber", groupNo); //商户编号
+        yoprequest.addParam("batchNo", batchNo);  //批次号 必须唯一长度15-20位之间，仅数字
+       // yoprequest.addParam("orderId", orderId);  //最长50位，允许数字、字母 //目前业务一个批次就一笔订单
+       // yoprequest.addParam("pageSize", 100);  //默认100
+       // yoprequest.addParam("pageNo", 1); //默认1
+       // yoprequest.addParam("product", "WTJS"); //代付代发
+        log.info(yoprequest.getParams().toString());
+        try {
+            YopResponse response = YopRsaClient.post(yeepay_pay_query_url, yoprequest);
+            log.info("send yeepay pay query response :" + response);
+
+            return parseResult(response, "errorCode", "BAC001");
+        } catch (Exception e) {
+            log.error("send yeepay pay query has error={}", e.getMessage());
             e.printStackTrace();
             return e.getMessage();
         }

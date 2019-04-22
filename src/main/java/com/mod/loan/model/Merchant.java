@@ -86,28 +86,60 @@ public class Merchant {
     @Column(name = "bind_type")
     private Integer bindType;
 
-    @Column(name = "yeepay_appkey")
-    private String yeepay_appkey;
+    @Column(name = "yeepay_group_no")
+    private String yeepay_group_no;
 
-    @Column(name = "yeepay_private_key")
-    private String yeepay_private_key;
+    @Column(name = "yeepay_repay_appkey")
+    private String yeepay_repay_appkey;
 
-    public String getYeepay_appkey() {
-        return yeepay_appkey;
+    @Column(name = "yeepay_repay_private_key")
+    private String yeepay_repay_private_key;
+
+    @Column(name = "yeepay_loan_appkey")
+    private String yeepay_loan_appkey;
+
+    @Column(name = "yeepay_loan_private_key")
+    private String yeepay_loan_private_key;
+
+    public String getYeepay_loan_appkey() {
+        return yeepay_loan_appkey;
     }
 
-    public void setYeepay_appkey(String yeepay_appkey) {
-        this.yeepay_appkey = yeepay_appkey;
+    public void setYeepay_loan_appkey(String yeepay_loan_appkey) {
+        this.yeepay_loan_appkey = yeepay_loan_appkey;
     }
 
-    public String getYeepay_private_key() {
-        return yeepay_private_key;
+    public String getYeepay_loan_private_key() {
+        return yeepay_loan_private_key;
     }
 
-    public void setYeepay_private_key(String yeepay_private_key) {
-        this.yeepay_private_key = yeepay_private_key;
+    public void setYeepay_loan_private_key(String yeepay_loan_private_key) {
+        this.yeepay_loan_private_key = yeepay_loan_private_key;
     }
 
+    public String getYeepay_group_no() {
+        return yeepay_group_no;
+    }
+
+    public void setYeepay_group_no(String yeepay_group_no) {
+        this.yeepay_group_no = yeepay_group_no;
+    }
+
+    public String getYeepay_repay_appkey() {
+        return yeepay_repay_appkey;
+    }
+
+    public void setYeepay_repay_appkey(String yeepay_repay_appkey) {
+        this.yeepay_repay_appkey = yeepay_repay_appkey;
+    }
+
+    public String getYeepay_repay_private_key() {
+        return yeepay_repay_private_key;
+    }
+
+    public void setYeepay_repay_private_key(String yeepay_repay_private_key) {
+        this.yeepay_repay_private_key = yeepay_repay_private_key;
+    }
     /**
      * 获取商户别名与app别名一致
      *

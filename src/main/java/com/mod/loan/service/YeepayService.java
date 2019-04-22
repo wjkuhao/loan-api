@@ -76,5 +76,30 @@ public interface YeepayService {
      */
     String repayQuery(String appKey, String privateKey, String requestNo, String yborderid);
 
+    /**
+     * 放款
+     * @param groupNo 商户编号
+     * @param appKey 放款app key
+     * @param privateKey 放款私钥
+     * @param batchNo 批次号 15-20数字
+     * @param orderId 订单号 可以是字母
+     * @param amount 金额
+     * @param accountName 收款人姓名
+     * @param accountNumber 收款人卡号
+     * @param bankCode 收款人银行卡编码
+     * @return 错误信息
+     */
+    String payToCustom(String groupNo, String appKey, String privateKey, String batchNo, String orderId, String amount,
+                              String accountName, String accountNumber, String bankCode);
+
+    /**
+     * @param groupNo 商户编号
+     * @param appKey 放款app key
+     * @param privateKey 放款私钥
+     * @param batchNo 批次号 15-20数字
+     * @return 错误信息
+     */
+    String payToCustomQuery(String groupNo, String appKey, String privateKey, String batchNo);
+
 }
 

@@ -249,6 +249,7 @@ CREATE TABLE `tb_bank`  (
   `idx` tinyint(4) NULL DEFAULT 0,
   `create_time` datetime(0) NULL DEFAULT NULL,
   `code_helipay` varchar(10) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '合利宝银行代码code',
+  `code_yeepay` varchar(10) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '易宝银行代码code',
   PRIMARY KEY (`code`) USING BTREE
 ) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
 
@@ -470,8 +471,11 @@ CREATE TABLE `tb_merchant`  (
   `fuyou_h5key` varchar(64) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '富友B2C/B2B网关支付密钥或手机银行App支付密钥',
   `huiju_id` varchar(30) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '汇聚商编',
   `huiju_md5_key` varchar(64) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '汇聚md5私钥',
-  `yeepay_appkey` varchar(64) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '易宝appkey',
-  `yeepay_private_key` varchar(2048) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '易宝私钥',
+  `yeepay_group_no` varchar(30) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '易宝商户编号',
+  `yeepay_repay_appkey` varchar(30) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '易宝还款appkey',
+  `yeepay_repay_private_key` varchar(2048) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '易宝还款私钥',
+  `yeepay_loan_appkey` varchar(30) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '易宝放款appkey',
+  `yeepay_loan_private_key` varchar(2048) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '易宝放款私钥',
   `create_time` datetime(0) NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`merchant_alias`) USING BTREE
 ) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
