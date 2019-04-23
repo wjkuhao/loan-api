@@ -106,10 +106,14 @@ public class YeepayServiceImpl implements YeepayService {
     }
 
     @Override
-    public String payRequest(String appKey, String privateKey, String requestNo, String identityId, String cardNo, String amount) {
+    public String payRequest(String appKey, String privateKey, String requestNo, String identityId, String cardNo, String amount, boolean sendSms) {
         YopRequest yoprequest = new YopRequest(appKey, privateKey);
         yoprequest.addParam("requestno", requestNo);
-        yoprequest.addParam("issms", "true");
+        if (sendSms){
+            yoprequest.addParam("issms", "true");
+        }else{
+            yoprequest.addParam("issms", "false");
+        }
         yoprequest.addParam("identityid", identityId);
         yoprequest.addParam("identitytype", "USER_ID");
         yoprequest.addParam("amount", amount);
@@ -128,7 +132,13 @@ public class YeepayServiceImpl implements YeepayService {
             YopResponse response = YopRsaClient.post(yeepay_repay_smg_url, yoprequest);
             log.info("send yeepay pay request :" + response);
 
-            return parseResult(response, "status", "TO_VALIDATE");
+            String result;
+            if (sendSms){
+                result = parseResult(response, "status", "TO_VALIDATE");
+            }else {
+                result = parseResult(response, "status", "PROCESSING");
+            }
+            return result;
         } catch (Exception e) {
             log.error("send yeepay pay request has error={}", e.getMessage());
             e.printStackTrace();

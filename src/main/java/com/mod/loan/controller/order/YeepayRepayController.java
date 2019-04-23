@@ -8,10 +8,7 @@ import com.mod.loan.common.model.ResultMessage;
 import com.mod.loan.config.Constant;
 import com.mod.loan.config.redis.RedisConst;
 import com.mod.loan.config.redis.RedisMapper;
-import com.mod.loan.model.Merchant;
-import com.mod.loan.model.Order;
-import com.mod.loan.model.OrderRepay;
-import com.mod.loan.model.User;
+import com.mod.loan.model.*;
 import com.mod.loan.service.*;
 import com.mod.loan.util.CheckUtils;
 import com.mod.loan.util.StringUtil;
@@ -41,15 +38,17 @@ public class YeepayRepayController {
     private final RedisMapper redisMapper;
     private final MerchantService merchantService;
     private final UserService userService;
+    private final UserBankService userBankService;
 
     @Autowired
-    public YeepayRepayController(OrderService orderService, OrderRepayService orderRepayService, YeepayService yeepayService, RedisMapper redisMapper, MerchantService merchantService, UserService userService) {
+    public YeepayRepayController(OrderService orderService, OrderRepayService orderRepayService, YeepayService yeepayService, RedisMapper redisMapper, MerchantService merchantService, UserService userService, UserBankService userBankService) {
         this.orderService = orderService;
         this.orderRepayService = orderRepayService;
         this.yeepayService = yeepayService;
         this.redisMapper = redisMapper;
         this.merchantService = merchantService;
         this.userService = userService;
+        this.userBankService = userBankService;
     }
 
     @LoginRequired
@@ -74,12 +73,12 @@ public class YeepayRepayController {
                 String alias = RequestThread.getClientAlias();
                 Merchant merchant = merchantService.findMerchantByAlias(alias);
 
-                String err = yeepayService.payRequest(merchant.getYeepay_repay_appkey(), merchant.getYeepay_repay_private_key(), repayNo, String.valueOf(uid), cardNo, amount);
+                String err = yeepayService.payRequest(merchant.getYeepay_repay_appkey(), merchant.getYeepay_repay_private_key(), repayNo, String.valueOf(uid), cardNo, amount, true);
                 if(err!=null){
                     return new ResultMessage(ResponseEnum.M4000, err);
                 }
                 redisMapper.set(RedisConst.repay_text + repayNo, orderId, Constant.SMS_EXPIRATION_TIME);
-                return new ResultMessage(ResponseEnum.M2000);
+                return new ResultMessage(ResponseEnum.M2000, repayNo);
             } catch (Exception e) {
                 logger.error("易宝支付短信受理异常，error={}", e.getMessage());
                 return new ResultMessage(ResponseEnum.M4000);
@@ -184,25 +183,91 @@ public class YeepayRepayController {
         }
         if (callbackErr==null){
             orderRepay.setRepayStatus(OrderRepayStatusEnum.REPAY_SUCCESS.getCode());
+            orderRepay.setRemark("易宝支付成功");
         }else {
             logger.error("易宝异步通知:订单错误信息{}",callbackErr);
             orderRepay.setRepayStatus(OrderRepayStatusEnum.REPAY_FAILED.getCode());
+            orderRepay.setRemark("易宝支付失败:" + callbackErr);
+
         }
         orderRepay.setUpdateTime(new Date());
 
-        //设置Order
-        Order order = new Order();
-        order.setId(orderRepay.getOrderId());
-        order.setRealRepayTime(new Date());
-        order.setHadRepay(orderRepay.getRepayMoney());
-        if (33 == order.getStatus() || 34 == order.getStatus()) {
-            order.setStatus(42);
-        } else {
-            order.setStatus(41);
+        Order orderOld = orderService.selectByPrimaryKey(orderRepay.getOrderId());
+        if (41 == orderOld.getStatus() || 42 == orderOld.getStatus()) {
+            logger.info("异步通知:订单{}已还款：", orderOld.getId());
+            return "SUCCESS";
         }
-        orderRepayService.updateOrderRepayInfo(orderRepay, order);
+
+        Order orderUpd = new Order();
+        orderUpd.setId(orderRepay.getOrderId());
+        orderUpd.setRealRepayTime(new Date());
+        orderUpd.setHadRepay(orderRepay.getRepayMoney());
+
+        if (33 == orderOld.getStatus() || 34 == orderOld.getStatus()) {
+            orderUpd.setStatus(42);
+        } else {
+            orderUpd.setStatus(41);
+        }
+        orderRepayService.updateOrderRepayInfo(orderRepay, orderUpd);
         return "SUCCESS"; //收到通知 固定格式
     }
 
+    /**
+     * 扣款不发生短信,省了短信验证码确认,相当于合并了yeepay_repay_text和yeepay_repay_active
+     */
+    @LoginRequired
+    @RequestMapping(value = "yeepay_repay_no_sms")
+    public ResultMessage yeepay_repay_no_sms(String orderId) {
+
+        if (orderRepayService.countRepaySuccess(NumberUtils.toLong(orderId)) >= 1) {
+            logger.error("orderId={}已存在还款中的记录", NumberUtils.toLong(orderId));
+            return new ResultMessage(ResponseEnum.M4000.getCode(), "请勿重复还款");
+        }
+
+        Long uid = RequestThread.getUid();
+
+        Order order = orderService.selectByPrimaryKey(NumberUtils.toLong(orderId));
+        if (order.getStatus() == 31 || order.getStatus() == 33 || order.getStatus() == 34) { // 已放款，逾期，坏账状态
+            try {
+                String repayNo = StringUtil.getOrderNumber("r");// 支付流水号
+                String amount = "dev".equals(Constant.ENVIROMENT)?"0.11":order.getShouldRepay().toString();
+                String alias = RequestThread.getClientAlias();
+                Merchant merchant = merchantService.findMerchantByAlias(alias);
+                UserBank userBank = userBankService.selectUserCurrentBankCard(uid);
+
+                String err = yeepayService.payRequest(merchant.getYeepay_repay_appkey(), merchant.getYeepay_repay_private_key(),
+                        repayNo, String.valueOf(uid), userBank.getCardNo(), amount, false);
+
+                // 还款记录表
+                OrderRepay orderRepay = new OrderRepay();
+                orderRepay.setRepayNo(repayNo);
+                orderRepay.setUid(order.getUid());
+                orderRepay.setOrderId(order.getId());
+                orderRepay.setRepayType(1);
+                orderRepay.setRepayMoney(new BigDecimal(amount));
+                orderRepay.setBank(userBank.getCardName());
+                orderRepay.setBankNo(userBank.getCardNo());
+                orderRepay.setCreateTime(new Date());
+                orderRepay.setUpdateTime(new Date());
+                orderRepay.setRepayStatus(0);//初始状态
+
+                if(err!=null){
+                    orderRepay.setRepayStatus(OrderRepayStatusEnum.ACCEPT_FAILED.getCode());
+                    orderRepay.setRemark("易宝受理失败:" + err);
+                    orderRepayService.insertSelective(orderRepay);
+                    return new ResultMessage(ResponseEnum.M4000, err);
+                }
+
+                orderRepay.setRepayStatus(OrderRepayStatusEnum.ACCEPT_SUCCESS.getCode());
+                orderRepay.setRemark("易宝受理成功");
+                orderRepayService.insertSelective(orderRepay);
+                return new ResultMessage(ResponseEnum.M2000, order.getId());
+            } catch (Exception e) {
+                logger.error("易宝代付受理异常，error={}", e.getMessage());
+                return new ResultMessage(ResponseEnum.M4000);
+            }
+        }
+        return new ResultMessage(ResponseEnum.M4000.getCode(), "订单状态异常");
+    }
 
 }

@@ -33,7 +33,7 @@ public interface YeepayService {
      * @param amount 支付单位：元，精确到两位小数，大于等于 0.01
      * @return 错误信息
      */
-    String payRequest(String appKey, String privateKey, String requestNo, String identityId, String cardNo, String amount);
+    String payRequest(String appKey, String privateKey, String requestNo, String identityId, String cardNo, String amount, boolean sendSms);
 
     /**
      * 绑卡支付确认
