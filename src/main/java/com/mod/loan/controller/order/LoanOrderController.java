@@ -1,33 +1,12 @@
 package com.mod.loan.controller.order;
 
 
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import org.apache.commons.lang.StringUtils;
-import org.joda.time.DateTime;
-import org.joda.time.Days;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-
 import com.mod.loan.common.annotation.LoginRequired;
 import com.mod.loan.common.enums.ResponseEnum;
 import com.mod.loan.common.model.RequestThread;
 import com.mod.loan.common.model.ResultMessage;
-import com.mod.loan.config.Constant;
-import com.mod.loan.model.Merchant;
-import com.mod.loan.model.MerchantRate;
-import com.mod.loan.model.Order;
-import com.mod.loan.model.OrderPay;
-import com.mod.loan.model.UserIdent;
+import com.mod.loan.config.MerchantConfigMap;
+import com.mod.loan.model.*;
 import com.mod.loan.model.dto.LoanBefore;
 import com.mod.loan.model.dto.OrderStatusDTO;
 import com.mod.loan.service.MerchantRateService;
@@ -37,8 +16,18 @@ import com.mod.loan.service.UserIdentService;
 import com.mod.loan.util.StringUtil;
 import com.mod.loan.util.TimeUtils;
 import com.mod.loan.util.jwtUtil;
-
 import io.jsonwebtoken.Claims;
+import org.apache.commons.lang.StringUtils;
+import org.joda.time.DateTime;
+import org.joda.time.Days;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+import java.math.BigDecimal;
+import java.util.*;
 
 /**
  * 商城贷款接口文案，用户当前，订单明细，订单列表
@@ -54,8 +43,9 @@ public class LoanOrderController {
 	private OrderService orderService;
 	@Autowired
 	private UserIdentService userIdentService;
-	@Value("${server.h5.url}")
-	private String h5_url;
+	@Autowired
+    private MerchantConfigMap merchantConfigMap;
+
 	@Autowired
 	private MerchantRateService merchantRateService;
 	@Autowired
@@ -72,7 +62,6 @@ public class LoanOrderController {
         map.put("descMid","获取额度");
         map.put("descBottom","目前已有50000+人在这里成功借款");
         map.put("amount", "1000-5000");
-		map.put("url", Constant.SERVER_H5_URL + "user/mx_risk.html");
 		if (StringUtils.isBlank(token)) {
 			return new ResultMessage(ResponseEnum.M2000.getCode(), map);
 		}
@@ -82,7 +71,9 @@ public class LoanOrderController {
 		}
 		String uid = String.valueOf(verifyToken.get("uid"));
 		String merchant = String.valueOf(verifyToken.get("clientAlias"));
-		UserIdent userIdent = userIdentService.selectByPrimaryKey(Long.parseLong(uid));
+        map.put("url",  merchantConfigMap.get(merchant).getH5Url() + "user/mx_risk.html");
+
+        UserIdent userIdent = userIdentService.selectByPrimaryKey(Long.parseLong(uid));
 		if (null != userIdent && 2 == userIdent.getRealName() && 2 == userIdent.getUserDetails()
 				&& 2 == userIdent.getMobile() && 2 == userIdent.getLiveness() && 2 == userIdent.getAlipay()) {
             Integer borrowType = orderService.countPaySuccessByUid(Long.parseLong(uid));
@@ -93,10 +84,10 @@ public class LoanOrderController {
 			map.put("amount", money.intValue());
 			if (2 == userIdent.getBindbank()) {
 				map.put("status",2);
-				map.put("url", Constant.SERVER_H5_URL + "order/store_order_apply.html");
+				map.put("url", merchantConfigMap.get(merchant).getH5Url() + "order/store_order_apply.html");
 			}else {
 				map.put("status",1);
-				map.put("url", Constant.SERVER_H5_URL + "user/bank_card.html");
+				map.put("url", merchantConfigMap.get(merchant).getH5Url() + "user/bank_card.html");
 			}
 		}
 		return new ResultMessage(ResponseEnum.M2000.getCode(), map);
@@ -193,9 +184,9 @@ public class LoanOrderController {
 
 			Merchant merchant = merchantService.findMerchantByAlias(RequestThread.getClientAlias());
 			if(StringUtils.isBlank(merchant.getMerchantMarket())){
-				map.put("url", Constant.SERVER_H5_URL + "market.html?");
+				map.put("url", merchantConfigMap.get(merchant.getMerchantAlias()).getH5Url() + "market.html?");
 			}else if("order".equals(merchant.getMerchantMarket())){
-				map.put("url", Constant.SERVER_H5_URL+"order/store_order_detail.html?orderId="+order.getId());
+				map.put("url", merchantConfigMap.get(merchant.getMerchantAlias()).getH5Url() + "order/store_order_detail.html?orderId="+order.getId());
 			}else {
 				map.put("url", merchant.getMerchantMarket());
 			}
@@ -217,7 +208,7 @@ public class LoanOrderController {
 				map.put("remainDays",remainDays);
 			}
 			map.put("orderStatus",3);//3-我要还款
-			map.put("url", Constant.SERVER_H5_URL+"order/store_order_detail.html?orderId="+order.getId());
+			map.put("url", merchantConfigMap.get(RequestThread.getClientAlias()).getH5Url() +"order/store_order_detail.html?orderId="+order.getId());
 			return new ResultMessage(ResponseEnum.M2000, map);
 		}
 		if(33 == order.getStatus()	|| 34 == order.getStatus() ){//逾期或坏账
@@ -227,7 +218,7 @@ public class LoanOrderController {
 				map.put("remainDays",order.getOverdueDay());
 			}
 			map.put("orderStatus",4);//4-逾期还款
-			map.put("url",Constant.SERVER_H5_URL+"order/store_order_detail.html?orderId="+order.getId());
+			map.put("url", merchantConfigMap.get(RequestThread.getClientAlias()).getH5Url() +"order/store_order_detail.html?orderId="+order.getId());
 		}
 		return new ResultMessage(ResponseEnum.M2000, map);
 	}

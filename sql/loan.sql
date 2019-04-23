@@ -489,9 +489,11 @@ CREATE TABLE `tb_merchant_config`  (
   `merchant` VARCHAR(50) DEFAULT NULL COMMENT '商户名称',
   `mx_risk_token` VARCHAR(1000) DEFAULT NULL COMMENT '风控默认token',
   `mx_risk_renew_token` VARCHAR(1000) DEFAULT NULL COMMENT '风控续借token',
+  `h5_url` VARCHAR(255) DEFAULT NULL COMMENT 'h5地址',
   `create_time` CHAR(19) DEFAULT NULL COMMENT '插入时间',
   `update_time` CHAR(19) DEFAULT NULL COMMENT '更新时间',
-  PRIMARY KEY (`id`) USING BTREE
+  PRIMARY KEY (`id`) USING BTREE,
+  UNIQUE INDEX `idx_merchant`(`merchant`) USING BTREE
 ) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
