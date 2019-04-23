@@ -7,7 +7,6 @@ import com.mod.loan.common.enums.ResponseEnum;
 import com.mod.loan.common.model.RequestThread;
 import com.mod.loan.common.model.ResultMessage;
 import com.mod.loan.config.Constant;
-import com.mod.loan.config.MerchantConfigMap;
 import com.mod.loan.model.Merchant;
 import com.mod.loan.model.Order;
 import com.mod.loan.model.OrderRepay;
@@ -47,8 +46,6 @@ public class FuyouRepayController {
 	UserBankService userBankService;
 	@Autowired
 	MerchantService merchantService;
-	@Autowired
-	MerchantConfigMap merchantConfigMap;
 
 	/**
 	 * 查询商户支持的支付通道
@@ -106,9 +103,9 @@ public class FuyouRepayController {
 			//回调接口
 			String backUrl = Constant.SERVER_API_URL + "order/order_fuyou_callback";
 			//支付成功跳转页面
-			String homeUrl = merchantConfigMap.get(merchant.getMerchantAlias()).getH5Url() + "order/store_pay_return.html?orderId=" + order.getId();
+			String homeUrl = Constant.SERVER_H5_URL + "order/store_pay_return.html?orderId=" + order.getId();
 			//支付失败跳转页面（订单记录页面）
-			String returnUrl = merchantConfigMap.get(merchant.getMerchantAlias()).getH5Url() + "order/store_order_history.html";
+			String returnUrl = Constant.SERVER_H5_URL + "order/store_order_history.html";
 			String signPlain = type+"|"+"2.0"+"|"+merchant.getFuyou_merid()+"|"+orderSeriesId+"|"+userId
 					+"|"+amount+"|"+cardNo+"|"+backUrl+"|"+user.getUserName()+"|"+user.getUserCertNo()+"|"+idType+"|"+"0"+"|"
 					+ homeUrl +"|"+returnUrl+"|"+merchant.getFuyou_h5key();

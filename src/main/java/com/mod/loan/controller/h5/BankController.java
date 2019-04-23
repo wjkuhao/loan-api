@@ -50,6 +50,8 @@ public class BankController {
 	String environment;
 	@Value("${server.api.url:}")
 	String api_url;
+	@Value("${server.h5.url:}")
+	String h5_url;
 	@Autowired
 	UserIdentMapper userIdentMapper;
 	@Autowired
