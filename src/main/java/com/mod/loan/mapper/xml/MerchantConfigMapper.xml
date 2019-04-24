@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mod.loan.mapper.MerchantConfigMapper">
+  <resultMap id="BaseResultMap" type="com.mod.loan.model.MerchantConfig">
+
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="merchant" jdbcType="VARCHAR" property="merchant" />
+    <result column="mx_risk_token" jdbcType="VARCHAR" property="mxRiskToken" />
+    <result column="mx_risk_renew_token" jdbcType="VARCHAR" property="mxRiskRenewToken" />
+    <result column="h5_url" jdbcType="VARCHAR" property="h5Url" />
+    <result column="create_time" jdbcType="TINYINT" property="createTime" />
+    <result column="update_time" jdbcType="VARCHAR" property="updateTime" />
+  </resultMap>
+
+</mapper>

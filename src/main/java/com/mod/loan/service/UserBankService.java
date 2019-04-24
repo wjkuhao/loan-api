@@ -52,7 +52,7 @@ public interface UserBankService extends BaseService<UserBank,Long> {
     /**
      * 获取易宝绑卡短验
      */
-    ResultMessage sendYeepaySms(Long uid,String cardNo, String cardPhone,Bank bank);
+    ResultMessage sendYeepaySms(Long uid, String cardNo, String cardPhone,Bank bank);
 
     /**
      * 根据易宝短验进行绑卡

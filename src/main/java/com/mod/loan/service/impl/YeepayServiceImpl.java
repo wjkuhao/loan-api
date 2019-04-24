@@ -15,9 +15,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import sun.misc.BASE64Decoder;
 
+import java.io.IOException;
+import java.security.KeyFactory;
+import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
+import java.security.spec.InvalidKeySpecException;
+import java.security.spec.PKCS8EncodedKeySpec;
 
 @Service
 public class YeepayServiceImpl implements YeepayService {
@@ -35,16 +41,23 @@ public class YeepayServiceImpl implements YeepayService {
     @Value("${yeepay.repay.commit.url:}")
     String yeepay_repay_commit_url;
 
-    @Value("${yeepay.app_key:}")
-    String yeepay_app_key;
-
     @Value("${yeepay.callback.url:}")
     String yeepay_callback_url;
 
+    @Value("${yeepay.repay.query.url:}")
+    String yeepay_repay_query_url;
+
+    @Value("${yeepay.pay.send.url:}")
+    String yeepay_pay_send_url;
+
+    @Value("${yeepay.pay.query.url:}")
+    String yeepay_pay_query_url;
+
     @Override
-    public String authBindCardRequest(String requestNo, String identityId, String cardNo,
+    public String authBindCardRequest(String appKey, String privateKey, String requestNo, String identityId, String cardNo,
                                     String certNo, String userName,String cardPhone) {
-        YopRequest yoprequest = new YopRequest(yeepay_app_key);
+
+        YopRequest yoprequest = new YopRequest(appKey, privateKey);
         yoprequest.addParam("requestno", requestNo);
         yoprequest.addParam("identityid", identityId);
         yoprequest.addParam("identitytype", "USER_ID"); //用户标识类型
@@ -74,8 +87,8 @@ public class YeepayServiceImpl implements YeepayService {
     }
 
     @Override
-    public String authBindCardConfirm(String requestNo, String validateCode) {
-        YopRequest yoprequest = new YopRequest(yeepay_app_key);
+    public String authBindCardConfirm(String appKey, String privateKey, String requestNo, String validateCode) {
+        YopRequest yoprequest = new YopRequest(appKey, privateKey);
         yoprequest.addParam("requestno", requestNo);
         yoprequest.addParam("validatecode", validateCode);
 
@@ -93,10 +106,14 @@ public class YeepayServiceImpl implements YeepayService {
     }
 
     @Override
-    public String payRequest(String requestNo, String identityId, String cardNo, String amount) {
-        YopRequest yoprequest = new YopRequest(yeepay_app_key);
+    public String payRequest(String appKey, String privateKey, String requestNo, String identityId, String cardNo, String amount, boolean sendSms) {
+        YopRequest yoprequest = new YopRequest(appKey, privateKey);
         yoprequest.addParam("requestno", requestNo);
-        yoprequest.addParam("issms", "true");
+        if (sendSms){
+            yoprequest.addParam("issms", "true");
+        }else{
+            yoprequest.addParam("issms", "false");
+        }
         yoprequest.addParam("identityid", identityId);
         yoprequest.addParam("identitytype", "USER_ID");
         yoprequest.addParam("amount", amount);
@@ -104,10 +121,10 @@ public class YeepayServiceImpl implements YeepayService {
         yoprequest.addParam("avaliabletime", Constant.SMS_EXPIRATION_TIME/60); //验证码有效时间 单位：分钟
         yoprequest.addParam("requesttime", TimeUtils.getTime());
         yoprequest.addParam("advicesmstype", "MESSAGE"); //建议短验发送类型： MESSAGE 短信
-        yoprequest.addParam("productname", yeepay_app_key);
+        yoprequest.addParam("productname", appKey);
         yoprequest.addParam("cardtop", cardNo.substring(0, 6));
         yoprequest.addParam("cardlast", cardNo.substring(cardNo.length() - 4));
-        yoprequest.addParam("callbackurl", yeepay_callback_url);
+        yoprequest.addParam("callbackurl", String.format(yeepay_callback_url, identityId));
 
         log.info("authBindCardConfirm, getParams={}", yoprequest.getParams().toString());
 
@@ -115,7 +132,13 @@ public class YeepayServiceImpl implements YeepayService {
             YopResponse response = YopRsaClient.post(yeepay_repay_smg_url, yoprequest);
             log.info("send yeepay pay request :" + response);
 
-            return parseResult(response, "status", "TO_VALIDATE");
+            String result;
+            if (sendSms){
+                result = parseResult(response, "status", "TO_VALIDATE");
+            }else {
+                result = parseResult(response, "status", "PROCESSING");
+            }
+            return result;
         } catch (Exception e) {
             log.error("send yeepay pay request has error={}", e.getMessage());
             e.printStackTrace();
@@ -124,8 +147,8 @@ public class YeepayServiceImpl implements YeepayService {
     }
 
     @Override
-    public String payConfirm(String requestNo, String validateCode) {
-        YopRequest yoprequest = new YopRequest(yeepay_app_key);
+    public String payConfirm(String appKey, String privateKey, String requestNo, String validateCode) {
+        YopRequest yoprequest = new YopRequest(appKey, privateKey);
         yoprequest.addParam("requestno", requestNo);
         yoprequest.addParam("validatecode", validateCode);
 
@@ -186,4 +209,132 @@ public class YeepayServiceImpl implements YeepayService {
         return null;
     }
 
+    @Override
+    public String repayCallbackMultiAcct(String strPrivateKey, String responseMsg, StringBuffer requestNo) {
+        DigitalEnvelopeDTO dto = new DigitalEnvelopeDTO();
+        dto.setCipherText(responseMsg);
+        try {
+            //设置商户私钥
+            PrivateKey privateKey = getPrivateKeyObject(strPrivateKey);
+            //设置易宝公钥
+            PublicKey publicKey = getPubKeyObject();
+            //解密验签
+            dto = DigitalEnvelopeUtils.decrypt(dto, privateKey, publicKey);
+
+            String stringResult = dto.getPlainText();
+
+            log.info(stringResult);
+            if (!"PAY_SUCCESS".equals(JSONObject.parseObject(stringResult).getString("status"))){
+                return JSONObject.parseObject(stringResult).getString("errormsg");
+            }
+            String requestno = JSONObject.parseObject(stringResult).getString("requestno");
+            requestNo.append(requestno);
+        } catch (Exception e) {
+            e.printStackTrace();
+            log.error("callback error={}",e.getMessage());
+        }
+
+        return null;
+    }
+
+    private PublicKey getPubKeyObject() {
+        PublicKey publicKey = null;
+        try {
+            // 直接写死 config json里面的，易宝的公钥是一样的
+            String yeepay_public_key = "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA6p0XWjscY+gsyqKRhw9MeLsEmhFdBRhT2emOck/F1Omw38ZWhJxh9kDfs5HzFJMrVozgU+SJFDONxs8UB0wMILKRmqfLcfClG9MyCNuJkkfm0HFQv1hRGdOvZPXj3Bckuwa7FrEXBRYUhK7vJ40afumspthmse6bs6mZxNn/mALZ2X07uznOrrc2rk41Y2HftduxZw6T4EmtWuN2x4CZ8gwSyPAW5ZzZJLQ6tZDojBK4GZTAGhnn3bg5bBsBlw2+FLkCQBuDsJVsFPiGh/b6K/+zGTvWyUcu+LUj2MejYQELDO3i2vQXVDk7lVi2/TcUYefvIcssnzsfCfjaorxsuwIDAQAB";
+            java.security.spec.X509EncodedKeySpec bobPubKeySpec = new java.security.spec.X509EncodedKeySpec(
+                    new BASE64Decoder().decodeBuffer(yeepay_public_key));
+            // RSA对称加密算法
+            java.security.KeyFactory keyFactory;
+            keyFactory = java.security.KeyFactory.getInstance("RSA");
+            // 取公钥匙对象
+            publicKey = keyFactory.generatePublic(bobPubKeySpec);
+        } catch (NoSuchAlgorithmException | InvalidKeySpecException | IOException e) {
+            e.printStackTrace();
+        }
+        return publicKey;
+    }
+
+    /**
+     * 实例化私钥
+     */
+    private PrivateKey getPrivateKeyObject(String private_key) {
+        PrivateKey privateKey = null;
+        PKCS8EncodedKeySpec priPKCS8;
+        try {
+            priPKCS8 = new PKCS8EncodedKeySpec(new BASE64Decoder().decodeBuffer(private_key));
+            KeyFactory keyf = KeyFactory.getInstance("RSA");
+            privateKey = keyf.generatePrivate(priPKCS8);
+        } catch (IOException | NoSuchAlgorithmException | InvalidKeySpecException e) {
+            e.printStackTrace();
+        }
+        return privateKey;
+    }
+
+    @Override
+    public String repayQuery(String appKey, String privateKey, String requestNo, String yborderid) {
+        YopRequest yoprequest = new YopRequest(appKey, privateKey);
+        yoprequest.addParam("requestno", requestNo);
+        //yoprequest.addParam("yborderid", yborderid); //可以不需要
+
+        try {
+            YopResponse response = YopRsaClient.post(yeepay_repay_query_url, yoprequest);
+            log.info("send yeepay repayQuery response :" + response);
+
+            return parseResult(response, "status", "PAY_SUCCESS");
+        } catch (Exception e) {
+            log.error("send yeepay repayQuery has error={}", e.getMessage());
+            e.printStackTrace();
+            return e.getMessage();
+        }
+    }
+
+    @Override
+    public String payToCustom(String groupNo, String appKey, String privateKey, String batchNo, String orderId, String amount,
+    String accountName, String accountNumber, String bankCode) {
+        YopRequest yoprequest = new YopRequest(appKey, privateKey);
+
+        yoprequest.addParam("groupNumber", groupNo);
+        yoprequest.addParam("batchNo", batchNo);  //批次号 必须唯一长度15-20位之间，仅数字
+        yoprequest.addParam("orderId", orderId);  //最长50位，允许数字、字母
+        yoprequest.addParam("amount", amount);
+        yoprequest.addParam("accountName", accountName);
+        yoprequest.addParam("accountNumber", accountNumber);
+        yoprequest.addParam("bankCode", bankCode);
+    //    yoprequest.addParam("product", "WTJS"); //代付代发
+        log.info(yoprequest.getParams().toString());
+        try {
+            YopResponse response = YopRsaClient.post(yeepay_pay_send_url, yoprequest);
+            log.info("send yeepay pay response :" + response);
+
+            return parseResult(response, "errorCode", "BAC001");
+        } catch (Exception e) {
+            log.error("send yeepay pay has error={}", e.getMessage());
+            e.printStackTrace();
+            return e.getMessage();
+        }
+    }
+
+    @Override
+    public String payToCustomQuery(String groupNo, String appKey, String privateKey, String batchNo){
+        YopRequest yoprequest = new YopRequest(appKey, privateKey);
+
+        yoprequest.addParam("customerNumber", groupNo); //商户编号
+        yoprequest.addParam("batchNo", batchNo);  //批次号 必须唯一长度15-20位之间，仅数字
+       // yoprequest.addParam("orderId", orderId);  //最长50位，允许数字、字母 //目前业务一个批次就一笔订单
+       // yoprequest.addParam("pageSize", 100);  //默认100
+       // yoprequest.addParam("pageNo", 1); //默认1
+       // yoprequest.addParam("product", "WTJS"); //代付代发
+        log.info(yoprequest.getParams().toString());
+        try {
+            YopResponse response = YopRsaClient.post(yeepay_pay_query_url, yoprequest);
+            log.info("send yeepay pay query response :" + response);
+
+            return parseResult(response, "errorCode", "BAC001");
+        } catch (Exception e) {
+            log.error("send yeepay pay query has error={}", e.getMessage());
+            e.printStackTrace();
+            return e.getMessage();
+        }
+    }
 }

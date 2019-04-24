@@ -496,9 +496,10 @@ public class UserBankServiceImpl extends BaseServiceImpl<UserBank, Long> impleme
             return new ResultMessage(ResponseEnum.M4000,"用户信息不存在");
         }
 
-        String seriesNo = StringUtil.getOrderNumber("c");
-        String err = yeepayService.authBindCardRequest(seriesNo, String.valueOf(uid),
-                             cardNo, user.getUserCertNo(), user.getUserName(), cardPhone);
+		Merchant merchant = merchantService.findMerchantByAlias(user.getMerchant());
+		String seriesNo = StringUtil.getOrderNumber("c");
+        String err = yeepayService.authBindCardRequest(merchant.getYeepay_repay_appkey(), merchant.getYeepay_repay_private_key(),
+				seriesNo, String.valueOf(uid), cardNo, user.getUserCertNo(), user.getUserName(), cardPhone);
         if (err!=null){
             return new ResultMessage(ResponseEnum.M4000,err);
         }
@@ -520,8 +521,13 @@ public class UserBankServiceImpl extends BaseServiceImpl<UserBank, Long> impleme
         if (validateCodeVo == null) {
             return new ResultMessage(ResponseEnum.M4000.getCode(), "验证码失效,请重新获取");
         }
+		User user = userService.selectByPrimaryKey(uid);
+		if (user == null) {
+			return new ResultMessage(ResponseEnum.M4000,"用户信息不存在");
+		}
 
-        String err = yeepayService.authBindCardConfirm(validateCodeVo.getP4_orderId(), validateCode);
+		Merchant merchant = merchantService.findMerchantByAlias(user.getMerchant());
+		String err = yeepayService.authBindCardConfirm(merchant.getYeepay_repay_appkey(), merchant.getYeepay_repay_private_key(), validateCodeVo.getP4_orderId(), validateCode);
         if (err!=null){
             return new ResultMessage(ResponseEnum.M4000, err);
         }
