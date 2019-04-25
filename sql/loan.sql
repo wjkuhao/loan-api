@@ -558,6 +558,7 @@ CREATE TABLE `tb_merchant_origin`  (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `merchant` varchar(20) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '所属商户',
   `origin_name` varchar(20) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '渠道别名',
+  `mx_risk_token` varchar(1000) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '风控token',
   `create_time` datetime(0) NULL DEFAULT CURRENT_TIMESTAMP,
   `deduction_rate` tinyint(3) NOT NULL DEFAULT 0 COMMENT '扣量比例',
   PRIMARY KEY (`id`) USING BTREE
