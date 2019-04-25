@@ -14,4 +14,6 @@ public interface OrderMapper extends MyBaseMapper<Order> {
 	Integer judgeUserTypeByUid(Long uid);
 
 	Integer countPaySuccessByUid(Long uid);
+
+	List<Order> findOverdueOrder();
 }

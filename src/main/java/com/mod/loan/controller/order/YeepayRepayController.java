@@ -38,17 +38,15 @@ public class YeepayRepayController {
     private final RedisMapper redisMapper;
     private final MerchantService merchantService;
     private final UserService userService;
-    private final UserBankService userBankService;
 
     @Autowired
-    public YeepayRepayController(OrderService orderService, OrderRepayService orderRepayService, YeepayService yeepayService, RedisMapper redisMapper, MerchantService merchantService, UserService userService, UserBankService userBankService) {
+    public YeepayRepayController(OrderService orderService, OrderRepayService orderRepayService, YeepayService yeepayService, RedisMapper redisMapper, MerchantService merchantService, UserService userService) {
         this.orderService = orderService;
         this.orderRepayService = orderRepayService;
         this.yeepayService = yeepayService;
         this.redisMapper = redisMapper;
         this.merchantService = merchantService;
         this.userService = userService;
-        this.userBankService = userBankService;
     }
 
     @LoginRequired
@@ -218,56 +216,11 @@ public class YeepayRepayController {
     @LoginRequired
     @RequestMapping(value = "yeepay_repay_no_sms")
     public ResultMessage yeepay_repay_no_sms(String orderId) {
-
-        if (orderRepayService.countRepaySuccess(NumberUtils.toLong(orderId)) >= 1) {
-            logger.error("orderId={}已存在还款中的记录", NumberUtils.toLong(orderId));
-            return new ResultMessage(ResponseEnum.M4000.getCode(), "请勿重复还款");
+        String errMsg = orderRepayService.yeepayRepayNoSms(Long.valueOf(orderId));
+        if (errMsg == null) {
+            return new ResultMessage(ResponseEnum.M2000, orderId);
+        } else {
+            return new ResultMessage(ResponseEnum.M4000, errMsg);
         }
-
-        Long uid = RequestThread.getUid();
-
-        Order order = orderService.selectByPrimaryKey(NumberUtils.toLong(orderId));
-        if (order.getStatus() == 31 || order.getStatus() == 33 || order.getStatus() == 34) { // 已放款，逾期，坏账状态
-            try {
-                String repayNo = StringUtil.getOrderNumber("r");// 支付流水号
-                String amount = "dev".equals(Constant.ENVIROMENT)?"0.11":order.getShouldRepay().toString();
-                String alias = RequestThread.getClientAlias();
-                Merchant merchant = merchantService.findMerchantByAlias(alias);
-                UserBank userBank = userBankService.selectUserCurrentBankCard(uid);
-
-                String err = yeepayService.payRequest(merchant.getYeepay_repay_appkey(), merchant.getYeepay_repay_private_key(),
-                        repayNo, String.valueOf(uid), userBank.getCardNo(), amount, false);
-
-                // 还款记录表
-                OrderRepay orderRepay = new OrderRepay();
-                orderRepay.setRepayNo(repayNo);
-                orderRepay.setUid(order.getUid());
-                orderRepay.setOrderId(order.getId());
-                orderRepay.setRepayType(1);
-                orderRepay.setRepayMoney(new BigDecimal(amount));
-                orderRepay.setBank(userBank.getCardName());
-                orderRepay.setBankNo(userBank.getCardNo());
-                orderRepay.setCreateTime(new Date());
-                orderRepay.setUpdateTime(new Date());
-                orderRepay.setRepayStatus(0);//初始状态
-
-                if(err!=null){
-                    orderRepay.setRepayStatus(OrderRepayStatusEnum.ACCEPT_FAILED.getCode());
-                    orderRepay.setRemark("易宝受理失败:" + err);
-                    orderRepayService.insertSelective(orderRepay);
-                    return new ResultMessage(ResponseEnum.M4000, err);
-                }
-
-                orderRepay.setRepayStatus(OrderRepayStatusEnum.ACCEPT_SUCCESS.getCode());
-                orderRepay.setRemark("易宝受理成功");
-                orderRepayService.insertSelective(orderRepay);
-                return new ResultMessage(ResponseEnum.M2000, order.getId());
-            } catch (Exception e) {
-                logger.error("易宝代付受理异常，error={}", e.getMessage());
-                return new ResultMessage(ResponseEnum.M4000);
-            }
-        }
-        return new ResultMessage(ResponseEnum.M4000.getCode(), "订单状态异常");
     }
-
 }

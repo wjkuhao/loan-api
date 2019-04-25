@@ -37,4 +37,5 @@ public interface OrderService extends BaseService<Order,Long> {
 
     Integer countPaySuccessByUid(Long uid);
 
+    List<Order> findOverdueOrder();
 }
