@@ -1185,7 +1185,7 @@ DROP TABLE IF EXISTS `tb_merchant_defer_config`;
 CREATE TABLE `tb_merchant_defer_config`  (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `merchant` VARCHAR(50) DEFAULT NULL COMMENT '商户名称',
-  `status` TINYINT(1) DEFAULT 1 COMMENT '续期开关',
+  `status` TINYINT(1) DEFAULT 0 COMMENT '续期开关: 0-禁用 1-启用',
   `daily_defer_rate` DOUBLE(7, 2) DEFAULT NULL COMMENT '日续期费率:百分比',
   `daily_defer_fee` DOUBLE(7, 2) DEFAULT NULL COMMENT '日续期费',
   `daily_other_fee` DOUBLE(7, 2) DEFAULT NULL COMMENT '日额外费',
@@ -1206,6 +1206,7 @@ CREATE TABLE `tb_order_defer`  (
   `user_name` VARCHAR(30) DEFAULT NULL COMMENT '姓名',
   `user_phone` VARCHAR(20) DEFAULT NULL COMMENT '手机',
   `defer_day` TINYINT(2) default NUll COMMENT '续期天数',
+  `daily_defer_fee` DOUBLE(7, 2) DEFAULT NULL COMMENT '日续期费',
   `defer_fee` DOUBLE(7, 2) DEFAULT NULL COMMENT '续期费',
   `defer_times` TINYINT(2) DEFAULT NULL COMMENT '当前第几次续期',
   `pay_type` CHAR(10) DEFAULT NULL COMMENT '支付方式:线上/线下',
@@ -1213,9 +1214,10 @@ CREATE TABLE `tb_order_defer`  (
   `pay_status` TINYINT(1) DEFAULT 0 COMMENT '续期订单状态:0-未支付 1-已支付',
   `pay_time` CHAR(19) DEFAULT NULL COMMENT '续期支付时间',
   `create_time` CHAR(19) DEFAULT NULL COMMENT '续期申请时间',
+  `repay_date` CHAR(10) DEFAULT NULL COMMENT '原始到期日',
   `defer_repay_date` CHAR(10) DEFAULT NULL COMMENT '续期到期日',
   `remark` VARCHAR(255) DEFAULT null COMMENT '备注',
   PRIMARY KEY (`id`) USING BTREE,
-  INDEX `idx_order_id`(`order_id`) USING BTREE, 
+  INDEX `idx_order_id`(`order_id`) USING BTREE,
   INDEX `idx_pay_time`(`pay_time`) USING BTREE
 ) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
