@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mod.loan.mapper.OrderDeferMapper">
+    <resultMap id="BaseResultMap" type="com.mod.loan.model.OrderDefer">
+        <id column="id" jdbcType="BIGINT" property="id"/>
+        <result column="order_id" jdbcType="BIGINT" property="orderId"/>
+        <result column="user_name" jdbcType="VARCHAR" property="userName"/>
+        <result column="user_phone" jdbcType="VARCHAR" property="userPhone"/>
+        <result column="defer_day" jdbcType="INTEGER" property="deferDay"/>
+        <result column="daily_defer_fee" jdbcType="DOUBLE" property="dailyDeferFee"/>
+        <result column="defer_fee" jdbcType="DOUBLE" property="deferFee"/>
+        <result column="defer_times" jdbcType="INTEGER" property="deferTimes"/>
+        <result column="pay_type" jdbcType="VARCHAR" property="payType"/>
+        <result column="pay_no" jdbcType="VARCHAR" property="payNo"/>
+        <result column="pay_status" jdbcType="INTEGER" property="payStatus"/>
+        <result column="pay_time" jdbcType="VARCHAR" property="payTime"/>
+        <result column="create_time" jdbcType="VARCHAR" property="createTime"/>
+        <result column="repay_date" jdbcType="VARCHAR" property="repayDate"/>
+        <result column="defer_repay_date" jdbcType="VARCHAR" property="deferRepayDate"/>
+        <result column="remark" jdbcType="VARCHAR" property="remark"/>
+    </resultMap>
+</mapper>
