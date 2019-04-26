@@ -733,6 +733,7 @@ CREATE TABLE `tb_order`  (
   `product_id` bigint(20) NOT NULL,
   `user_type` tinyint(4) NULL DEFAULT 1 COMMENT '1-新客，2-次新，3-续客',
   `recycle_type` tinyint(4) NULL DEFAULT 0 COMMENT '催收标签0-其他1-承诺还款2-谈判-高负债3-谈判-还款意愿低4-无人接听5-关机6-无法接通7-设置8-通话中9-停机10-跳票11-家人代偿12-线下已还款13-失联（本人通讯录无效）14-拒绝还款15-部分还款16-谈判中17-第三方转告18-停止催收',
+  `group_id` bigint(20) NULL COMMENT 'tb_recycle_group表的主键,用于进行逾期S级分组',
   PRIMARY KEY (`id`) USING BTREE,
   INDEX `idx_uid`(`uid`) USING BTREE,
   INDEX `idx_merchant`(`merchant`) USING BTREE,
@@ -882,6 +883,8 @@ CREATE TABLE `tb_recycle_group`  (
   `group_name` varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '组名',
   `create_time` datetime(0) NOT NULL,
   `merchant` varchar(20) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '所属商户',
+  `start_day` int(11) NULL COMMENT '逾期开始时间(大于等于)',
+  `end_day` int(11) NULL COMMENT '逾期结束时间(小于)',
   PRIMARY KEY (`id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 161 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
 
@@ -1221,3 +1224,4 @@ CREATE TABLE `tb_order_defer`  (
   INDEX `idx_order_id`(`order_id`) USING BTREE,
   INDEX `idx_pay_time`(`pay_time`) USING BTREE
 ) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
+
