@@ -33,6 +33,7 @@
 		<commons-lang.version>2.6</commons-lang.version>
 		<aspectjweaver.version>1.8.9</aspectjweaver.version>
 		<jsoup.version>1.9.2</jsoup.version>
+		<commons-beanutils.version>1.9.3</commons-beanutils.version>
 	</properties>
 
 	<dependencies>
@@ -161,6 +162,13 @@
 			<groupId>com.yeepay.g3</groupId>
 			<artifactId>yop-java-sdk</artifactId>
 			<version>3.2.9</version>
+		</dependency>
+
+		<!-- 合利宝商户查询使用的apache包 -->
+		<dependency>
+			<groupId>commons-beanutils</groupId>
+			<artifactId>commons-beanutils</artifactId>
+			<version>${commons-beanutils.version}</version>
 		</dependency>
 
 	</dependencies>
