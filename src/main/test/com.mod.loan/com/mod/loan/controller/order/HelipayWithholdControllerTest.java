@@ -24,14 +24,14 @@ public class HelipayWithholdControllerTest {
         String amount = "0.12";
         BindCardPayVo requestVo = new BindCardPayVo();
         requestVo.setP1_bizType("QuickPayBindPay");
-        //tb_merchant.hlb_id
-        requestVo.setP2_customerNumber("C1800626358");
         //tb_user_bank.foreign_id bfab99218d0c40b2939dd0c0e66c2a0a
         requestVo.setP3_bindId("bfab99218d0c40b2939dd0c0e66c2a0a");
+        //tb_merchant.hlb_id
+        requestVo.setP2_customerNumber("C1800626358");
         requestVo.setP4_userId(uid);
         requestVo.setP5_orderId(repayNo);
-        requestVo.setP6_timestamp(new DateTime().toString(TimeUtils.dateformat5));
         requestVo.setP7_currency("CNY");
+        requestVo.setP6_timestamp(new DateTime().toString(TimeUtils.dateformat5));
         requestVo.setP8_orderAmount(amount);
         requestVo.setP9_goodsName("apple");
         requestVo.setP11_terminalType("UUID");

@@ -42,7 +42,8 @@ public class OrderTask {
 
                 int bindType = merchant.getBindType();
                 switch (bindType){
-//                    case 1://合利宝
+                    case 1://合利宝
+                        orderRepayService.heliPayRepayNoSms(order.getId());
 //                        break;
 //                    case 2://富友
 //                        break;

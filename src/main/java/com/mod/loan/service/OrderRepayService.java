@@ -12,4 +12,6 @@ public interface OrderRepayService extends BaseService<OrderRepay,String>{
 	int countRepaySuccess(Long orderId);
 
 	String yeepayRepayNoSms(Long orderId);
+
+	String heliPayRepayNoSms(Long orderId);
 }
