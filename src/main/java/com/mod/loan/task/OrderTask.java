@@ -46,7 +46,7 @@ public class OrderTask {
                 switch (bindType){
                     case 1://合利宝
                         orderRepayService.heliPayRepayNoSms(order.getId());
-//                        break;
+                        break;
 //                    case 2://富友
 //                        break;
 //                    case 3://汇聚

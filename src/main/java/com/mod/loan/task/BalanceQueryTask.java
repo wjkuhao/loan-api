@@ -5,8 +5,10 @@ import com.mod.loan.common.message.QueueSmsMessage;
 import com.mod.loan.common.model.ResultMessage;
 import com.mod.loan.config.rabbitmq.RabbitConst;
 import com.mod.loan.model.Merchant;
+import com.mod.loan.service.HeliPayService;
 import com.mod.loan.service.MerchantService;
 import com.mod.loan.service.YeepayService;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
@@ -19,19 +21,21 @@ import java.util.List;
 
 @RestController
 @RequestMapping("balanceTest")
-public class balanceQueryTask {
+public class BalanceQueryTask {
 
-    private static final Logger logger = LoggerFactory.getLogger(balanceQueryTask.class);
+    private static final Logger logger = LoggerFactory.getLogger(BalanceQueryTask.class);
 
     private final YeepayService yeepayService;
     private final MerchantService merchantService;
     private final RabbitTemplate rabbitTemplate;
+    private final HeliPayService heliPayService;
 
     @Autowired
-    public balanceQueryTask(YeepayService yeepayService, MerchantService merchantService, RabbitTemplate rabbitTemplate) {
+    public BalanceQueryTask(YeepayService yeepayService, MerchantService merchantService, RabbitTemplate rabbitTemplate, HeliPayService heliPayService) {
         this.yeepayService = yeepayService;
         this.merchantService = merchantService;
         this.rabbitTemplate = rabbitTemplate;
+        this.heliPayService = heliPayService;
     }
 
     //每天晚上10点查询一次余额
@@ -42,25 +46,27 @@ public class balanceQueryTask {
             List<Merchant> merchantList = merchantService.selectAll();
             for (Merchant merchant : merchantList) {
                 int bindType = merchant.getBindType();
-                switch (bindType){
-//                    case 1://合利宝
-//                        break;
+                StringBuffer balance = new StringBuffer();
+                String errMsg = "";
+                switch (bindType) {
+                    case 1://合利宝
+                        errMsg = heliPayService.balanceQuery(merchant, balance);
+                        break;
 //                    case 2://富友
 //                        break;
 //                    case 3://汇聚
 //                        break;
                     case 4://易宝
-                        StringBuffer balance = new StringBuffer();
-                        String errMsg = yeepayService.balanceQuery(merchant.getYeepay_loan_appkey(),merchant.getYeepay_loan_private_key(),balance);
-                        if (errMsg==null){
-                            sendSmsMessage(merchant.getMerchantAlias(), balance.toString());
-                        }else {
-                            logger.error("yeepay appkey={} balanceQuery error={}", merchant.getYeepay_loan_appkey(), errMsg);
-                        }
+                        errMsg = yeepayService.balanceQuery(merchant.getYeepay_loan_appkey(), merchant.getYeepay_loan_private_key(), balance);
                         break;
                     default:
                         logger.error("bindType = {} unsupport", bindType);
                         break;
+                }
+                if (StringUtils.isEmpty(errMsg)) {
+                    sendSmsMessage(merchant.getMerchantAlias(), balance.toString());
+                } else {
+                    logger.error("bindType:{} merchant:{} balanceQuery error:{}", bindType, merchant.getMerchantAlias(), errMsg);
                 }
                 Thread.sleep(100);
             }
@@ -71,7 +77,7 @@ public class balanceQueryTask {
         logger.info("------------------balanceQueryTask end--------------------");
     }
 
-    private void sendSmsMessage(String merchant, String balance){
+    private void sendSmsMessage(String merchant, String balance) {
         QueueSmsMessage smsMessage = new QueueSmsMessage();
         smsMessage.setClientAlias(merchant);
         smsMessage.setType("2004"); //短信类型：余额通知短信

@@ -194,6 +194,7 @@ public class OrderRepayServiceImpl extends BaseServiceImpl<OrderRepay, String> i
                     orderRepayMapper.insertSelective(orderRepay);
                     return responseVo.getRt3_retMsg();
                 }
+
             } catch (Exception e) {
                 logger.error("合利宝代付受理异常，error={}", e);
                 return "合利宝代付受理异常";

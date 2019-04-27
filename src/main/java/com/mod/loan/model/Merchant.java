@@ -101,6 +101,9 @@ public class Merchant {
     @Column(name = "yeepay_loan_private_key")
     private String yeepay_loan_private_key;
 
+    @Column(name = "hlb_merchant_sign")
+    private String hlbMerchantSign;
+
     public String getYeepay_loan_appkey() {
         return yeepay_loan_appkey;
     }
@@ -344,5 +347,13 @@ public class Merchant {
 
     public void setBindType(Integer bindType) {
         this.bindType = bindType;
+    }
+
+    public String getHlbMerchantSign() {
+        return hlbMerchantSign;
+    }
+
+    public void setHlbMerchantSign(String hlbMerchantSign) {
+        this.hlbMerchantSign = hlbMerchantSign;
     }
 }
