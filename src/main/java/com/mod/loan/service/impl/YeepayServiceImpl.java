@@ -53,6 +53,9 @@ public class YeepayServiceImpl implements YeepayService {
     @Value("${yeepay.pay.query.url:}")
     String yeepay_pay_query_url;
 
+    @Value("${yeepay.balance.query.url:}")
+    String yeepay_balance_query_url;
+
     @Override
     public String authBindCardRequest(String appKey, String privateKey, String requestNo, String identityId, String cardNo,
                                     String certNo, String userName,String cardPhone) {
@@ -333,6 +336,29 @@ public class YeepayServiceImpl implements YeepayService {
             return parseResult(response, "errorCode", "BAC001");
         } catch (Exception e) {
             log.error("send yeepay pay query has error={}", e.getMessage());
+            e.printStackTrace();
+            return e.getMessage();
+        }
+    }
+
+    @Override
+    public String balanceQuery(String appKey, String privateKey, StringBuffer balance){
+        YopRequest yoprequest = new YopRequest(appKey, privateKey);
+
+        try {
+            YopResponse response = YopRsaClient.post(yeepay_balance_query_url, yoprequest);
+            log.info("send yeepay balance query response :" + response);
+
+            String errMsg = parseResult(response, "errorCode", "BAC001");
+            if (errMsg==null){
+                String stringResult = response.getStringResult();
+                balance.append(JSONObject.parseObject(stringResult).getString("accountAmount"));
+                return null;
+            }else {
+                return errMsg;
+            }
+        } catch (Exception e) {
+            log.error("send yeepay balance query has error={}", e.getMessage());
             e.printStackTrace();
             return e.getMessage();
         }

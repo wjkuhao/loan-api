@@ -8,11 +8,13 @@ import com.mod.loan.service.OrderService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Profile;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
 
+@Profile("online")
 @Component
 public class OrderTask {
 
@@ -61,7 +63,7 @@ public class OrderTask {
 			}
             logger.info("------------------auto repay end--------------------");
         } catch (Exception e) {
-			logger.error("自动代扣异常", e);
+			logger.error("自动代扣异常={}", e);
 		}
 	}
 

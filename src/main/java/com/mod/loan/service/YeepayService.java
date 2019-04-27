@@ -101,5 +101,7 @@ public interface YeepayService {
      */
     String payToCustomQuery(String groupNo, String appKey, String privateKey, String batchNo);
 
+    String balanceQuery(String appKey, String privateKey, StringBuffer balance);
+
 }
 
