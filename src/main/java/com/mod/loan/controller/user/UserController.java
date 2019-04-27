@@ -137,6 +137,31 @@ public class UserController {
 		return new ResultMessage(ResponseEnum.M2000);
 	}
 
+	@RequestMapping(value = "mobile_code_no_graph_code")
+	@Api
+	public ResultMessage mobile_code(String phone, String sms_type) {
+		if (!CheckUtils.isMobiPhoneNum(phone)) {
+			return new ResultMessage(ResponseEnum.M4000.getCode(), "手机号码错误");
+		}
+
+		EnumSmsTemplate enumSmsType = EnumSmsTemplate.getTemplate(sms_type);
+		if (enumSmsType == null) {
+			return new ResultMessage(ResponseEnum.M4000.getCode(), "短信事件类型错误");
+		}
+		// 注册类型,判断用户是否存在
+		if ("1001".equals(sms_type) && userService.selectUserByPhone(phone, RequestThread.getClientAlias()) != null) {
+			return new ResultMessage(ResponseEnum.M2001);
+		}
+
+		String randomNum = RandomUtils.generateRandomNum(4);
+		// 发送验证码，5分钟内有效
+		redisMapper.set(RedisConst.USER_PHONE_CODE + phone, randomNum, 300);
+		rabbitTemplate.convertAndSend(RabbitConst.queue_sms,
+				new SmsMessage(RequestThread.getClientAlias(), enumSmsType.getKey(), phone, randomNum + "|5分钟"));
+		redisMapper.remove(RedisConst.USER_GRAPH_CODE + phone);
+		return new ResultMessage(ResponseEnum.M2000);
+	}
+
 	@RequestMapping(value = "user_judge_register")
 	@Api
 	public ResultMessage user_judge_register(String phone) {
