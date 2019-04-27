@@ -34,7 +34,8 @@ public class balanceQueryTask {
         this.rabbitTemplate = rabbitTemplate;
     }
 
-    @Scheduled(cron = "0 0 10 * * ?")
+    //每天晚上10点查询一次余额
+    @Scheduled(cron = "0 0 22 * * ?")
     public void MerchantBalanceQueryTask() {
         try {
             logger.info("------------------balanceQueryTask start------------------");
@@ -52,12 +53,7 @@ public class balanceQueryTask {
                         StringBuffer balance = new StringBuffer();
                         String errMsg = yeepayService.balanceQuery(merchant.getYeepay_loan_appkey(),merchant.getYeepay_loan_private_key(),balance);
                         if (errMsg==null){
-                            QueueSmsMessage smsMessage = new QueueSmsMessage();
-                            smsMessage.setClientAlias(merchant.getMerchantAlias());
-                            smsMessage.setType("2004");
-                            smsMessage.setPhone("15757127746,13979127403,18072878602");
-                            smsMessage.setParams(balance.toString());
-                            rabbitTemplate.convertAndSend(RabbitConst.queue_sms, smsMessage);
+                            sendSmsMessage(merchant.getMerchantAlias(), balance.toString());
                         }else {
                             logger.error("yeepay appkey={} balanceQuery error={}", merchant.getYeepay_loan_appkey(), errMsg);
                         }
@@ -75,6 +71,14 @@ public class balanceQueryTask {
         logger.info("------------------balanceQueryTask end--------------------");
     }
 
+    private void sendSmsMessage(String merchant, String balance){
+        QueueSmsMessage smsMessage = new QueueSmsMessage();
+        smsMessage.setClientAlias(merchant);
+        smsMessage.setType("2004"); //短信类型：余额通知短信
+        smsMessage.setPhone("15757127746,13979127403,18072878602");
+        smsMessage.setParams(balance);
+        rabbitTemplate.convertAndSend(RabbitConst.queue_sms, smsMessage);
+    }
 
     @RequestMapping(value = "query")
     public ResultMessage balance_query_test() {
