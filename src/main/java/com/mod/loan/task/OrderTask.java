@@ -9,7 +9,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -32,8 +31,8 @@ public class OrderTask {
     }
 
 	//每天11点和晚上9点自动还款（当日还款、逾期、坏账的单子）
-	@Scheduled(cron = "0 0 11,21 * * ?")
-    public void updateOverdueInfoTask() {
+	//@Scheduled(cron = "0 0 11,21 * * ?")
+    public void autoRepayOverdueInfoTask() {
 		try {
             logger.info("------------------auto repay start------------------");
 			List<Order> overdueOrder = orderService.findOverdueOrder();

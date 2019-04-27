@@ -13,7 +13,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -39,7 +38,7 @@ public class BalanceQueryTask {
     }
 
     //每天晚上10点查询一次余额
-    @Scheduled(cron = "0 0 22 * * ?")
+    //@Scheduled(cron = "0 0 22 * * ?")
     public void MerchantBalanceQueryTask() {
         try {
             logger.info("------------------balanceQueryTask start------------------");
