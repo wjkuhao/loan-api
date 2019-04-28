@@ -48,4 +48,9 @@
   <select id="countPaySuccessByUid" resultType="int">
     SELECT count(1) FROM tb_order WHERE uid=#{uid} AND STATUS IN (41,42)
   </select>
+
+  <select id="findOverdueOrder" resultMap="BaseResultMap">
+    select id, merchant from tb_order where status in(31,33,34) and repay_time &lt;= date_format(now(),'%Y-%m-%d')
+  </select>
+
 </mapper>

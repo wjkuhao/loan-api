@@ -25,7 +25,6 @@ public class OrderServiceImpl  extends BaseServiceImpl<Order,Long> implements Or
 	OrderPayMapper orderPayMapper;
 	@Override
 	public Order findUserLatestOrder(Long uid) {
-		// TODO Auto-generated method stub
 		return orderMapper.findUserLatestOrder(uid);
 	}
 
@@ -36,7 +35,6 @@ public class OrderServiceImpl  extends BaseServiceImpl<Order,Long> implements Or
 
 	@Override
 	public int addOrder(Order order, OrderPhone orderPhone) {
-		// TODO Auto-generated method stub
 		orderMapper.insertSelective(order);
 		orderPhone.setOrderId(order.getId());
 		return orderPhoneMapper.insertSelective(orderPhone);
@@ -44,7 +42,6 @@ public class OrderServiceImpl  extends BaseServiceImpl<Order,Long> implements Or
 
 	@Override
 	public OrderPhone findOrderPhoneByOrderId(Long orderId) {
-		// TODO Auto-generated method stub
 		return orderPhoneMapper.selectByPrimaryKey(orderId);
 	}
 
@@ -70,4 +67,8 @@ public class OrderServiceImpl  extends BaseServiceImpl<Order,Long> implements Or
 		return orderMapper.countPaySuccessByUid(uid);
 	}
 
+    @Override
+    public List<Order> findOverdueOrder() {
+	    return orderMapper.findOverdueOrder();
+    }
 }
