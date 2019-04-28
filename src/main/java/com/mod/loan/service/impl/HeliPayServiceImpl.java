@@ -8,7 +8,6 @@ import com.mod.loan.util.heli.HttpClientService;
 import com.mod.loan.util.heli.util.Disguiser;
 import com.mod.loan.util.heli.util.HeliPayBeanUtils;
 import com.mod.loan.util.heli.vo.request.QueryMerchantAccountVo;
-import com.mod.loan.util.heli.vo.response.QueryMerchantAccountResponseVo;
 import org.apache.commons.lang.StringUtils;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
@@ -50,15 +49,17 @@ public class HeliPayServiceImpl implements HeliPayService {
             map.put("sign", sign);
             log.info("发送参数：" + map);
             String response = HttpClientService.getHttpResp(map, helipay_merchant_url);
+            //{"rt12_desc":"","rt9_T1Balance":"161919.61","rt14_rechargeBalance":"0.00","sign":"b771a202e8d7850f6f25ca302eb44462","rt1_bizType":"MerchantAccountQuery","rt2_retCode":"0000","rt8_d0Balance":"225399.74","rt15_amountToBeSettled":"161919.61","rt5_accountStatus":"AVAILABLE","rt6_balance":"387319.35","rt7_frozenBalance":"0.00","rt11_createDate":"2019-03-12 10:06:28","rt10_currency":"CNY","rt4_customerNumber":"C1800626358","rt13_d1Balance":"161919.61","rt3_retMsg":"成功"}
             log.info("响应结果：" + response);
-            QueryMerchantAccountResponseVo responseVo = JSONObject.parseObject(response, QueryMerchantAccountResponseVo.class);
-            log.info("responseVo:{}", responseVo);
-            if ("0000".equals(responseVo.getRt2_retCode())) {
-                log.info("success,账户余额:" + responseVo.getRt6_balance());
-                balance.append(responseVo.getRt6_balance());
+            JSONObject data = JSONObject.parseObject(response);
+            if ("0000".equals(data.getString("rt2_retCode"))) {
+                balance.append("账户余额:" + data.getString("rt6_balance"));
+                balance.append("可结算金额:" + data.getString("rt15_amountToBeSettled"));
+                balance.append("待结算金额:" + data.getString("rt8_d0Balance"));
+                log.info("合利宝商户查询->{}", balance.toString());
                 return null;
             } else {
-                return responseVo.getRt3_retMsg();
+                return data.getString("rt3_retMsg");
             }
         } catch (Exception e) {
             log.error("合利宝商户余额查询失败:error:{}", e);
