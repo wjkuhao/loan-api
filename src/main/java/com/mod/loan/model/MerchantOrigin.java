@@ -27,8 +27,17 @@ public class MerchantOrigin {
     @Column(name = "deduction_rate")
     private Integer deductionRate;
 
-    Integer status;
+    private Integer status;
 
+    private String mxRiskToken;
+
+    public String getMxRiskToken() {
+        return mxRiskToken;
+    }
+
+    public void setMxRiskToken(String mxRiskToken) {
+        this.mxRiskToken = mxRiskToken;
+    }
     public Integer getStatus() {
         return status;
     }
