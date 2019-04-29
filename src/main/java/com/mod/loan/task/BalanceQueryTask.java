@@ -77,12 +77,9 @@ public class BalanceQueryTask {
     }
 
     private void sendSmsMessage(String merchant, String balance) {
-        QueueSmsMessage smsMessage = new QueueSmsMessage();
-        smsMessage.setClientAlias(merchant);
-        smsMessage.setType("2004"); //短信类型：余额通知短信
-        smsMessage.setPhone("15757127746,13979127403,18072878602");
-        smsMessage.setParams(balance);
-        rabbitTemplate.convertAndSend(RabbitConst.queue_sms, smsMessage);
+        rabbitTemplate.convertAndSend(RabbitConst.queue_sms, new QueueSmsMessage(merchant, "2004", "13979127403", balance));
+        rabbitTemplate.convertAndSend(RabbitConst.queue_sms, new QueueSmsMessage(merchant, "2004", "18072878602", balance));
+        rabbitTemplate.convertAndSend(RabbitConst.queue_sms, new QueueSmsMessage(merchant, "2004", "15757127746", balance));
     }
 
     @RequestMapping(value = "query")
