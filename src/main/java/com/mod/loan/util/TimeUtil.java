@@ -1,5 +1,7 @@
 package com.mod.loan.util;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
@@ -70,6 +72,22 @@ public final class TimeUtil {
 
     public static LocalDateTime parseLocalDateTime(String dateTime) {
         return LocalDateTime.parse(dateTime, TIME_FORMATTER);
+    }
+
+    public static Date parseDate(String date) {
+        try {
+            return new SimpleDateFormat("yyyy-MM-dd").parse(date);
+        } catch (ParseException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static Date parseDateTime(String dateTime) {
+        try {
+            return new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(dateTime);
+        } catch (ParseException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public static DateTimeFormatter dateFormatter() {

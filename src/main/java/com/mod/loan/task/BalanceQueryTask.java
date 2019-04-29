@@ -38,7 +38,7 @@ public class BalanceQueryTask {
     }
 
     //每天晚上10点查询一次余额
-    //@Scheduled(cron = "0 0 22 * * ?")
+    //@Scheduled(cron = "0 0 22 * * ?")  //走xxl-job调用
     public void MerchantBalanceQueryTask() {
         try {
             logger.info("------------------balanceQueryTask start------------------");

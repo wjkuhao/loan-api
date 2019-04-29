@@ -1,9 +1,6 @@
 package com.mod.loan.model;
 
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
 
 /**
  * 续期订单表
@@ -34,23 +31,42 @@ public class OrderDefer {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
+    @Column(name = "order_id")
     private Long orderId;
+    @Column(name = "user_name")
     private String userName;
+    @Column(name = "user_phone")
     private String userPhone;
+    @Column(name = "defer_day")
     private Integer deferDay;
+    @Column(name = "daily_defer_fee")
     private Double dailyDeferFee;
+    @Column(name = "defer_fee")
     private Double deferFee;
+    @Column(name = "defer_times")
     private Integer deferTimes;
+    @Column(name = "pay_type")
     private String payType;
+    @Column(name = "pay_no")
     private String payNo;
+    @Column(name = "pay_status")
     private Integer payStatus;
+    @Column(name = "pay_time")
     private String payTime;
+    @Column(name = "create_time")
     private String createTime;
+    @Column(name = "repay_date")
     private String repayDate;
+    @Column(name = "defer_repay_date")
     private String deferRepayDate;
+    @Column(name = "remark")
     private String remark;
 
     public OrderDefer() {
+    }
+
+    public OrderDefer(Long orderId) {
+        this.orderId = orderId;
     }
 
     public Integer getId() {
