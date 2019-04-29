@@ -476,6 +476,7 @@ CREATE TABLE `tb_merchant`  (
   `yeepay_repay_private_key` varchar(2048) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '易宝还款私钥',
   `yeepay_loan_appkey` varchar(30) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '易宝放款appkey',
   `yeepay_loan_private_key` varchar(2048) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '易宝放款私钥',
+  `hlb_merchant_sign` varchar(128) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '合利宝商户端签名sign',
   `create_time` datetime(0) NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`merchant_alias`) USING BTREE
 ) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
