@@ -10,7 +10,7 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
 @Profile("online")
-@JobHandler(value="BalanceQueryJobHandler")
+@JobHandler(value="OrderJobHandler")
 @Component
 public class OrderJobHandler extends IJobHandler {
 
