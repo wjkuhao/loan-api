@@ -6,6 +6,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.mod.loan.common.enums.OrderEnum;
+import com.mod.loan.model.*;
+import com.mod.loan.service.*;
 import org.joda.time.DateTime;
 import org.joda.time.Days;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
@@ -22,17 +24,6 @@ import com.mod.loan.common.model.RequestThread;
 import com.mod.loan.common.model.ResultMessage;
 import com.mod.loan.config.redis.RedisConst;
 import com.mod.loan.config.redis.RedisMapper;
-import com.mod.loan.model.Blacklist;
-import com.mod.loan.model.MerchantRate;
-import com.mod.loan.model.Order;
-import com.mod.loan.model.OrderPhone;
-import com.mod.loan.model.UserBank;
-import com.mod.loan.model.UserIdent;
-import com.mod.loan.service.BlacklistService;
-import com.mod.loan.service.MerchantRateService;
-import com.mod.loan.service.OrderService;
-import com.mod.loan.service.UserBankService;
-import com.mod.loan.service.UserIdentService;
 import com.mod.loan.util.MoneyUtil;
 import com.mod.loan.util.StringUtil;
 
@@ -60,6 +51,8 @@ public class OrderApplyController {
 	private RedisMapper redisMapper;
 	@Autowired
 	private RabbitTemplate rabbitTemplate;
+	@Autowired
+	private UserService userService;
 
 	/**
 	 * h5 借款确认 获取费用明细
@@ -113,7 +106,9 @@ public class OrderApplyController {
 			// 提示认证未完成
 			return new ResultMessage(ResponseEnum.M4000.getCode(), "认证未完成");
 		}
-		Blacklist blacklist = blacklistService.getByUid(uid);
+
+		User user = userService.selectByPrimaryKey(uid);
+		Blacklist blacklist = blacklistService.getByPhone(user.getUserPhone());
 		if (null != blacklist) {
 			// 校验灰名单锁定天数
 			if (1 == blacklist.getType()) {

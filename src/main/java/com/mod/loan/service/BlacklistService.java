@@ -6,4 +6,5 @@ public interface BlacklistService {
 
     Blacklist getByUid(Long uid);
 
+    Blacklist getByPhone(String phone);
 }

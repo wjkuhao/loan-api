@@ -17,4 +17,9 @@ public class BlacklistServiceImpl implements BlacklistService {
 	public Blacklist getByUid(Long uid) {
 		return blacklistMapper.getByUid(uid);
 	}
+
+	@Override
+	public Blacklist getByPhone(String phone) {
+		return blacklistMapper.getByPhone(phone);
+	}
 }
