@@ -1,13 +1,17 @@
 package com.mod.loan.controller.order;
 
-import java.math.BigDecimal;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-
+import com.alibaba.fastjson.JSONObject;
+import com.mod.loan.common.annotation.LoginRequired;
 import com.mod.loan.common.enums.OrderEnum;
+import com.mod.loan.common.enums.ResponseEnum;
+import com.mod.loan.common.model.RequestThread;
+import com.mod.loan.common.model.ResultMessage;
+import com.mod.loan.config.redis.RedisConst;
+import com.mod.loan.config.redis.RedisMapper;
 import com.mod.loan.model.*;
 import com.mod.loan.service.*;
+import com.mod.loan.util.MoneyUtil;
+import com.mod.loan.util.StringUtil;
 import org.joda.time.DateTime;
 import org.joda.time.Days;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
@@ -17,15 +21,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.alibaba.fastjson.JSONObject;
-import com.mod.loan.common.annotation.LoginRequired;
-import com.mod.loan.common.enums.ResponseEnum;
-import com.mod.loan.common.model.RequestThread;
-import com.mod.loan.common.model.ResultMessage;
-import com.mod.loan.config.redis.RedisConst;
-import com.mod.loan.config.redis.RedisMapper;
-import com.mod.loan.util.MoneyUtil;
-import com.mod.loan.util.StringUtil;
+import java.math.BigDecimal;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * 订单申请详细展示，及下单确认 回收和贷款文案通用
@@ -53,6 +52,8 @@ public class OrderApplyController {
 	private RabbitTemplate rabbitTemplate;
 	@Autowired
 	private UserService userService;
+	@Autowired
+    private MerchantConfigService merchantConfigService;
 
 	/**
 	 * h5 借款确认 获取费用明细
@@ -107,7 +108,7 @@ public class OrderApplyController {
 			return new ResultMessage(ResponseEnum.M4000.getCode(), "认证未完成");
 		}
 
-		User user = userService.selectByPrimaryKey(uid);
+        User user = userService.selectByPrimaryKey(uid);
 		Blacklist blacklist = blacklistService.getByPhone(user.getUserPhone());
 		if (null != blacklist) {
 			// 校验灰名单锁定天数
@@ -122,6 +123,23 @@ public class OrderApplyController {
 				return new ResultMessage(ResponseEnum.M4000.getCode(), "您不符合下单条件");
 			}
 		}
+
+		//公司、住宅地址是否包含拒绝关键字
+        UserInfo userInfo = userService.selectUserInfo(user.getId());
+        if(merchantConfigService.includeRejectKeyword(user.getMerchant(), userInfo)) {
+            Blacklist blacklistInsert = new Blacklist();
+            blacklistInsert.setUid(user.getId());
+            blacklistInsert.setMerchant(user.getMerchant());
+            blacklistInsert.setTel(user.getUserPhone());
+            blacklistInsert.setCertNo(user.getUserCertNo());
+            blacklistInsert.setName(user.getUserName());
+            blacklistInsert.setType(2); //类型 1:灰名单(失效时间动态化） 2:永久黑名单  0:正常
+            blacklistInsert.setTag(4);  //4-特殊行业
+            blacklistInsert.setCreateTime(new Date());
+            blacklistService.insert(blacklistInsert);
+            return new ResultMessage(ResponseEnum.M4000.getCode(), "您不符合下单条件");
+        }
+
 		// 是否有正在借款中的订单
 		Order orderIng = orderService.findUserLatestOrder(uid);
 		if (null != orderIng) {

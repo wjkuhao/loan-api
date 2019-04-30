@@ -11,16 +11,16 @@ public interface UserService extends BaseService< User,Long>{
 
 	/**
 	 * 判断手机号在商户下是否注册过
-	 * @param userPhone
-	 * @param merchant
-	 * @return
+	 * @param userPhone 手机号
+	 * @param merchant 商户
+	 * @return 用户
 	 */
 	User selectUserByPhone(String userPhone,String merchant);
 	/**
 	 * 判断身份证在商户下是否注册
-	 * @param certNo
-	 * @param merchant
-	 * @return
+	 * @param userCertNo 身份证号
+	 * @param merchant 商户
+	 * @return 用户
 	 */
 	User selectUserByCertNo(String userCertNo,String merchant);
 	
@@ -33,4 +33,6 @@ public interface UserService extends BaseService< User,Long>{
 	boolean insertUserBank(Long uid,UserBank userBank);
 
 	String saveRealNameAuthInfo(JSONObject jsonObject, Long uid);
+
+    UserInfo selectUserInfo(Long uid);
 }

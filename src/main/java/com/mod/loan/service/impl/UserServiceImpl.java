@@ -155,4 +155,11 @@ public class UserServiceImpl  extends BaseServiceImpl< User,Long> implements Use
 	    return null;
     }
 
+	@Override
+	public UserInfo selectUserInfo(Long uid) {
+		UserInfo userInfo = new UserInfo();
+		userInfo.setUid(uid);
+		return userInfoMapper.selectByPrimaryKey(userInfo);
+	}
+
 }

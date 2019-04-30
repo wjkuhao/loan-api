@@ -116,9 +116,9 @@ public class LoanOrderController {
 			return new ResultMessage(ResponseEnum.M2000.getCode(),map);
 		}
 		map.put("orderId",order.getId());
-		List<LoanBefore> loanBeforeList = new ArrayList<LoanBefore>();
+		List<LoanBefore> loanBeforeList = new ArrayList<>();
 		String createdTime = "";
-		if(order !=null && order.getCreateTime()!= null){
+		if(order.getCreateTime() != null){
 			createdTime = TimeUtils.parseTime(order.getCreateTime(),TimeUtils.dateformat0);
 		}
 		if (11 == order.getStatus()|| 12 == order.getStatus()) {//初始提交

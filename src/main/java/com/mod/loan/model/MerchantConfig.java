@@ -28,6 +28,39 @@ public class MerchantConfig {
     @Column(name = "update_time")
     private String updateTime;
 
+    @Column(name = "overdue_blacklist_day")
+    private String overdueBlacklistDay;
+
+    @Column(name = "`reject_keyword`")
+    private String rejectKeyword;
+
+    @Column(name = "`ident_invalid_day`")
+    private String identInvalidDay;
+
+    public String getOverdueBlacklistDay() {
+        return overdueBlacklistDay;
+    }
+
+    public void setOverdueBlacklistDay(String overdueBlacklistDay) {
+        this.overdueBlacklistDay = overdueBlacklistDay;
+    }
+
+    public String getRejectKeyword() {
+        return rejectKeyword;
+    }
+
+    public void setRejectKeyword(String rejectKeyword) {
+        this.rejectKeyword = rejectKeyword;
+    }
+
+    public String getIdentInvalidDay() {
+        return identInvalidDay;
+    }
+
+    public void setIdentInvalidDay(String identInvalidDay) {
+        this.identInvalidDay = identInvalidDay;
+    }
+
     public Integer getId() {
         return id;
     }
