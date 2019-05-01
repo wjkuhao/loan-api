@@ -27,4 +27,9 @@
     <result column="img_head" jdbcType="VARCHAR" property="imgHead" />
     <result column="user_wechat" jdbcType="VARCHAR" property="userWechat" />
   </resultMap>
+
+  <select id="selectAllByCertNo" resultMap="BaseResultMap">
+    select id from tb_user where user_cert_no=#{certNo}
+  </select>
+
 </mapper>

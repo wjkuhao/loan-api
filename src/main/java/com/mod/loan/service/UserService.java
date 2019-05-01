@@ -7,6 +7,8 @@ import com.mod.loan.model.UserBank;
 import com.mod.loan.model.UserIdent;
 import com.mod.loan.model.UserInfo;
 
+import java.util.List;
+
 public interface UserService extends BaseService< User,Long>{
 
 	/**
@@ -35,4 +37,10 @@ public interface UserService extends BaseService< User,Long>{
 	String saveRealNameAuthInfo(JSONObject jsonObject, Long uid);
 
     UserInfo selectUserInfo(Long uid);
+
+    /**
+     * 取出该手机号在所有系统注册的信息
+     * @param certNo 身份证号
+     */
+    List<User> selectUserByCertNo(String certNo);
 }

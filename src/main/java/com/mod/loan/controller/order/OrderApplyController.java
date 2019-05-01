@@ -14,6 +14,8 @@ import com.mod.loan.util.MoneyUtil;
 import com.mod.loan.util.StringUtil;
 import org.joda.time.DateTime;
 import org.joda.time.Days;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -35,6 +37,8 @@ import java.util.Map;
 @RestController
 @RequestMapping("order")
 public class OrderApplyController {
+
+    private static Logger logger = LoggerFactory.getLogger(OrderApplyController.class);
 
 	@Autowired
 	private UserIdentService userIdentService;
@@ -135,9 +139,17 @@ public class OrderApplyController {
             blacklistInsert.setName(user.getUserName());
             blacklistInsert.setType(2); //类型 1:灰名单(失效时间动态化） 2:永久黑名单  0:正常
             blacklistInsert.setTag(4);  //4-特殊行业
+            blacklistInsert.setRemark(userInfo.getWorkCompany());
             blacklistInsert.setCreateTime(new Date());
             blacklistService.insert(blacklistInsert);
             return new ResultMessage(ResponseEnum.M4000.getCode(), "您不符合下单条件");
+        }
+
+        //是否在其他系统中存在逾期
+        Order orderOverDue = orderService.findOverdueByCertNo(user.getUserCertNo());
+        if (null != orderOverDue) {
+            logger.info("存在逾期订单，无法提单 uid={}", user.getId());
+            return new ResultMessage(ResponseEnum.M4000.getCode(), "存在逾期订单，无法提单");
         }
 
 		// 是否有正在借款中的订单

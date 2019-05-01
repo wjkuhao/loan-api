@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
+import java.util.List;
 
 @Service
 public class UserServiceImpl  extends BaseServiceImpl< User,Long> implements UserService{
@@ -161,5 +162,10 @@ public class UserServiceImpl  extends BaseServiceImpl< User,Long> implements Use
 		userInfo.setUid(uid);
 		return userInfoMapper.selectByPrimaryKey(userInfo);
 	}
+
+    @Override
+    public List<User> selectUserByCertNo(String certNo) {
+        return userMapper.selectAllByCertNo(certNo);
+    }
 
 }

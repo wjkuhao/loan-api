@@ -2,6 +2,8 @@ package com.mod.loan.service.impl;
 
 import java.util.List;
 
+import com.mod.loan.model.User;
+import com.mod.loan.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -23,6 +25,9 @@ public class OrderServiceImpl  extends BaseServiceImpl<Order,Long> implements Or
 	OrderPhoneMapper orderPhoneMapper;
 	@Autowired
 	OrderPayMapper orderPayMapper;
+	@Autowired
+    UserService userService;
+
 	@Override
 	public Order findUserLatestOrder(Long uid) {
 		return orderMapper.findUserLatestOrder(uid);
@@ -70,5 +75,17 @@ public class OrderServiceImpl  extends BaseServiceImpl<Order,Long> implements Or
     @Override
     public List<Order> findOverdueOrder() {
 	    return orderMapper.findOverdueOrder();
+    }
+
+	@Override
+	public Order findOverdueByCertNo(String certNo) {
+        List<User> users = userService.selectUserByCertNo(certNo);
+        for (User user : users) {
+            Order overdueOrder = orderMapper.findOneOverdueOrder(user.getId());
+            if (overdueOrder!=null) {
+                return overdueOrder;
+            }
+        }
+        return null;
     }
 }

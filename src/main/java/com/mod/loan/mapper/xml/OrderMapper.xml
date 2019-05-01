@@ -53,4 +53,8 @@
     select id, merchant from tb_order where status in(31,33,34) and repay_time &lt;= date_format(now(),'%Y-%m-%d')
   </select>
 
+  <select id="findOneOverdueOrder" resultMap="BaseResultMap">
+    select id from tb_order where uid=#{uid} and status in(33,34) limit 1
+  </select>
+
 </mapper>
