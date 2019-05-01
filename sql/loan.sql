@@ -494,7 +494,7 @@ CREATE TABLE `tb_merchant_config`  (
   `h5_url` VARCHAR(255)  COMMENT 'h5地址',
   `overdue_blacklist_day` tinyint(2)   COMMENT '加入黑名单逾期天数',
   `reject_keyword` VARCHAR(128)   COMMENT '地址、公司拒绝关键字，逗号分格',
-  `ident_invalid_day` tinyint(2)   COMMENT '加入黑名单逾期天数',
+  `ident_invalid_day` tinyint(2)   COMMENT '认证失效天数',
   `create_time` CHAR(19) DEFAULT NULL COMMENT '插入时间',
   `update_time` CHAR(19) DEFAULT NULL COMMENT '更新时间',
   PRIMARY KEY (`id`) USING BTREE,

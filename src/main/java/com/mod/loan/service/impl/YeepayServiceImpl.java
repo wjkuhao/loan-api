@@ -1,5 +1,6 @@
 package com.mod.loan.service.impl;
 
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.mod.loan.config.Constant;
 import com.mod.loan.service.YeepayService;
@@ -11,6 +12,7 @@ import com.yeepay.g3.sdk.yop.encrypt.CertTypeEnum;
 import com.yeepay.g3.sdk.yop.encrypt.DigitalEnvelopeDTO;
 import com.yeepay.g3.sdk.yop.utils.DigitalEnvelopeUtils;
 import com.yeepay.g3.sdk.yop.utils.InternalConfig;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -175,7 +177,11 @@ public class YeepayServiceImpl implements YeepayService {
             return response.getError().getMessage();
         }
         if (!validateValue.equals(JSONObject.parseObject(stringResult).getString(validateKey))){
-            return JSONObject.parseObject(stringResult).getString("errormsg");
+            String errorMsg = JSONObject.parseObject(stringResult).getString("errormsg");
+            if (errorMsg==null){
+                errorMsg = JSONObject.parseObject(stringResult).getString("errorMsg");
+            }
+            return errorMsg;
         }
         return null;
     }
@@ -333,7 +339,19 @@ public class YeepayServiceImpl implements YeepayService {
             YopResponse response = YopRsaClient.post(yeepay_pay_query_url, yoprequest);
             log.info("send yeepay pay query response :" + response);
 
-            return parseResult(response, "errorCode", "BAC001");
+            String errmsg = parseResult(response, "errorCode", "BAC001");
+            if (StringUtils.isEmpty(errmsg)){
+                String stringResult = response.getStringResult();
+                String list = JSONObject.parseObject(stringResult).getString("list");
+                JSONArray jsonArray = JSONArray.parseArray(list);
+                String transferStatusCode = jsonArray.getJSONObject(0).getString("transferStatusCode");
+                if (transferStatusCode.equals("0026")){
+                    return null;
+                }else {
+                    return jsonArray.getJSONObject(0).getString("bankMsg");
+                }
+            }
+            return errmsg;
         } catch (Exception e) {
             log.error("send yeepay pay query has error={}", e.getMessage());
             e.printStackTrace();
