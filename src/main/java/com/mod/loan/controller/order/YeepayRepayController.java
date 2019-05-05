@@ -159,6 +159,8 @@ public class YeepayRepayController {
         String responseMsg = request.getParameter("response");
         String param = request.getParameter("param");
 
+        logger.info("易宝异步通知:param={}",param);
+
         if (StringUtils.isEmpty(responseMsg) || StringUtils.isEmpty(param)){
             logger.error("responseMsg={},param={}",responseMsg,param);
             logger.error("易宝异步通知:返回为空");
@@ -171,42 +173,48 @@ public class YeepayRepayController {
 
         StringBuffer repayNo = new StringBuffer();
         String callbackErr = yeepayService.repayCallbackMultiAcct(merchant.getYeepay_repay_private_key(), responseMsg, repayNo);
+        logger.info("易宝异步通知:param={},callbackErr={},repayNo={}",param, callbackErr, repayNo);
 
         //设置OrderRepay
         OrderRepay orderRepay = orderRepayService.selectByPrimaryKey(repayNo.toString());
         //对应的订单不存在 或者 可能已经线下还款
         if (orderRepay==null||orderRepay.getRepayStatus().equals(OrderRepayStatusEnum.REPAY_SUCCESS.getCode())) {
-            logger.error("易宝异步通知:订单已还款");
+            logger.info("易宝异步通知:param={}订单已还款",param);
             return "SUCCESS"; //收到通知 固定格式
         }
+
         if (callbackErr==null){
             orderRepay.setRepayStatus(OrderRepayStatusEnum.REPAY_SUCCESS.getCode());
             orderRepay.setRemark("易宝支付成功");
+            orderRepay.setUpdateTime(new Date());
+
+            //更新order
+            Order orderOld = orderService.selectByPrimaryKey(orderRepay.getOrderId());
+            if (41 == orderOld.getStatus() || 42 == orderOld.getStatus()) {
+                logger.info("异步通知:订单{}已还款：", orderOld.getId());
+                return "SUCCESS";
+            }
+            Order orderUpd = new Order();
+            orderUpd.setId(orderRepay.getOrderId());
+            orderUpd.setRealRepayTime(new Date());
+            orderUpd.setHadRepay(orderRepay.getRepayMoney());
+
+            if (33 == orderOld.getStatus() || 34 == orderOld.getStatus()) {
+                orderUpd.setStatus(42);
+            } else {
+                orderUpd.setStatus(41);
+            }
+
+            orderRepayService.updateOrderRepayInfo(orderRepay, orderUpd);
+
         }else {
+            //支付失败不用更新order
             logger.error("易宝异步通知:订单错误信息{}",callbackErr);
             orderRepay.setRepayStatus(OrderRepayStatusEnum.REPAY_FAILED.getCode());
             orderRepay.setRemark("易宝支付失败:" + callbackErr);
-
+            orderRepay.setUpdateTime(new Date());
+            orderRepayService.updateOrderRepayInfo(orderRepay, null);
         }
-        orderRepay.setUpdateTime(new Date());
-
-        Order orderOld = orderService.selectByPrimaryKey(orderRepay.getOrderId());
-        if (41 == orderOld.getStatus() || 42 == orderOld.getStatus()) {
-            logger.info("异步通知:订单{}已还款：", orderOld.getId());
-            return "SUCCESS";
-        }
-
-        Order orderUpd = new Order();
-        orderUpd.setId(orderRepay.getOrderId());
-        orderUpd.setRealRepayTime(new Date());
-        orderUpd.setHadRepay(orderRepay.getRepayMoney());
-
-        if (33 == orderOld.getStatus() || 34 == orderOld.getStatus()) {
-            orderUpd.setStatus(42);
-        } else {
-            orderUpd.setStatus(41);
-        }
-        orderRepayService.updateOrderRepayInfo(orderRepay, orderUpd);
         return "SUCCESS"; //收到通知 固定格式
     }
 

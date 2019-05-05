@@ -233,11 +233,12 @@ public class YeepayServiceImpl implements YeepayService {
             String stringResult = dto.getPlainText();
 
             log.info(stringResult);
+            String requestno = JSONObject.parseObject(stringResult).getString("requestno");
+            requestNo.append(requestno);
             if (!"PAY_SUCCESS".equals(JSONObject.parseObject(stringResult).getString("status"))){
                 return JSONObject.parseObject(stringResult).getString("errormsg");
             }
-            String requestno = JSONObject.parseObject(stringResult).getString("requestno");
-            requestNo.append(requestno);
+
         } catch (Exception e) {
             e.printStackTrace();
             log.error("callback error={}",e.getMessage());

@@ -30,6 +30,7 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 
 @Service
@@ -58,7 +59,9 @@ public class OrderRepayServiceImpl extends BaseServiceImpl<OrderRepay, String> i
     @Override
     public void updateOrderRepayInfo(OrderRepay orderRepay, Order order) {
         orderRepayMapper.updateByPrimaryKeySelective(orderRepay);
-        orderMapper.updateByPrimaryKeySelective(order);
+        if (order!=null){
+            orderMapper.updateByPrimaryKeySelective(order);
+        }
     }
 
     @Override
@@ -201,5 +204,17 @@ public class OrderRepayServiceImpl extends BaseServiceImpl<OrderRepay, String> i
             }
         }
         return "订单状态异常";
+    }
+
+    @Override
+    public String yeepayRepayQuery(String appkey, String privateKey, String repayNo) {
+
+        return yeepayService.repayQuery(appkey, privateKey, repayNo, null);
+
+    }
+
+    @Override
+    public List<OrderRepay> selectReapyingOrder() {
+        return orderRepayMapper.selectReapyingOrder();
     }
 }

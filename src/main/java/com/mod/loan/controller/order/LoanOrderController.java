@@ -188,9 +188,6 @@ public class LoanOrderController {
 			int nextOrderRemainDays = 7 - Days.daysBetween(dd1, DateTime.now()).getDays();
 			map.put("nextOrderRemainDays",nextOrderRemainDays);//下次下单剩余天数
 
-
-			map.put("orderStatus",2);//2-审核失败图
-
 			Merchant merchant = merchantService.findMerchantByAlias(RequestThread.getClientAlias());
 			if(StringUtils.isBlank(merchant.getMerchantMarket())){
 				map.put("url", Constant.SERVER_H5_URL + "market.html?");

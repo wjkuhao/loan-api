@@ -1,16 +1,21 @@
 package com.mod.loan.task;
 
+import com.mod.loan.common.enums.MerchantEnum;
+import com.mod.loan.common.enums.OrderRepayStatusEnum;
 import com.mod.loan.model.Merchant;
 import com.mod.loan.model.Order;
+import com.mod.loan.model.OrderRepay;
 import com.mod.loan.service.MerchantService;
 import com.mod.loan.service.OrderRepayService;
 import com.mod.loan.service.OrderService;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
+import java.util.Date;
 import java.util.List;
 
 @Profile("online")
@@ -66,4 +71,55 @@ public class OrderTask {
 		}
 	}
 
+	//每2分钟查询一次结果并更新还款结果
+    //@Scheduled(cron = "0 0/2 * * * ?")
+    public void yeepayRepayQuery() {
+        try {
+            logger.info("------------------yeepay query repay start------------------");
+            List<OrderRepay> orderRepayList = orderRepayService.selectReapyingOrder();
+
+            for (OrderRepay orderRepay : orderRepayList) {
+                Order order = orderService.selectByPrimaryKey(orderRepay.getOrderId());
+                if (41 == order.getStatus() || 42 == order.getStatus()) {
+                    logger.info("易宝自动查询:订单={}已还款", order.getOrderNo());
+                    continue;
+                }
+
+                Merchant merchant = merchantService.findMerchantByAlias(order.getMerchant());
+                if(merchant.getBindType().equals(MerchantEnum.yeepay.getCode())){
+                    String errMsg = orderRepayService.yeepayRepayQuery(merchant.getYeepay_repay_appkey(),
+                            merchant.getYeepay_repay_private_key(), orderRepay.getRepayNo());
+
+                    //更新还款订单
+                    if (StringUtils.isEmpty(errMsg)) {
+                        orderRepay.setRepayStatus(OrderRepayStatusEnum.REPAY_SUCCESS.getCode());
+                        orderRepay.setRemark("易宝自动查询支付成功");
+                        orderRepay.setUpdateTime(new Date());
+
+                        //更新订单
+                        if (33 == order.getStatus() || 34 == order.getStatus()) {
+                            order.setStatus(42);
+                        } else {
+                            order.setStatus(41);
+                        }
+                        order.setRealRepayTime(new Date());
+                        order.setHadRepay(orderRepay.getRepayMoney());
+                        orderRepayService.updateOrderRepayInfo(orderRepay, order);
+
+                    } else {
+                        //还款失败更新还款表即可
+                        orderRepay.setRepayStatus(OrderRepayStatusEnum.REPAY_FAILED.getCode());
+                        orderRepay.setRemark("易宝自动查询支付失败:" + errMsg);
+                        orderRepay.setUpdateTime(new Date());
+                        orderRepayService.updateOrderRepayInfo(orderRepay, null);
+                    }
+
+                    Thread.sleep(100);
+                }
+            }
+            logger.info("------------------yeepay query repay end--------------------");
+        } catch (Exception e) {
+            logger.error("还款结果查询异常={}", e);
+        }
+    }
 }
