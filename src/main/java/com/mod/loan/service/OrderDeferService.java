@@ -13,4 +13,11 @@ public interface OrderDeferService extends BaseService<OrderDefer, Integer> {
      */
     OrderDefer findLastValidByOrderId(Long orderId);
 
+    /**
+     * 续期单支付成功以后 更新订单以及续期单
+     *
+     * @param orderDefer 原始续期但 线上支付要设置好支付单号
+     */
+    void modifyOrderDeferByPayCallback(OrderDefer orderDefer);
+
 }

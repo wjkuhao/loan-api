@@ -28,4 +28,17 @@ public class OrderDeferServiceImpl extends BaseServiceImpl<OrderDefer, Integer> 
         return orderDeferMapper.findLastValidByOrderId(orderId, TimeUtil.nowDate());
     }
 
+    @Override
+    public void modifyOrderDeferByPayCallback(OrderDefer orderDefer) {
+        // 修改订单的还款日期
+        Order modifiedOrder = new Order();
+        modifiedOrder.setId(orderDefer.getOrderId());
+        modifiedOrder.setRepayTime(TimeUtil.parseDate(orderDefer.getDeferRepayDate()));
+        orderService.updateByPrimaryKeySelective(modifiedOrder);
+        // 修改续期单 支付时间和支付状态
+        orderDefer.setPayTime(TimeUtil.nowTime());
+        orderDefer.setPayStatus(1);
+        orderDeferMapper.updateByPrimaryKeySelective(orderDefer);
+    }
+
 }
