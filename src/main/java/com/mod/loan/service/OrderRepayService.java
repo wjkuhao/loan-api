@@ -22,4 +22,8 @@ public interface OrderRepayService extends BaseService<OrderRepay,String>{
 	List<OrderRepay> selectReapyingOrder();
 
     OrderRepay selectLastByOrderId(Long orderId);
+
+    void repaySuccess(OrderRepay orderRepay, Order orderOld);
+
+    void repayFailed(OrderRepay orderRepay, String callbackErr);
 }

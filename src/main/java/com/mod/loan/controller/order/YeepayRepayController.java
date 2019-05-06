@@ -8,7 +8,10 @@ import com.mod.loan.common.model.ResultMessage;
 import com.mod.loan.config.Constant;
 import com.mod.loan.config.redis.RedisConst;
 import com.mod.loan.config.redis.RedisMapper;
-import com.mod.loan.model.*;
+import com.mod.loan.model.Merchant;
+import com.mod.loan.model.Order;
+import com.mod.loan.model.OrderRepay;
+import com.mod.loan.model.User;
 import com.mod.loan.service.*;
 import com.mod.loan.util.CheckUtils;
 import com.mod.loan.util.StringUtil;
@@ -184,36 +187,11 @@ public class YeepayRepayController {
         }
 
         if (callbackErr==null){
-            orderRepay.setRepayStatus(OrderRepayStatusEnum.REPAY_SUCCESS.getCode());
-            orderRepay.setRemark("易宝支付成功");
-            orderRepay.setUpdateTime(new Date());
-
-            //更新order
             Order orderOld = orderService.selectByPrimaryKey(orderRepay.getOrderId());
-            if (41 == orderOld.getStatus() || 42 == orderOld.getStatus()) {
-                logger.info("异步通知:订单{}已还款：", orderOld.getId());
-                return "SUCCESS";
-            }
-            Order orderUpd = new Order();
-            orderUpd.setId(orderRepay.getOrderId());
-            orderUpd.setRealRepayTime(new Date());
-            orderUpd.setHadRepay(orderRepay.getRepayMoney());
-
-            if (33 == orderOld.getStatus() || 34 == orderOld.getStatus()) {
-                orderUpd.setStatus(42);
-            } else {
-                orderUpd.setStatus(41);
-            }
-
-            orderRepayService.updateOrderRepayInfo(orderRepay, orderUpd);
+            orderRepayService.repaySuccess(orderRepay, orderOld);
 
         }else {
-            //支付失败不用更新order
-            logger.error("易宝异步通知:订单错误信息{}",callbackErr);
-            orderRepay.setRepayStatus(OrderRepayStatusEnum.REPAY_FAILED.getCode());
-            orderRepay.setRemark("易宝支付失败:" + callbackErr);
-            orderRepay.setUpdateTime(new Date());
-            orderRepayService.updateOrderRepayInfo(orderRepay, null);
+           orderRepayService.repayFailed(orderRepay, callbackErr);
         }
         return "SUCCESS"; //收到通知 固定格式
     }
@@ -241,8 +219,10 @@ public class YeepayRepayController {
 
         String errMsg = orderRepayService.yeepayRepayQuery(orderRepay.getRepayNo(), order.getMerchant());
         if (errMsg == null) {
+            orderRepayService.repaySuccess(orderRepay, order);
             return new ResultMessage(ResponseEnum.M2000, orderId);
         } else {
+            orderRepayService.repayFailed(orderRepay, errMsg);
             return new ResultMessage(ResponseEnum.M4000, errMsg);
         }
     }

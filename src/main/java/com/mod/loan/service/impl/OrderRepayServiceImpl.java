@@ -221,4 +221,38 @@ public class OrderRepayServiceImpl extends BaseServiceImpl<OrderRepay, String> i
     public OrderRepay selectLastByOrderId(Long orderId) {
         return orderRepayMapper.selectLastByOrderId(orderId);
     }
+
+    @Override
+    public void repaySuccess(OrderRepay orderRepay, Order orderOld) {
+        orderRepay.setRepayStatus(OrderRepayStatusEnum.REPAY_SUCCESS.getCode());
+        orderRepay.setRemark("易宝支付成功");
+        orderRepay.setUpdateTime(new Date());
+
+        //更新order
+        if (41 == orderOld.getStatus() || 42 == orderOld.getStatus()) {
+            logger.info("异步通知:订单{}已还款：", orderOld.getId());
+            return ;
+        }
+        Order orderUpd = new Order();
+        orderUpd.setId(orderRepay.getOrderId());
+        orderUpd.setRealRepayTime(new Date());
+        orderUpd.setHadRepay(orderRepay.getRepayMoney());
+
+        if (33 == orderOld.getStatus() || 34 == orderOld.getStatus()) {
+            orderUpd.setStatus(42);
+        } else {
+            orderUpd.setStatus(41);
+        }
+
+        updateOrderRepayInfo(orderRepay, orderUpd);
+    }
+
+    @Override
+    public void repayFailed(OrderRepay orderRepay, String callbackErr) {
+        logger.error("易宝异步通知:订单错误信息{}",callbackErr);
+        orderRepay.setRepayStatus(OrderRepayStatusEnum.REPAY_FAILED.getCode());
+        orderRepay.setRemark("易宝支付失败:" + callbackErr);
+        orderRepay.setUpdateTime(new Date());
+        updateOrderRepayInfo(orderRepay, null);
+    }
 }
