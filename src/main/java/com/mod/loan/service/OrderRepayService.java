@@ -17,7 +17,9 @@ public interface OrderRepayService extends BaseService<OrderRepay,String>{
 
 	String heliPayRepayNoSms(Long orderId);
 
-	String yeepayRepayQuery(String appkey, String privateKey, String repayNo);
+	String yeepayRepayQuery(String repayNo, String merchantAlias);
 
 	List<OrderRepay> selectReapyingOrder();
+
+    OrderRepay selectLastByOrderId(Long orderId);
 }

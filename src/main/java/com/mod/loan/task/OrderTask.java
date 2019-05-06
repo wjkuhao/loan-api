@@ -87,8 +87,7 @@ public class OrderTask {
 
                 Merchant merchant = merchantService.findMerchantByAlias(order.getMerchant());
                 if(merchant.getBindType().equals(MerchantEnum.yeepay.getCode())){
-                    String errMsg = orderRepayService.yeepayRepayQuery(merchant.getYeepay_repay_appkey(),
-                            merchant.getYeepay_repay_private_key(), orderRepay.getRepayNo());
+                    String errMsg = orderRepayService.yeepayRepayQuery(orderRepay.getRepayNo(), order.getMerchant());
 
                     //更新还款订单
                     if (StringUtils.isEmpty(errMsg)) {

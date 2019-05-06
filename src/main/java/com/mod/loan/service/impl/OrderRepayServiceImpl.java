@@ -207,14 +207,18 @@ public class OrderRepayServiceImpl extends BaseServiceImpl<OrderRepay, String> i
     }
 
     @Override
-    public String yeepayRepayQuery(String appkey, String privateKey, String repayNo) {
-
-        return yeepayService.repayQuery(appkey, privateKey, repayNo, null);
-
+    public String yeepayRepayQuery(String repayNo, String merchantAlias) {
+        Merchant merchant = merchantService.findMerchantByAlias(merchantAlias);
+        return yeepayService.repayQuery(merchant.getYeepay_repay_appkey(), merchant.getYeepay_repay_private_key(), repayNo, null);
     }
 
     @Override
     public List<OrderRepay> selectReapyingOrder() {
         return orderRepayMapper.selectReapyingOrder();
+    }
+
+    @Override
+    public OrderRepay selectLastByOrderId(Long orderId) {
+        return orderRepayMapper.selectLastByOrderId(orderId);
     }
 }

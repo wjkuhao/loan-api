@@ -231,4 +231,19 @@ public class YeepayRepayController {
             return new ResultMessage(ResponseEnum.M4000, errMsg);
         }
     }
+
+    @LoginRequired
+    @RequestMapping(value = "yeepay_repay_query")
+    public ResultMessage yeepay_repay_query(Long orderId) {
+
+        Order order = orderService.selectByPrimaryKey(orderId);
+        OrderRepay orderRepay = orderRepayService.selectLastByOrderId(orderId);
+
+        String errMsg = orderRepayService.yeepayRepayQuery(orderRepay.getRepayNo(), order.getMerchant());
+        if (errMsg == null) {
+            return new ResultMessage(ResponseEnum.M2000, orderId);
+        } else {
+            return new ResultMessage(ResponseEnum.M4000, errMsg);
+        }
+    }
 }
