@@ -346,8 +346,13 @@ public class YeepayServiceImpl implements YeepayService {
                 String list = JSONObject.parseObject(stringResult).getString("list");
                 JSONArray jsonArray = JSONArray.parseArray(list);
                 String transferStatusCode = jsonArray.getJSONObject(0).getString("transferStatusCode");
+                String bankTrxStatusCode = jsonArray.getJSONObject(0).getString("bankTrxStatusCode");
                 if (transferStatusCode.equals("0026")){
-                    return null;
+                    if (bankTrxStatusCode.equals("S")){  //S才是放款成功
+                        return null;
+                    }else {
+                        return "processing";
+                    }
                 }else {
                     return jsonArray.getJSONObject(0).getString("bankMsg");
                 }
@@ -363,7 +368,6 @@ public class YeepayServiceImpl implements YeepayService {
     @Override
     public String balanceQuery(String appKey, String privateKey, StringBuffer balance){
         YopRequest yoprequest = new YopRequest(appKey, privateKey);
-
         try {
             YopResponse response = YopRsaClient.post(yeepay_balance_query_url, yoprequest);
             log.info("send yeepay balance query response :" + response);
@@ -371,7 +375,7 @@ public class YeepayServiceImpl implements YeepayService {
             String errMsg = parseResult(response, "errorCode", "BAC001");
             if (errMsg==null){
                 String stringResult = response.getStringResult();
-                balance.append(JSONObject.parseObject(stringResult).getString("accountAmount"));
+                balance.append(JSONObject.parseObject(stringResult).getString("wtjsValidAmount"));
                 return null;
             }else {
                 return errMsg;
