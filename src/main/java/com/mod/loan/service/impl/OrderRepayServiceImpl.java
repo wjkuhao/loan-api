@@ -223,35 +223,35 @@ public class OrderRepayServiceImpl extends BaseServiceImpl<OrderRepay, String> i
     }
 
     @Override
-    public void repaySuccess(OrderRepay orderRepay, Order orderOld) {
+    public void repaySuccess(OrderRepay orderRepay, Order order) {
+        if (41 == order.getStatus() || 42 == order.getStatus()) {
+            logger.info("订单{}已还款：", order.getId());
+            return ;
+        }
+
+        //更新repay
         orderRepay.setRepayStatus(OrderRepayStatusEnum.REPAY_SUCCESS.getCode());
-        orderRepay.setRemark("易宝支付成功");
+        orderRepay.setRemark("支付成功");
         orderRepay.setUpdateTime(new Date());
 
         //更新order
-        if (41 == orderOld.getStatus() || 42 == orderOld.getStatus()) {
-            logger.info("异步通知:订单{}已还款：", orderOld.getId());
-            return ;
-        }
-        Order orderUpd = new Order();
-        orderUpd.setId(orderRepay.getOrderId());
-        orderUpd.setRealRepayTime(new Date());
-        orderUpd.setHadRepay(orderRepay.getRepayMoney());
-
-        if (33 == orderOld.getStatus() || 34 == orderOld.getStatus()) {
-            orderUpd.setStatus(42);
+        order.setId(orderRepay.getOrderId());
+        order.setRealRepayTime(new Date());
+        order.setHadRepay(orderRepay.getRepayMoney());
+        if (33 == order.getStatus() || 34 == order.getStatus()) {
+            order.setStatus(42);
         } else {
-            orderUpd.setStatus(41);
+            order.setStatus(41);
         }
 
-        updateOrderRepayInfo(orderRepay, orderUpd);
+        updateOrderRepayInfo(orderRepay, order);
     }
 
     @Override
     public void repayFailed(OrderRepay orderRepay, String callbackErr) {
-        logger.error("易宝异步通知:订单错误信息{}",callbackErr);
+        logger.error("订单错误信息={}",callbackErr);
         orderRepay.setRepayStatus(OrderRepayStatusEnum.REPAY_FAILED.getCode());
-        orderRepay.setRemark("易宝支付失败:" + callbackErr);
+        orderRepay.setRemark("支付失败:" + callbackErr);
         orderRepay.setUpdateTime(new Date());
         updateOrderRepayInfo(orderRepay, null);
     }

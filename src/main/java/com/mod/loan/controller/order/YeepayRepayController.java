@@ -187,8 +187,8 @@ public class YeepayRepayController {
         }
 
         if (callbackErr==null){
-            Order orderOld = orderService.selectByPrimaryKey(orderRepay.getOrderId());
-            orderRepayService.repaySuccess(orderRepay, orderOld);
+            Order order = orderService.selectByPrimaryKey(orderRepay.getOrderId());
+            orderRepayService.repaySuccess(orderRepay, order);
 
         }else {
            orderRepayService.repayFailed(orderRepay, callbackErr);

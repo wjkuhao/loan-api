@@ -88,29 +88,10 @@ public class OrderTask {
                 Merchant merchant = merchantService.findMerchantByAlias(order.getMerchant());
                 if(merchant.getBindType().equals(MerchantEnum.yeepay.getCode())){
                     String errMsg = orderRepayService.yeepayRepayQuery(orderRepay.getRepayNo(), order.getMerchant());
-
-                    //更新还款订单
                     if (StringUtils.isEmpty(errMsg)) {
-                        orderRepay.setRepayStatus(OrderRepayStatusEnum.REPAY_SUCCESS.getCode());
-                        orderRepay.setRemark("易宝自动查询支付成功");
-                        orderRepay.setUpdateTime(new Date());
-
-                        //更新订单
-                        if (33 == order.getStatus() || 34 == order.getStatus()) {
-                            order.setStatus(42);
-                        } else {
-                            order.setStatus(41);
-                        }
-                        order.setRealRepayTime(new Date());
-                        order.setHadRepay(orderRepay.getRepayMoney());
-                        orderRepayService.updateOrderRepayInfo(orderRepay, order);
-
+                        orderRepayService.repaySuccess(orderRepay, order);
                     } else {
-                        //还款失败更新还款表即可
-                        orderRepay.setRepayStatus(OrderRepayStatusEnum.REPAY_FAILED.getCode());
-                        orderRepay.setRemark("易宝自动查询支付失败:" + errMsg);
-                        orderRepay.setUpdateTime(new Date());
-                        orderRepayService.updateOrderRepayInfo(orderRepay, null);
+                        orderRepayService.repayFailed(orderRepay,errMsg);
                     }
 
                     Thread.sleep(100);
