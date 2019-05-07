@@ -109,6 +109,25 @@ public class RegisterController {
 		return new ResultMessage(ResponseEnum.M2000);
 	}
 
+    @RequestMapping(value = "mobile_code_no_graph_code")
+    public ResultMessage mobile_code(String alias, String phone) {
+        if (!CheckUtils.isMobiPhoneNum(phone)) {
+            return new ResultMessage(ResponseEnum.M4000.getCode(), "手机号码错误");
+        }
+        if (merchantService.findMerchantByAlias(alias) == null) {
+            return new ResultMessage(ResponseEnum.M4000.getCode(), "商户不存在");
+        }
+        if (userService.selectUserByPhone(phone, alias) != null) {
+            return new ResultMessage(ResponseEnum.M2001);
+        }
+        String randomNum = RandomUtils.generateRandomNum(4);
+        // 发送验证码，5分钟内有效
+        redisMapper.set(RedisConst.USER_PHONE_CODE + phone, randomNum, 300);
+        rabbitTemplate.convertAndSend(RabbitConst.queue_sms,
+                new SmsMessage(alias, EnumSmsTemplate.T1001.getKey(), phone, randomNum + "|5分钟"));
+        return new ResultMessage(ResponseEnum.M2000);
+    }
+
 	@RequestMapping(value = "register")
 	public ResultMessage user_register(String phone, String password, String phone_code, String alias,
 			String origin_id) {
