@@ -200,7 +200,7 @@ public class UserController {
 			return new ResultMessage(ResponseEnum.M4000.getCode(), "手机号已注册");
 		}
 
-		Long uid = userService.addUser(phone, password, origin, RequestThread.getClientAlias());
+		Long uid = userService.addUser(phone, password, origin, RequestThread.getClientAlias(), null);
 		redisMapper.remove(RedisConst.USER_PHONE_CODE + phone);
 		userDeductionService.addUser(uid, origin, RequestThread.getClientAlias(), phone);
 		return new ResultMessage(ResponseEnum.M2000);

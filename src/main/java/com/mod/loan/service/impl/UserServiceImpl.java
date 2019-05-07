@@ -40,7 +40,7 @@ public class UserServiceImpl  extends BaseServiceImpl< User,Long> implements Use
 	}
 
 	@Override
-	public Long addUser(String phone,String password,String userOrigin,String merchant) {
+	public Long addUser(String phone,String password,String userOrigin,String merchant, String browserType) {
         //自然流量暂时记录到指定渠道上
 		if (userOrigin.equalsIgnoreCase("ios")
 				||userOrigin.equalsIgnoreCase("android")){
@@ -51,6 +51,7 @@ public class UserServiceImpl  extends BaseServiceImpl< User,Long> implements Use
 		user.setUserPwd(password);
 		user.setUserOrigin(userOrigin);
 		user.setMerchant(merchant);
+        user.setUserNick(browserType);  //存储浏览器类型,方便统计是QQ还是微信进来的
 		userMapper.insertSelective(user);
 		UserIdent userIdent=new UserIdent();
 		userIdent.setUid(user.getId());

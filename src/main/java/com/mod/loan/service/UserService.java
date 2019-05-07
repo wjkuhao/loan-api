@@ -26,7 +26,7 @@ public interface UserService extends BaseService< User,Long>{
 	 */
 	User selectUserByCertNo(String userCertNo,String merchant);
 	
-	Long addUser(String phone,String password,String userOrigin,String merchant);
+	Long addUser(String phone,String password,String userOrigin,String merchant, String browserType);
 	
 	void updateUserRealName(User user,UserIdent userIdent);
 	

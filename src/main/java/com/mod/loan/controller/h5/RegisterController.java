@@ -130,7 +130,7 @@ public class RegisterController {
 
 	@RequestMapping(value = "register")
 	public ResultMessage user_register(String phone, String password, String phone_code, String alias,
-			String origin_id) {
+			String origin_id, String browser_type) {
 		if (StringUtils.isBlank(origin_id)) {
 			origin_id = "android";
 		}
@@ -181,7 +181,7 @@ public class RegisterController {
             }
         }
 
-		Long uid = userService.addUser(phone, MD5.toMD5(password), origin_id, alias);
+		Long uid = userService.addUser(phone, MD5.toMD5(password), origin_id, alias, browser_type);
 		redisMapper.remove(RedisConst.USER_PHONE_CODE + phone);
 		userDeductionService.addUser(uid, origin_id, alias, phone);
 		return new ResultMessage(ResponseEnum.M2000);

@@ -249,7 +249,7 @@ public class OrderRepayServiceImpl extends BaseServiceImpl<OrderRepay, String> i
 
     @Override
     public void repayFailed(OrderRepay orderRepay, String callbackErr) {
-        logger.error("订单错误信息={}",callbackErr);
+        logger.error("订单错误信息={}，pay_no={}",callbackErr,orderRepay.getRepayNo());
         orderRepay.setRepayStatus(OrderRepayStatusEnum.REPAY_FAILED.getCode());
         orderRepay.setRemark("支付失败:" + callbackErr);
         orderRepay.setUpdateTime(new Date());
