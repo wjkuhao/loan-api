@@ -567,6 +567,9 @@ CREATE TABLE `tb_merchant_origin`  (
   `status` tinyint(1) NOT NULL DEFAULT 0 COMMENT '状态0-正常；1-已停用',
   `create_time` datetime(0) NULL DEFAULT CURRENT_TIMESTAMP,
   `deduction_rate` tinyint(3) NOT NULL DEFAULT 0 COMMENT '扣量比例',
+  `check_repay` tinyint(1) NOT NULL DEFAULT 0 COMMENT '是否检查存在还款订单 0-不检查；1-检查',
+  `check_overdue` tinyint(1) NOT NULL DEFAULT 0 COMMENT '是否检查存在逾期订单 0-不检查；1-检查',
+  `check_blacklist` tinyint(1) NOT NULL DEFAULT 0 COMMENT '是否检查存在于黑名单 0-不检查；1-检查',
   PRIMARY KEY (`id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '商户渠道' ROW_FORMAT = Dynamic;
 

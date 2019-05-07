@@ -32,4 +32,8 @@
     select id from tb_user where user_cert_no=#{certNo}
   </select>
 
+  <select id="selectAllByPhone" resultMap="BaseResultMap">
+    select id from tb_user where user_phone=#{userPhone}
+  </select>
+
 </mapper>

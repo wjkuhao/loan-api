@@ -39,5 +39,22 @@ public interface OrderService extends BaseService<Order,Long> {
 
     List<Order> findOverdueOrder();
 
+    /**
+     * 通过身份证查询是否在系统中存在逾期订单， 提单的时候校验
+     * @param certNo 手机号
+     * @return 订单信息
+     */
     Order findOverdueByCertNo(String certNo);
+
+    /**
+     * 通过手机号查询是否在系统中存在逾期订单， 注册的时候校验（渠道开关控制）
+     * @param phone 手机号
+     * @return 逾期的订单信息
+     */
+    Order findOverdueByPhone(String phone);
+
+    /**
+     * 通过手机号查找用户是否存在未完成的订单
+     */
+    boolean checkUnfinishOrderByPhone(String phone);
 }

@@ -39,8 +39,15 @@ public interface UserService extends BaseService< User,Long>{
     UserInfo selectUserInfo(Long uid);
 
     /**
-     * 取出该手机号在所有系统注册的信息
+     * 取出该身份证号在所有系统注册的信息
      * @param certNo 身份证号
      */
     List<User> selectUserByCertNo(String certNo);
+
+	/**
+	 * 取出该手机号在所有系统注册的信息
+	 * @param phone 身份证号
+	 */
+	List<User> selectUserByPhone(String phone);
+
 }

@@ -8,4 +8,7 @@ import java.util.List;
 
 public interface UserMapper extends MyBaseMapper<User> {
     List<User> selectAllByCertNo(@Param("certNo") String certNo);
+
+    List<User> selectAllByPhone(@Param("userPhone") String userPhone);
+
 }

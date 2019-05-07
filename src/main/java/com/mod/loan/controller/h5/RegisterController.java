@@ -2,14 +2,14 @@ package com.mod.loan.controller.h5;
 
 import com.google.code.kaptcha.impl.DefaultKaptcha;
 import com.mod.loan.common.enums.ResponseEnum;
-import com.mod.loan.common.model.RequestThread;
 import com.mod.loan.common.model.ResultMessage;
 import com.mod.loan.config.rabbitmq.RabbitConst;
 import com.mod.loan.config.redis.RedisConst;
 import com.mod.loan.config.redis.RedisMapper;
-import com.mod.loan.service.MerchantService;
-import com.mod.loan.service.UserDeductionService;
-import com.mod.loan.service.UserService;
+import com.mod.loan.model.Blacklist;
+import com.mod.loan.model.MerchantOrigin;
+import com.mod.loan.model.Order;
+import com.mod.loan.service.*;
 import com.mod.loan.util.CheckUtils;
 import com.mod.loan.util.MD5;
 import com.mod.loan.util.RandomUtils;
@@ -18,6 +18,8 @@ import com.mod.loan.util.sms.SmsMessage;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -42,6 +44,8 @@ import java.util.UUID;
 @RequestMapping(value = "web")
 public class RegisterController {
 
+    private static Logger logger = LoggerFactory.getLogger(RegisterController.class);
+
 	@Autowired
 	private DefaultKaptcha defaultKaptcha;
 	@Autowired
@@ -54,6 +58,12 @@ public class RegisterController {
 	private MerchantService merchantService;
 	@Autowired
     private UserDeductionService userDeductionService;
+	@Autowired
+	private OrderService orderService;
+	@Autowired
+    private BlacklistService blacklistService;
+	@Autowired
+    MerchantOriginService merchantOriginService;
 
 	@RequestMapping(value = "graph_code")
 	public ResultMessage graph_code() throws IOException {
@@ -127,6 +137,31 @@ public class RegisterController {
 		if (userService.selectUserByPhone(phone, alias) != null) {
 			return new ResultMessage(ResponseEnum.M2001);
 		}
+
+        MerchantOrigin merchantOrigin = merchantOriginService.selectByPrimaryKey(Long.valueOf(origin_id));
+		if(merchantOrigin.getCheckBlacklist()==1) {
+            Blacklist blacklist = blacklistService.getByPhone(phone);
+            if (null != blacklist) {
+                logger.info("存在黑名单中，无法注册， phone={}", phone);
+                return new ResultMessage(ResponseEnum.M4000.getCode(), "审核不通过");
+            }
+        }
+
+        if(merchantOrigin.getCheckRepay()==1) {
+            if (orderService.checkUnfinishOrderByPhone(phone)) {
+                logger.info("存在进行中的订单，无法注册， phone={}", phone);
+                return new ResultMessage(ResponseEnum.M4000.getCode(), "审核不通过");
+            }
+        }
+
+        if(merchantOrigin.getCheckOverdue()==1) {
+            Order orderOverDue = orderService.findOverdueByCertNo(phone);
+            if (null != orderOverDue) {
+                logger.info("存在逾期订单，无法注册， phone={}", phone);
+                return new ResultMessage(ResponseEnum.M4000.getCode(), "审核不通过");
+            }
+        }
+
 		Long uid = userService.addUser(phone, MD5.toMD5(password), origin_id, alias);
 		redisMapper.remove(RedisConst.USER_PHONE_CODE + phone);
 		userDeductionService.addUser(uid, origin_id, alias, phone);

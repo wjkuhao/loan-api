@@ -79,7 +79,19 @@ public class OrderServiceImpl  extends BaseServiceImpl<Order,Long> implements Or
 
 	@Override
 	public Order findOverdueByCertNo(String certNo) {
-        List<User> users = userService.selectUserByCertNo(certNo);
+		List<User> users = userService.selectUserByCertNo(certNo);
+		for (User user : users) {
+			Order overdueOrder = orderMapper.findOneOverdueOrder(user.getId());
+			if (overdueOrder!=null) {
+				return overdueOrder;
+			}
+		}
+		return null;
+	}
+
+    @Override
+    public Order findOverdueByPhone(String phone) {
+        List<User> users = userService.selectUserByPhone(phone);
         for (User user : users) {
             Order overdueOrder = orderMapper.findOneOverdueOrder(user.getId());
             if (overdueOrder!=null) {
@@ -88,4 +100,19 @@ public class OrderServiceImpl  extends BaseServiceImpl<Order,Long> implements Or
         }
         return null;
     }
+
+    @Override
+    public boolean checkUnfinishOrderByPhone(String phone) {
+        List<User> users = userService.selectUserByPhone(phone);
+        for (User user : users) {
+            List<Order> orderList = orderMapper.getByUid(user.getId());
+            for (Order order : orderList) {
+                if(order.getStatus() < 40){
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
 }

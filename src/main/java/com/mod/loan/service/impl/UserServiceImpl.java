@@ -168,4 +168,8 @@ public class UserServiceImpl  extends BaseServiceImpl< User,Long> implements Use
         return userMapper.selectAllByCertNo(certNo);
     }
 
+	@Override
+	public List<User> selectUserByPhone(String phone) {
+		return userMapper.selectAllByPhone(phone);
+	}
 }
