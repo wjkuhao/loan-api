@@ -235,7 +235,6 @@ public class OrderRepayServiceImpl extends BaseServiceImpl<OrderRepay, String> i
         orderRepay.setUpdateTime(new Date());
 
         //更新order
-        order.setId(orderRepay.getOrderId());
         order.setRealRepayTime(new Date());
         order.setHadRepay(orderRepay.getRepayMoney());
         if (33 == order.getStatus() || 34 == order.getStatus()) {
