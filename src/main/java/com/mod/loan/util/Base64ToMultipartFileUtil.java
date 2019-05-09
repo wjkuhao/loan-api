@@ -78,4 +78,10 @@ public class Base64ToMultipartFileUtil implements MultipartFile {
             return null;
         }
     }
+
+    public static String decodeOrigin(String base64) {
+        java.util.Base64.Decoder decoder= java.util.Base64.getDecoder();
+        byte[] decode = decoder.decode(base64.substring(0,base64.length()-1));
+        return new String(decode);
+    }
 }

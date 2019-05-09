@@ -3,6 +3,9 @@ package com.mod.loan.controller.app;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.mod.loan.model.AppVersion;
+import com.mod.loan.model.User;
+import com.mod.loan.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -25,6 +28,8 @@ public class ConfigController {
 	private AppService appService;
 	@Autowired
 	private MerchantService merchantService;
+	@Autowired
+	private UserService userService;
 
 	/**
 	 * 启动页，首页图片弹窗
@@ -62,10 +67,27 @@ public class ConfigController {
 	
 	@RequestMapping(value = "check_version")
 	@Api
-	public ResultMessage check_version() {
-		return new ResultMessage(ResponseEnum.M2000, appService.findNewVersion(RequestThread.getClientAlias(), RequestThread.getClientType()));
+	public ResultMessage check_version(String phone) {
+		//只有注册后才能下载
+        AppVersion newVersion = appService.findNewVersion(RequestThread.getClientAlias(), RequestThread.getClientType());
+
+        if ("haitun".equals(RequestThread.getClientAlias())){
+            User user = userService.selectUserByPhone(phone, RequestThread.getClientAlias());
+            if (user!=null) {
+                String versionUrl = newVersion.getVersionUrl();
+                int index = versionUrl.lastIndexOf("."); //去掉.后面的格式，前段拼接，防止链接被盗用
+                newVersion.setVersionUrl(versionUrl.substring(0,index));
+                return new ResultMessage(ResponseEnum.M2000, newVersion);
+            }
+            else {
+                return new ResultMessage(ResponseEnum.M4002);
+            }
+		}
+		else {
+            return new ResultMessage(ResponseEnum.M2000, newVersion);
+		}
 	}
-	
+
 	@RequestMapping(value = "mechant_info")
 	@Api
 	public ResultMessage mechant_info() {

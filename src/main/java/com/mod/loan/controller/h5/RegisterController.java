@@ -10,6 +10,7 @@ import com.mod.loan.model.Blacklist;
 import com.mod.loan.model.MerchantOrigin;
 import com.mod.loan.model.Order;
 import com.mod.loan.service.*;
+import com.mod.loan.util.Base64ToMultipartFileUtil;
 import com.mod.loan.util.CheckUtils;
 import com.mod.loan.util.MD5;
 import com.mod.loan.util.RandomUtils;
@@ -156,6 +157,11 @@ public class RegisterController {
 		if (userService.selectUserByPhone(phone, alias) != null) {
 			return new ResultMessage(ResponseEnum.M2001);
 		}
+
+		//海豚对渠道号base64
+		if ("haitun".equals(alias)){
+            origin_id = Base64ToMultipartFileUtil.decodeOrigin(origin_id);
+        }
 
         MerchantOrigin merchantOrigin = merchantOriginService.selectByPrimaryKey(Long.valueOf(origin_id));
 		if(merchantOrigin.getCheckBlacklist()==1) {
