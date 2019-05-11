@@ -21,7 +21,7 @@ public class OrderDefer {
     //`defer_times` TINYINT(2) DEFAULT NULL COMMENT '当前第几次续期',
     //`pay_type` CHAR(10) DEFAULT NULL COMMENT '支付方式:线上/线下',
     //`pay_no` VARCHAR(255) DEFAULT NULL COMMENT '支付单号:线上支付',
-    //`pay_status` TINYINT(1) DEFAULT 0 COMMENT '续期订单状态:0-未支付 1-已支付',
+    //`pay_status` TINYINT(1) DEFAULT 0 COMMENT '续期订单状态:0-初始；1:受理成功；2:受理失败； 3:还款成功；4:还款失败;5:回调信息异常
     //`pay_time` CHAR(19) DEFAULT NULL COMMENT '续期支付时间',
     //`create_time` CHAR(19) DEFAULT NULL COMMENT '续期申请时间',
     //`repay_date` CHAR(10) DEFAULT NULL COMMENT '原始到期日',
@@ -61,6 +61,25 @@ public class OrderDefer {
     private String deferRepayDate;
     @Column(name = "remark")
     private String remark;
+
+    private String merchant;
+    private Long uid;
+
+    public String getMerchant() {
+        return merchant;
+    }
+
+    public void setMerchant(String merchant) {
+        this.merchant = merchant;
+    }
+
+    public Long getUid() {
+        return uid;
+    }
+
+    public void setUid(Long uid) {
+        this.uid = uid;
+    }
 
     public OrderDefer() {
     }
