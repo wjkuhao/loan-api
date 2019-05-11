@@ -20,4 +20,19 @@ public interface OrderDeferService extends BaseService<OrderDefer, Integer> {
      */
     void modifyOrderDeferByPayCallback(OrderDefer orderDefer);
 
+    /**
+     * 易宝展期支付申请
+     * @param orderId 订单号
+     * @return 错误信息
+     */
+    String yeepayDeferNoSms(Long orderId);
+
+    /**
+     * @param payNo 支付订单号
+     * @param merchantAlias 商户简称
+     * @return 错误信息
+     */
+    String yeepayRepayQuery(String payNo, String merchantAlias);
+
+    OrderDefer selectByPayNo(String payNo);
 }

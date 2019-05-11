@@ -43,9 +43,6 @@ public class YeepayServiceImpl implements YeepayService {
     @Value("${yeepay.repay.commit.url:}")
     String yeepay_repay_commit_url;
 
-    @Value("${yeepay.callback.url:}")
-    String yeepay_callback_url;
-
     @Value("${yeepay.repay.query.url:}")
     String yeepay_repay_query_url;
 
@@ -57,6 +54,8 @@ public class YeepayServiceImpl implements YeepayService {
 
     @Value("${yeepay.balance.query.url:}")
     String yeepay_balance_query_url;
+
+
 
     @Override
     public String authBindCardRequest(String appKey, String privateKey, String requestNo, String identityId, String cardNo,
@@ -111,7 +110,7 @@ public class YeepayServiceImpl implements YeepayService {
     }
 
     @Override
-    public String payRequest(String appKey, String privateKey, String requestNo, String identityId, String cardNo, String amount, boolean sendSms) {
+    public String payRequest(String appKey, String privateKey, String requestNo, String identityId, String cardNo, String amount, boolean sendSms, String callBackUrl) {
         YopRequest yoprequest = new YopRequest(appKey, privateKey);
         yoprequest.addParam("requestno", requestNo);
         if (sendSms){
@@ -122,14 +121,14 @@ public class YeepayServiceImpl implements YeepayService {
         yoprequest.addParam("identityid", identityId);
         yoprequest.addParam("identitytype", "USER_ID");
         yoprequest.addParam("amount", amount);
-        yoprequest.addParam("terminalno", "SQKKSCENEKJ010"); //协议支付： SQKKSCENEKJ010 代扣： SQKKSCENE10 //todo 是否支持代扣
+        yoprequest.addParam("terminalno", "SQKKSCENEKJ010"); //协议支付： SQKKSCENEKJ010 代扣： SQKKSCENE10
         yoprequest.addParam("avaliabletime", Constant.SMS_EXPIRATION_TIME/60); //验证码有效时间 单位：分钟
         yoprequest.addParam("requesttime", TimeUtils.getTime());
         yoprequest.addParam("advicesmstype", "MESSAGE"); //建议短验发送类型： MESSAGE 短信
         yoprequest.addParam("productname", appKey);
         yoprequest.addParam("cardtop", cardNo.substring(0, 6));
         yoprequest.addParam("cardlast", cardNo.substring(cardNo.length() - 4));
-        yoprequest.addParam("callbackurl", String.format(yeepay_callback_url, identityId));
+        yoprequest.addParam("callbackurl", String.format(callBackUrl, identityId));
 
         log.info("authBindCardConfirm, getParams={}", yoprequest.getParams().toString());
 

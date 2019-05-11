@@ -31,9 +31,10 @@ public interface YeepayService {
      * @param identityId 商户生成的用户唯一标识。每个用户唯一，绑卡最终会绑在这个用户标志下
      * @param cardNo 身份证号
      * @param amount 支付单位：元，精确到两位小数，大于等于 0.01
+     * @param callbackUrl 回调地址
      * @return 错误信息
      */
-    String payRequest(String appKey, String privateKey, String requestNo, String identityId, String cardNo, String amount, boolean sendSms);
+    String payRequest(String appKey, String privateKey, String requestNo, String identityId, String cardNo, String amount, boolean sendSms, String callbackUrl);
 
     /**
      * 绑卡支付确认

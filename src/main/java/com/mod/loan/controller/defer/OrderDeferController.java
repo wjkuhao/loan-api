@@ -1,18 +1,20 @@
 package com.mod.loan.controller.defer;
 
+import com.mod.loan.common.annotation.LoginRequired;
+import com.mod.loan.common.enums.OrderRepayStatusEnum;
 import com.mod.loan.common.enums.ResponseEnum;
 import com.mod.loan.common.model.ResultMessage;
-import com.mod.loan.model.MerchantDeferConfig;
-import com.mod.loan.model.Order;
-import com.mod.loan.model.OrderDefer;
-import com.mod.loan.model.User;
-import com.mod.loan.service.MerchantDeferConfigService;
-import com.mod.loan.service.OrderDeferService;
-import com.mod.loan.service.OrderService;
-import com.mod.loan.service.UserService;
+import com.mod.loan.model.*;
+import com.mod.loan.service.*;
 import com.mod.loan.util.TimeUtil;
+import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 /**
  * 续期订单接口
@@ -24,10 +26,18 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/order_defer")
 public class OrderDeferController {
 
+    private static Logger logger = LoggerFactory.getLogger(OrderDeferController.class);
+
     private final MerchantDeferConfigService merchantDeferConfigService;
     private final OrderDeferService orderDeferService;
     private final OrderService orderService;
     private final UserService userService;
+
+    @Autowired
+    MerchantService merchantService;
+
+    @Autowired
+    YeepayService yeepayService;
 
     @Autowired
     public OrderDeferController(MerchantDeferConfigService merchantDeferConfigService, //
@@ -92,6 +102,8 @@ public class OrderDeferController {
         orderDefer.setUserName(user.getUserName());
         orderDefer.setUserPhone(user.getUserPhone());
         orderDefer.setCreateTime(TimeUtil.nowTime());
+        orderDefer.setUid(user.getId());
+        orderDefer.setMerchant(order.getMerchant());
         //
         orderDeferService.insertSelective(orderDefer);
         return new ResultMessage(ResponseEnum.M2000.getCode(), orderDefer);
@@ -106,4 +118,73 @@ public class OrderDeferController {
         return new ResultMessage(ResponseEnum.M2000.getCode(), orderDefer);
     }
 
+    @LoginRequired
+    @RequestMapping(value = "yeepay_repay_no_sms")
+    public ResultMessage yeepay_repay_no_sms(String orderId) {
+        String errMsg = orderDeferService.yeepayDeferNoSms(Long.valueOf(orderId));
+        if (errMsg == null) {
+            return new ResultMessage(ResponseEnum.M2000, orderId);
+        } else {
+            return new ResultMessage(ResponseEnum.M4000, errMsg);
+        }
+    }
+
+    @RequestMapping(value = "repay_callback")
+    public String repay_callback(HttpServletRequest request, HttpServletResponse response){
+        String responseMsg = request.getParameter("response");
+        String param = request.getParameter("param");
+
+        logger.info("展期易宝异步通知:param={}",param);
+
+        if (StringUtils.isEmpty(responseMsg) || StringUtils.isEmpty(param)){
+            logger.error("responseMsg={},param={}",responseMsg,param);
+            logger.error("易宝异步通知:返回为空");
+            return "SUCCESS";
+        }
+
+        Long uid = Long.valueOf(param);
+        User user = userService.selectByPrimaryKey(uid);
+        Merchant merchant = merchantService.findMerchantByAlias(user.getMerchant());
+
+        StringBuffer repayNo = new StringBuffer();
+        String callbackErr = yeepayService.repayCallbackMultiAcct(merchant.getYeepay_repay_private_key(), responseMsg, repayNo);
+        logger.info("展期易宝异步通知:param={},callbackErr={},repayNo={}", param, callbackErr, repayNo);
+
+        //设置OrderRepay
+        OrderDefer orderDefer = orderDeferService.selectByPayNo(repayNo.toString());
+        //对应的订单不存在 或者 可能已经线下还款
+        if (orderDefer==null||orderDefer.getPayStatus().equals(OrderRepayStatusEnum.REPAY_SUCCESS.getCode())) {
+            logger.info("展期易宝异步通知:param={}订单已还款",param);
+            return "SUCCESS"; //收到通知 固定格式
+        }
+
+        if (callbackErr == null) {
+            orderDefer.setPayStatus(OrderRepayStatusEnum.REPAY_SUCCESS.getCode());
+            orderDeferService.modifyOrderDeferByPayCallback(orderDefer);
+        } else {
+            orderDefer.setPayStatus(OrderRepayStatusEnum.REPAY_FAILED.getCode());
+            orderDeferService.modifyOrderDeferByPayCallback(orderDefer);
+        }
+
+        return "SUCCESS"; //收到通知 固定格式
+    }
+
+
+    @LoginRequired
+    @RequestMapping(value = "yeepay_repay_query")
+    public ResultMessage yeepay_repay_query(Long orderId) {
+        Order order = orderService.selectByPrimaryKey(orderId);
+        OrderDefer orderDefer = orderDeferService.findLastValidByOrderId(orderId);
+
+        String errMsg = orderDeferService.yeepayRepayQuery(orderDefer.getPayNo(), order.getMerchant());
+        if (errMsg == null) {
+            orderDefer.setPayStatus(OrderRepayStatusEnum.REPAY_SUCCESS.getCode());
+            orderDeferService.modifyOrderDeferByPayCallback(orderDefer);
+            return new ResultMessage(ResponseEnum.M2000, orderId);
+        } else {
+            orderDefer.setPayStatus(OrderRepayStatusEnum.REPAY_FAILED.getCode());
+            orderDeferService.modifyOrderDeferByPayCallback(orderDefer);
+            return new ResultMessage(ResponseEnum.M4000, errMsg);
+        }
+    }
 }

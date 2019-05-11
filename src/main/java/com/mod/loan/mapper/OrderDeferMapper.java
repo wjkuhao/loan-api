@@ -13,4 +13,7 @@ public interface OrderDeferMapper extends MyBaseMapper<OrderDefer> {
     OrderDefer findLastValidByOrderId(@Param("orderId") Long orderId,
                                       @Param("nowDate") String nowDate);
 
+    @ResultMap("BaseResultMap")
+    @Select("SELECT * FROM tb_order_defer WHERE pay_no = #{payNo}")
+    OrderDefer selectByPayNo(@Param("payNo")String payNo);
 }

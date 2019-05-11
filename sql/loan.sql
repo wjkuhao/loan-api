@@ -1224,7 +1224,7 @@ CREATE TABLE `tb_order_defer`  (
   `defer_fee` DOUBLE(7, 2) DEFAULT NULL COMMENT '续期费',
   `defer_times` TINYINT(2) DEFAULT NULL COMMENT '当前第几次续期',
   `pay_type` CHAR(10) DEFAULT NULL COMMENT '支付方式:线上/线下',
-  `pay_no` VARCHAR(255) DEFAULT NULL COMMENT '支付单号:线上支付',
+  `pay_no` VARCHAR(64) DEFAULT NULL COMMENT '支付单号:线上支付',
   `pay_status` tinyint(1) NOT NULL DEFAULT 0 COMMENT '0-初始；1:受理成功；2:受理失败； 3:还款成功；4:还款失败;5:回调信息异常',
   `pay_time` CHAR(19) DEFAULT NULL COMMENT '续期支付时间',
   `create_time` CHAR(19) DEFAULT NULL COMMENT '续期申请时间',
@@ -1234,6 +1234,7 @@ CREATE TABLE `tb_order_defer`  (
   `remark` VARCHAR(255) DEFAULT null COMMENT '备注',
   PRIMARY KEY (`id`) USING BTREE,
   INDEX `idx_order_id`(`order_id`) USING BTREE,
+  INDEX `idx_pay_no`(`pay_no`) USING BTREE,
   INDEX `idx_pay_time`(`pay_time`) USING BTREE
 ) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
 

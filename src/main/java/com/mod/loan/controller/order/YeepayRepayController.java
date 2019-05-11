@@ -20,6 +20,7 @@ import org.apache.commons.lang.math.NumberUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -41,6 +42,9 @@ public class YeepayRepayController {
     private final RedisMapper redisMapper;
     private final MerchantService merchantService;
     private final UserService userService;
+
+    @Value("${yeepay.callback.url:}")
+    String yeepay_callback_url;
 
     @Autowired
     public YeepayRepayController(OrderService orderService, OrderRepayService orderRepayService, YeepayService yeepayService, RedisMapper redisMapper, MerchantService merchantService, UserService userService) {
@@ -74,7 +78,7 @@ public class YeepayRepayController {
                 String alias = RequestThread.getClientAlias();
                 Merchant merchant = merchantService.findMerchantByAlias(alias);
 
-                String err = yeepayService.payRequest(merchant.getYeepay_repay_appkey(), merchant.getYeepay_repay_private_key(), repayNo, String.valueOf(uid), cardNo, amount, true);
+                String err = yeepayService.payRequest(merchant.getYeepay_repay_appkey(), merchant.getYeepay_repay_private_key(), repayNo, String.valueOf(uid), cardNo, amount, true, yeepay_callback_url);
                 if(err!=null){
                     return new ResultMessage(ResponseEnum.M4000, err);
                 }
@@ -197,7 +201,7 @@ public class YeepayRepayController {
     }
 
     /**
-     * 扣款不发生短信,省了短信验证码确认,相当于合并了yeepay_repay_text和yeepay_repay_active
+     * 扣款不发送短信,省了短信验证码确认,相当于合并了yeepay_repay_text和yeepay_repay_active
      */
     @LoginRequired
     @RequestMapping(value = "yeepay_repay_no_sms")

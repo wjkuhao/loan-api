@@ -55,6 +55,8 @@ public class OrderRepayServiceImpl extends BaseServiceImpl<OrderRepay, String> i
     private String helipay_path;
     @Value("${helipay.pfx.pwd:}")
     private String helipay_pfx_pwd;
+    @Value("${yeepay.callback.url:}")
+    String yeepay_callback_url;
 
     @Override
     public void updateOrderRepayInfo(OrderRepay orderRepay, Order order) {
@@ -86,7 +88,7 @@ public class OrderRepayServiceImpl extends BaseServiceImpl<OrderRepay, String> i
                 UserBank userBank = userBankService.selectUserCurrentBankCard(order.getUid());
 
                 String err = yeepayService.payRequest(merchant.getYeepay_repay_appkey(), merchant.getYeepay_repay_private_key(),
-                        repayNo, String.valueOf(order.getUid()), userBank.getCardNo(), amount, false);
+                        repayNo, String.valueOf(order.getUid()), userBank.getCardNo(), amount, false, yeepay_callback_url);
 
                 // 还款记录表
                 OrderRepay orderRepay = new OrderRepay();
