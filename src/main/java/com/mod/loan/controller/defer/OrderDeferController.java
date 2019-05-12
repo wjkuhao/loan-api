@@ -32,22 +32,20 @@ public class OrderDeferController {
     private final OrderDeferService orderDeferService;
     private final OrderService orderService;
     private final UserService userService;
-
-    @Autowired
-    MerchantService merchantService;
-
-    @Autowired
-    YeepayService yeepayService;
+    private final MerchantService merchantService;
+    private final YeepayService yeepayService;
 
     @Autowired
     public OrderDeferController(MerchantDeferConfigService merchantDeferConfigService, //
                                 OrderDeferService orderDeferService, //
                                 OrderService orderService, //
-                                UserService userService) {
+                                UserService userService, MerchantService merchantService, YeepayService yeepayService) {
         this.merchantDeferConfigService = merchantDeferConfigService;
         this.orderDeferService = orderDeferService;
         this.orderService = orderService;
         this.userService = userService;
+        this.merchantService = merchantService;
+        this.yeepayService = yeepayService;
     }
 
     @GetMapping("/compute")
@@ -81,22 +79,35 @@ public class OrderDeferController {
         // 计算还款时间
         String deferReapyDate = TimeUtil.datePlusDays(order.getRepayTime(), deferDay);
 
-        //
-        OrderDefer orderDefer = new OrderDefer();
-        orderDefer.setOrderId(orderId);
-        orderDefer.setDeferTimes(deferTimes);
-        orderDefer.setDeferDay(deferDay);
-        orderDefer.setDailyDeferFee(dailyDeferFee);
-        orderDefer.setDeferFee(deferFee);
-        orderDefer.setRepayDate(TimeUtil.dateFormat(order.getRepayTime()));
-        orderDefer.setDeferRepayDate(deferReapyDate);
-        //
-        return new ResultMessage(ResponseEnum.M2000.getCode(), orderDefer);
+        //如果是null 或者 为支付成功 则可以继续生成下一笔展期订单
+        OrderDefer orderDeferOld = orderDeferService.findLastValidByOrderId(orderId);
+        if ( orderDeferOld == null || orderDeferOld.getPayStatus().equals(OrderRepayStatusEnum.REPAY_SUCCESS.getCode())){
+            OrderDefer orderDefer = new OrderDefer();
+            orderDefer.setOrderId(orderId);
+            orderDefer.setDeferTimes(deferTimes);
+            orderDefer.setDeferDay(deferDay);
+            orderDefer.setDailyDeferFee(dailyDeferFee);
+            orderDefer.setDeferFee(deferFee);
+            orderDefer.setRepayDate(TimeUtil.dateFormat(order.getRepayTime()));
+            orderDefer.setDeferRepayDate(deferReapyDate);
+
+            User user = userService.selectByPrimaryKey(order.getUid());
+            orderDefer.setUserName(user.getUserName());
+            orderDefer.setUserPhone(user.getUserPhone());
+            orderDefer.setCreateTime(TimeUtil.nowTime());
+            orderDefer.setUid(user.getId());
+            orderDefer.setMerchant(order.getMerchant());
+            orderDefer.setPayStatus(OrderRepayStatusEnum.INIT.getCode());
+            orderDeferService.insertSelective(orderDefer);
+            return new ResultMessage(ResponseEnum.M2000.getCode(), orderDefer);
+        }
+
+        return new ResultMessage(ResponseEnum.M2000.getCode(), orderDeferOld);
     }
 
-    @PostMapping("/create")
-    public ResultMessage create(@RequestBody OrderDefer orderDefer) {
-        //
+    //@PostMapping("/create")
+    public ResultMessage create(OrderDefer orderDefer) {
+
         Order order = orderService.selectByPrimaryKey(orderDefer.getOrderId());
         User user = userService.selectByPrimaryKey(order.getUid());
         orderDefer.setUserName(user.getUserName());
@@ -109,7 +120,7 @@ public class OrderDeferController {
         return new ResultMessage(ResponseEnum.M2000.getCode(), orderDefer);
     }
 
-    @GetMapping("/find_last_valid")
+    //@GetMapping("/find_last_valid")
     public ResultMessage findByOrderId(@RequestParam Long orderId) {
         OrderDefer orderDefer = orderDeferService.findLastValidByOrderId(orderId);
         if (null == orderDefer) {
@@ -175,7 +186,6 @@ public class OrderDeferController {
     public ResultMessage yeepay_repay_query(Long orderId) {
         Order order = orderService.selectByPrimaryKey(orderId);
         OrderDefer orderDefer = orderDeferService.findLastValidByOrderId(orderId);
-
         String errMsg = orderDeferService.yeepayRepayQuery(orderDefer.getPayNo(), order.getMerchant());
         if (errMsg == null) {
             orderDefer.setPayStatus(OrderRepayStatusEnum.REPAY_SUCCESS.getCode());
