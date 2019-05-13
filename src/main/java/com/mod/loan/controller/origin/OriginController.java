@@ -6,6 +6,7 @@ import com.mod.loan.common.model.ResultMessage;
 import com.mod.loan.model.MerchantOrigin;
 import com.mod.loan.service.OriginService;
 import com.mod.loan.util.Base64ToMultipartFileUtil;
+import com.mod.loan.util.DesUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,6 +32,8 @@ public class OriginController {
         try {
             if ("haitun".equals(merchant)) {
                 id = Base64ToMultipartFileUtil.decodeOrigin(id);
+            }else if ("huijie".equals(merchant)){
+                id = DesUtil.decryption(id, null);
             }
 
             MerchantOrigin merchantOrigin = originService.selectByPrimaryKey(Long.valueOf(id));

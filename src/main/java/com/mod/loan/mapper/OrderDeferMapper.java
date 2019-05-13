@@ -9,9 +9,8 @@ import org.apache.ibatis.annotations.Select;
 public interface OrderDeferMapper extends MyBaseMapper<OrderDefer> {
 
     @ResultMap("BaseResultMap")
-    @Select("SELECT * FROM tb_order_defer WHERE order_id = #{orderId} AND repay_date <= #{nowDate} ORDER BY id DESC LIMIT 1")
-    OrderDefer findLastValidByOrderId(@Param("orderId") Long orderId,
-                                      @Param("nowDate") String nowDate);
+    @Select("SELECT * FROM tb_order_defer WHERE order_id = #{orderId} ORDER BY id DESC LIMIT 1")
+    OrderDefer findLastValidByOrderId(@Param("orderId") Long orderId);
 
     @ResultMap("BaseResultMap")
     @Select("SELECT * FROM tb_order_defer WHERE pay_no = #{payNo}")

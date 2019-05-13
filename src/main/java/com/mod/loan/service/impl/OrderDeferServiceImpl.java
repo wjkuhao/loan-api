@@ -43,16 +43,18 @@ public class OrderDeferServiceImpl extends BaseServiceImpl<OrderDefer, Integer> 
 
     @Override
     public OrderDefer findLastValidByOrderId(Long orderId) {
-        return orderDeferMapper.findLastValidByOrderId(orderId, TimeUtil.nowDate());
+        return orderDeferMapper.findLastValidByOrderId(orderId);
     }
 
     @Override
     public void modifyOrderDeferByPayCallback(OrderDefer orderDefer) {
         // 修改订单的还款日期
-        Order modifiedOrder = new Order();
-        modifiedOrder.setId(orderDefer.getOrderId());
-        modifiedOrder.setRepayTime(TimeUtil.parseDate(orderDefer.getDeferRepayDate()));
-        orderService.updateByPrimaryKeySelective(modifiedOrder);
+        if(orderDefer.getPayStatus().equals(OrderRepayStatusEnum.REPAY_SUCCESS.getCode())){
+            Order modifiedOrder = new Order();
+            modifiedOrder.setId(orderDefer.getOrderId());
+            modifiedOrder.setRepayTime(TimeUtil.parseDate(orderDefer.getDeferRepayDate()));
+            orderService.updateByPrimaryKeySelective(modifiedOrder);
+        }
         // 修改续期单 支付时间和支付状态
         orderDefer.setPayTime(TimeUtil.nowTime());
         orderDeferMapper.updateByPrimaryKeySelective(orderDefer);
@@ -65,7 +67,7 @@ public class OrderDeferServiceImpl extends BaseServiceImpl<OrderDefer, Integer> 
             logger.error("orderId={}，找不到对应的展期订单", orderId);
             return "找不到对应的展期订单";        }
 
-        if (orderDefer.getPayStatus() == 0) {
+        if (orderDefer.getPayStatus().equals(OrderRepayStatusEnum.ACCEPT_SUCCESS.getCode())) {
             logger.error("orderId={}已存在展期还款中的记录", orderId);
             return "请勿重复还款";
         }
@@ -79,6 +81,7 @@ public class OrderDeferServiceImpl extends BaseServiceImpl<OrderDefer, Integer> 
             String err = yeepayService.payRequest(merchant.getYeepay_repay_appkey(), merchant.getYeepay_repay_private_key(),
                     payNo, String.valueOf(orderDefer.getUid()), userBank.getCardNo(), amount, false, yeepay_defer_callback_url);
 
+            orderDefer.setPayNo(payNo);
             if (err != null) {
                 orderDefer.setPayStatus(OrderRepayStatusEnum.ACCEPT_FAILED.getCode());
                 orderDefer.setRemark("展期易宝受理失败:" + err);
@@ -91,7 +94,7 @@ public class OrderDeferServiceImpl extends BaseServiceImpl<OrderDefer, Integer> 
             orderDeferMapper.updateByPrimaryKey(orderDefer);
             return null;
         } catch (Exception e) {
-            logger.error("展期易宝支付受理异常，error={}", e.getMessage());
+            logger.error("展期易宝支付受理异常，error={}", (Object) e.getStackTrace());
             return "展期易宝支付受理异常";
         }
     }
