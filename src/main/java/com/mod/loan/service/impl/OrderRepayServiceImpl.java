@@ -1,6 +1,7 @@
 package com.mod.loan.service.impl;
 
 import com.alibaba.fastjson.JSONObject;
+import com.mod.loan.common.enums.OrderEnum;
 import com.mod.loan.common.enums.OrderRepayStatusEnum;
 import com.mod.loan.common.mapper.BaseServiceImpl;
 import com.mod.loan.config.Constant;
@@ -11,10 +12,7 @@ import com.mod.loan.model.Merchant;
 import com.mod.loan.model.Order;
 import com.mod.loan.model.OrderRepay;
 import com.mod.loan.model.UserBank;
-import com.mod.loan.service.MerchantService;
-import com.mod.loan.service.OrderRepayService;
-import com.mod.loan.service.UserBankService;
-import com.mod.loan.service.YeepayService;
+import com.mod.loan.service.*;
 import com.mod.loan.util.StringUtil;
 import com.mod.loan.util.TimeUtils;
 import com.mod.loan.util.heli.HttpClientService;
@@ -48,6 +46,8 @@ public class OrderRepayServiceImpl extends BaseServiceImpl<OrderRepay, String> i
     UserBankService userBankService;
     @Autowired
     YeepayService yeepayService;
+    @Autowired
+    OrderService orderService;
 
     @Value("${helipay.url:}")
     private String helipay_url;
@@ -80,7 +80,7 @@ public class OrderRepayServiceImpl extends BaseServiceImpl<OrderRepay, String> i
         }
 
         Order order = orderMapper.selectByPrimaryKey(orderId);
-        if (order.getStatus() == 31 || order.getStatus() == 33 || order.getStatus() == 34) { // 已放款，逾期，坏账状态
+        if (order.getStatus()>= OrderEnum.REPAYING.getCode() && order.getStatus()< OrderEnum.NORMAL_REPAY.getCode()) { // 还款中30～40
             try {
                 String repayNo = StringUtil.getOrderNumber("r");// 支付流水号
                 String amount = "dev".equals(Constant.ENVIROMENT) ? "0.11" : order.getShouldRepay().toString();
@@ -144,7 +144,7 @@ public class OrderRepayServiceImpl extends BaseServiceImpl<OrderRepay, String> i
         //查询商户信息表
         Merchant merchant = merchantService.findMerchantByAlias(order.getMerchant());
         // 已放款，逾期，坏账状态
-        if (order.getStatus() == 31 || order.getStatus() == 33 || order.getStatus() == 34) {
+        if (order.getStatus()>= OrderEnum.REPAYING.getCode() && order.getStatus()< OrderEnum.NORMAL_REPAY.getCode()) { // 还款中30～40
             try {
                 // 支付流水号
                 String repayNo = StringUtil.getOrderNumber("r");
@@ -226,7 +226,9 @@ public class OrderRepayServiceImpl extends BaseServiceImpl<OrderRepay, String> i
 
     @Override
     public void repaySuccess(OrderRepay orderRepay, Order order) {
-        if (41 == order.getStatus() || 42 == order.getStatus()) {
+        if (OrderEnum.NORMAL_REPAY.getCode().equals(order.getStatus())
+                || OrderEnum.OVERDUE_REPAY.getCode().equals(order.getStatus())
+                || OrderEnum.DEFER_REPAY.getCode().equals(order.getStatus())) {
             logger.info("订单{}已还款：", order.getId());
             return ;
         }
@@ -239,11 +241,7 @@ public class OrderRepayServiceImpl extends BaseServiceImpl<OrderRepay, String> i
         //更新order
         order.setRealRepayTime(new Date());
         order.setHadRepay(orderRepay.getRepayMoney());
-        if (33 == order.getStatus() || 34 == order.getStatus()) {
-            order.setStatus(42);
-        } else {
-            order.setStatus(41);
-        }
+        order.setStatus(orderService.setRepaySuccStatusByCurrStatus(order.getStatus()));
 
         updateOrderRepayInfo(orderRepay, order);
     }

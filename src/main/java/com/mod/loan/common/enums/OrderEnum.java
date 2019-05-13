@@ -2,10 +2,17 @@ package com.mod.loan.common.enums;
 
 public enum OrderEnum {
         DAI_FUKUAN(11, "待付款"),
-        DAI_FANGKUAN(21, "待放款"),
-        DAI_SHOUHUO(31, "待收货"),
-        JIAOYI_WANCHENG(41, "交易成功"),
-        JIAOYI_QUXIAO(51, "交易取消"),
+        WAIT_LOAN(21, "待放款"),
+        REPAYING(31, "还款中"),
+        OVERDUE(33, "逾期"),
+        BAD_DEBTS(34, "坏账"),
+        DEFER(35, "展期"),
+        OVERDUE_DEFER(36, "逾期后展期"),
+        DEFER_OVERDUE(37, "展期后逾期"),
+        NORMAL_REPAY(41, "正常还款"),
+        OVERDUE_REPAY(42, "逾期还款"),
+        DEFER_REPAY(43, "展期还款"),
+        CANCEL(51, "交易取消"),
 
         ;
 

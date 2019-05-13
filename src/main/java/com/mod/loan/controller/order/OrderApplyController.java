@@ -214,7 +214,7 @@ public class OrderApplyController {
 		Integer borrowType = orderService.countPaySuccessByUid(uid);
 		if(borrowType!=null && borrowType>0){
 			order.setAuditTime(new Date());
-			order.setStatus(OrderEnum.DAI_FANGKUAN.getCode());
+			order.setStatus(OrderEnum.WAIT_LOAN.getCode());
 			orderService.addOrder(order, orderPhone);
 			return new ResultMessage(ResponseEnum.M2000);
 		}

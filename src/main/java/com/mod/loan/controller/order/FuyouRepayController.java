@@ -3,6 +3,7 @@ package com.mod.loan.controller.order;
 import com.alibaba.fastjson.JSONObject;
 import com.fuiou.mpay.encrypt.DESCoderFUIOU;
 import com.mod.loan.common.annotation.LoginRequired;
+import com.mod.loan.common.enums.OrderEnum;
 import com.mod.loan.common.enums.ResponseEnum;
 import com.mod.loan.common.model.RequestThread;
 import com.mod.loan.common.model.ResultMessage;
@@ -82,7 +83,7 @@ public class FuyouRepayController {
 			logger.info("订单异常，订单号为：{}", order.getId());
 			return new ResultMessage(ResponseEnum.M4000.getCode(), "订单异常");
 		}
-		if (order.getStatus() != 31 && order.getStatus() != 33 && order.getStatus() != 34) { // 已放款，逾期，坏账状态
+        if (order.getStatus()>= OrderEnum.NORMAL_REPAY.getCode() || order.getStatus()<OrderEnum.REPAYING.getCode()) {
 			logger.info("订单非还款状态，订单号为：{}", order.getId());
 			return new ResultMessage(ResponseEnum.M4000.getCode(), "订单状态异常");
 		}
@@ -183,8 +184,11 @@ public class FuyouRepayController {
 			return;
 		}
 		Order order = orderService.selectByPrimaryKey(orderRepay.getOrderId());
-		if(null == order || 41 == order.getStatus() || 42 == order.getStatus()){
-			logger.info("富友异步通知：订单不存在或已还，还款订单流水为：{}，对应富友订单号为：{}",mchntOrderId,orderId);
+
+        if (OrderEnum.NORMAL_REPAY.getCode().equals(order.getStatus())
+                || OrderEnum.OVERDUE_REPAY.getCode().equals(order.getStatus())
+                || OrderEnum.DEFER_REPAY.getCode().equals(order.getStatus())) {
+            logger.info("富友异步通知：订单不存在或已还，还款订单流水为：{}，对应富友订单号为：{}",mchntOrderId,orderId);
 			return;
 		}
 		Merchant merchant = merchantService.findMerchantByAlias(order.getMerchant());
@@ -212,11 +216,8 @@ public class FuyouRepayController {
 		order1.setId(orderRepay.getOrderId());
 		order1.setRealRepayTime(new Date());
 		order1.setHadRepay(order.getShouldRepay());
-		if (33 == order.getStatus() || 34 == order.getStatus()) {
-			order1.setStatus(42);
-		} else {
-			order1.setStatus(41);
-		}
+		order1.setStatus(orderService.setRepaySuccStatusByCurrStatus(order.getStatus()));
+
 		OrderRepay orderRepay1 = new OrderRepay();
 		orderRepay1.setRepayNo(mchntOrderId);
 		orderRepay1.setUpdateTime(new Date());

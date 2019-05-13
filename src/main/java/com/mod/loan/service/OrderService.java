@@ -57,4 +57,11 @@ public interface OrderService extends BaseService<Order,Long> {
      * 通过手机号查找用户是否存在未完成的订单
      */
     boolean checkUnfinishOrderByPhone(String phone);
+
+    /**
+     * 根据当前订单状态更新支付成功后订单状态
+     * @param status
+     * @return
+     */
+    int setRepaySuccStatusByCurrStatus(Integer status);
 }

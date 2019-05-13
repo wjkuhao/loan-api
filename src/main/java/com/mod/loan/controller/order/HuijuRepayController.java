@@ -3,6 +3,7 @@ package com.mod.loan.controller.order;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.mod.loan.common.annotation.LoginRequired;
+import com.mod.loan.common.enums.OrderEnum;
 import com.mod.loan.common.enums.ResponseEnum;
 import com.mod.loan.common.model.RequestThread;
 import com.mod.loan.common.model.ResultMessage;
@@ -84,7 +85,7 @@ public class HuijuRepayController {
 		User user = userService.selectByPrimaryKey(uid);
 		Merchant merchant = merchantService.findMerchantByAlias(RequestThread.getClientAlias());
 		Order order = orderService.selectByPrimaryKey(NumberUtils.toLong(orderId));
-		if (order.getStatus() == 31 || order.getStatus() == 33 || order.getStatus() == 34) { // 已放款，逾期，坏账状态
+		if (order.getStatus()>= OrderEnum.REPAYING.getCode() && order.getStatus()< OrderEnum.NORMAL_REPAY.getCode()) { // 还款中30～40
 			String repayNo = StringUtil.getOrderNumber("r");// 支付流水号
 			String amount = "dev".equals(Constant.ENVIROMENT)?"0.11":order.getShouldRepay().toString();
 			String response = "";
@@ -158,7 +159,7 @@ public class HuijuRepayController {
 			logger.error("订单异常，订单号为：{}", order.getId());
 			return new ResultMessage(ResponseEnum.M4000.getCode(), "订单异常");
 		}
-		if (order.getStatus() != 31 && order.getStatus() != 33 && order.getStatus() != 34) { // 已放款，逾期，坏账状态
+		if (order.getStatus()>=OrderEnum.NORMAL_REPAY.getCode() || order.getStatus()<OrderEnum.REPAYING.getCode()) { //非还款中状态
 			logger.error("订单非还款状态，订单号为：{}", order.getId());
 			return new ResultMessage(ResponseEnum.M4000.getCode(), "订单状态异常");
 		}
@@ -289,7 +290,9 @@ public class HuijuRepayController {
 				return "success";
 			}
 			Order order = orderService.selectByPrimaryKey(orderRepay.getOrderId());
-			if (41 == order.getStatus() || 42 == order.getStatus()) {
+			if (OrderEnum.NORMAL_REPAY.getCode().equals(order.getStatus())
+					|| OrderEnum.OVERDUE_REPAY.getCode().equals(order.getStatus())
+					|| OrderEnum.DEFER_REPAY.getCode().equals(order.getStatus())) {
 				logger.error("异步通知:订单{}已还款：", order.getId());
 				return "success";
 			}
@@ -297,11 +300,8 @@ public class HuijuRepayController {
 			order1.setId(orderRepay.getOrderId());
 			order1.setRealRepayTime(new Date());
 			order1.setHadRepay(new BigDecimal(map.get("r3_Amount")));
-			if (33 == order.getStatus() || 34 == order.getStatus()) {
-				order1.setStatus(42);
-			} else {
-				order1.setStatus(41);
-			}
+			order1.setStatus(orderService.setRepaySuccStatusByCurrStatus(order.getStatus()));
+
 			OrderRepay orderRepay1 = new OrderRepay();
 			orderRepay1.setRepayNo(map.get("r2_OrderNo"));
 			orderRepay1.setUpdateTime(new Date());

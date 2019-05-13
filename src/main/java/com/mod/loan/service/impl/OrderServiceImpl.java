@@ -2,6 +2,7 @@ package com.mod.loan.service.impl;
 
 import java.util.List;
 
+import com.mod.loan.common.enums.OrderEnum;
 import com.mod.loan.model.User;
 import com.mod.loan.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -114,5 +115,17 @@ public class OrderServiceImpl  extends BaseServiceImpl<Order,Long> implements Or
         }
         return false;
     }
+
+	@Override
+	public int setRepaySuccStatusByCurrStatus(Integer status) {
+		if (OrderEnum.OVERDUE.getCode().equals(status) || OrderEnum.BAD_DEBTS.getCode().equals(status)) {
+			return OrderEnum.OVERDUE_REPAY.getCode();
+		} else if (OrderEnum.DEFER.getCode().equals(status) || OrderEnum.OVERDUE_DEFER.getCode().equals(status)
+				|| OrderEnum.DEFER_OVERDUE.getCode().equals(status)){
+			return OrderEnum.DEFER_REPAY.getCode();
+		}else {
+			return OrderEnum.NORMAL_REPAY.getCode();
+		}
+	}
 
 }
