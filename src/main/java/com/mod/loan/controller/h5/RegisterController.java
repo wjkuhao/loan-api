@@ -10,10 +10,7 @@ import com.mod.loan.model.Blacklist;
 import com.mod.loan.model.MerchantOrigin;
 import com.mod.loan.model.Order;
 import com.mod.loan.service.*;
-import com.mod.loan.util.Base64ToMultipartFileUtil;
-import com.mod.loan.util.CheckUtils;
-import com.mod.loan.util.MD5;
-import com.mod.loan.util.RandomUtils;
+import com.mod.loan.util.*;
 import com.mod.loan.util.sms.EnumSmsTemplate;
 import com.mod.loan.util.sms.SmsMessage;
 import org.apache.commons.codec.binary.Base64;
@@ -161,7 +158,14 @@ public class RegisterController {
 		//海豚对渠道号base64
 		if ("haitun".equals(alias)){
             origin_id = Base64ToMultipartFileUtil.decodeOrigin(origin_id);
-        }
+        }else if ("huijie".equals(alias)) {
+            try {
+                origin_id = DesUtil.decryption(origin_id, null);
+            } catch (Exception e) {
+                logger.info("渠道编号异常 origin_id={} error={}", origin_id,  e.getStackTrace());
+                return new ResultMessage(ResponseEnum.M4000.getCode(), "渠道编号异常");
+            }
+		}
 
         MerchantOrigin merchantOrigin = merchantOriginService.selectByPrimaryKey(Long.valueOf(origin_id));
 		if(merchantOrigin.getCheckBlacklist()==1) {
