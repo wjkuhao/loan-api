@@ -15,10 +15,13 @@ public class OrderDefer {
     //`order_id` bigint(20) DEFAULT NULL COMMENT '订单号',
     //`user_name` VARCHAR(30) DEFAULT NULL COMMENT '姓名',
     //`user_phone` VARCHAR(20) DEFAULT NULL COMMENT '手机',
+    //`overdue_day` TINYINT(2) default NUll COMMENT '逾期天数',
+    //`overdue_fee` DOUBLE(7, 2) DEFAULT NULL COMMENT '逾期费',
     //`defer_day` TINYINT(2) default NUll COMMENT '续期天数',
     //`daily_defer_fee` DOUBLE(7, 2) DEFAULT NULL COMMENT '日续期费',
     //`defer_fee` DOUBLE(7, 2) DEFAULT NULL COMMENT '续期费',
     //`defer_times` TINYINT(2) DEFAULT NULL COMMENT '当前第几次续期',
+    //`defer_total_fee` DOUBLE(7, 2) DEFAULT NULL COMMENT '续期总额: 逾期费+续期费',
     //`pay_type` CHAR(10) DEFAULT NULL COMMENT '支付方式:线上/线下',
     //`pay_no` VARCHAR(255) DEFAULT NULL COMMENT '支付单号:线上支付',
     //`pay_status` TINYINT(1) DEFAULT 0 COMMENT '续期订单状态:0-初始；1:受理成功；2:受理失败； 3:还款成功；4:还款失败;5:回调信息异常
@@ -37,6 +40,10 @@ public class OrderDefer {
     private String userName;
     @Column(name = "user_phone")
     private String userPhone;
+    @Column(name = "overdue_day")
+    private Integer overdueDay;
+    @Column(name = "overdue_fee")
+    private Double overdueFee;
     @Column(name = "defer_day")
     private Integer deferDay;
     @Column(name = "daily_defer_fee")
@@ -45,6 +52,8 @@ public class OrderDefer {
     private Double deferFee;
     @Column(name = "defer_times")
     private Integer deferTimes;
+    @Column(name = "defer_total_fee")
+    private Double deferTotalFee;
     @Column(name = "pay_type")
     private String payType;
     @Column(name = "pay_no")
@@ -64,22 +73,6 @@ public class OrderDefer {
 
     private String merchant;
     private Long uid;
-
-    public String getMerchant() {
-        return merchant;
-    }
-
-    public void setMerchant(String merchant) {
-        this.merchant = merchant;
-    }
-
-    public Long getUid() {
-        return uid;
-    }
-
-    public void setUid(Long uid) {
-        this.uid = uid;
-    }
 
     public OrderDefer() {
     }
@@ -120,6 +113,22 @@ public class OrderDefer {
         this.userPhone = userPhone;
     }
 
+    public Integer getOverdueDay() {
+        return overdueDay;
+    }
+
+    public void setOverdueDay(Integer overdueDay) {
+        this.overdueDay = overdueDay;
+    }
+
+    public Double getOverdueFee() {
+        return overdueFee;
+    }
+
+    public void setOverdueFee(Double overdueFee) {
+        this.overdueFee = overdueFee;
+    }
+
     public Integer getDeferDay() {
         return deferDay;
     }
@@ -150,6 +159,14 @@ public class OrderDefer {
 
     public void setDeferTimes(Integer deferTimes) {
         this.deferTimes = deferTimes;
+    }
+
+    public Double getDeferTotalFee() {
+        return deferTotalFee;
+    }
+
+    public void setDeferTotalFee(Double deferTotalFee) {
+        this.deferTotalFee = deferTotalFee;
     }
 
     public String getPayType() {
@@ -214,5 +231,21 @@ public class OrderDefer {
 
     public void setRemark(String remark) {
         this.remark = remark;
+    }
+
+    public String getMerchant() {
+        return merchant;
+    }
+
+    public void setMerchant(String merchant) {
+        this.merchant = merchant;
+    }
+
+    public Long getUid() {
+        return uid;
+    }
+
+    public void setUid(Long uid) {
+        this.uid = uid;
     }
 }

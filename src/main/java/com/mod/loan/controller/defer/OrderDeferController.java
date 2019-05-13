@@ -77,11 +77,15 @@ public class OrderDeferController {
         }
         double deferFee = dailyDeferFee * deferDay;
         // 计算还款时间
-        String deferReapyDate = TimeUtil.datePlusDays(order.getRepayTime(), deferDay);
-
+        String deferRepayDate = TimeUtil.datePlusDays(order.getRepayTime(), deferDay);
+        // 计算逾期费
+        Integer overdueDay = null == order.getOverdueDay() ? 0 : order.getOverdueDay();// 逾期天数
+        Double overdueFee = null == order.getOverdueFee() ? 0.0D : order.getOverdueFee().doubleValue();// 逾期费
+        // 计算总续期费
+        Double deferTotalFee = deferFee + overdueFee;
         //如果是null 或者 为支付成功 则可以继续生成下一笔展期订单
         OrderDefer orderDeferOld = orderDeferService.findLastValidByOrderId(orderId);
-        if ( orderDeferOld == null || orderDeferOld.getPayStatus().equals(OrderRepayStatusEnum.REPAY_SUCCESS.getCode())){
+        if (orderDeferOld == null || orderDeferOld.getPayStatus().equals(OrderRepayStatusEnum.REPAY_SUCCESS.getCode())) {
             OrderDefer orderDefer = new OrderDefer();
             orderDefer.setOrderId(orderId);
             orderDefer.setDeferTimes(deferTimes);
@@ -89,7 +93,10 @@ public class OrderDeferController {
             orderDefer.setDailyDeferFee(dailyDeferFee);
             orderDefer.setDeferFee(deferFee);
             orderDefer.setRepayDate(TimeUtil.dateFormat(order.getRepayTime()));
-            orderDefer.setDeferRepayDate(deferReapyDate);
+            orderDefer.setDeferRepayDate(deferRepayDate);
+            orderDefer.setOverdueDay(overdueDay);
+            orderDefer.setOverdueFee(overdueFee);
+            orderDefer.setDeferTotalFee(deferTotalFee);
 
             User user = userService.selectByPrimaryKey(order.getUid());
             orderDefer.setUserName(user.getUserName());
@@ -141,14 +148,14 @@ public class OrderDeferController {
     }
 
     @RequestMapping(value = "repay_callback")
-    public String repay_callback(HttpServletRequest request, HttpServletResponse response){
+    public String repay_callback(HttpServletRequest request, HttpServletResponse response) {
         String responseMsg = request.getParameter("response");
         String param = request.getParameter("param");
 
-        logger.info("展期易宝异步通知:param={}",param);
+        logger.info("展期易宝异步通知:param={}", param);
 
-        if (StringUtils.isEmpty(responseMsg) || StringUtils.isEmpty(param)){
-            logger.error("responseMsg={},param={}",responseMsg,param);
+        if (StringUtils.isEmpty(responseMsg) || StringUtils.isEmpty(param)) {
+            logger.error("responseMsg={},param={}", responseMsg, param);
             logger.error("易宝异步通知:返回为空");
             return "SUCCESS";
         }
@@ -164,8 +171,8 @@ public class OrderDeferController {
         //设置OrderRepay
         OrderDefer orderDefer = orderDeferService.selectByPayNo(repayNo.toString());
         //对应的订单不存在 或者 可能已经线下还款
-        if (orderDefer==null||orderDefer.getPayStatus().equals(OrderRepayStatusEnum.REPAY_SUCCESS.getCode())) {
-            logger.info("展期易宝异步通知:param={}订单已还款",param);
+        if (orderDefer == null || orderDefer.getPayStatus().equals(OrderRepayStatusEnum.REPAY_SUCCESS.getCode())) {
+            logger.info("展期易宝异步通知:param={}订单已还款", param);
             return "SUCCESS"; //收到通知 固定格式
         }
 
