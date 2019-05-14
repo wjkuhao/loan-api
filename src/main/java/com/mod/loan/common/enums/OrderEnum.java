@@ -12,6 +12,7 @@ public enum OrderEnum {
         DEFER(35, "展期"),
         OVERDUE_DEFER(36, "逾期后展期"),
         DEFER_OVERDUE(37, "展期后逾期"),
+        DEFER_BAD_DEBTS(38, "展期后坏账"),
         NORMAL_REPAY(41, "正常还款"),
         OVERDUE_REPAY(42, "逾期还款"),
         DEFER_REPAY(43, "展期还款"),
