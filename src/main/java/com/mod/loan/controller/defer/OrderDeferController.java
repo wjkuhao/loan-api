@@ -76,11 +76,11 @@ public class OrderDeferController {
             dailyDeferFee = order.getBorrowMoney().doubleValue() * dailyDeferRate / 100D;
         }
         double deferFee = dailyDeferFee * deferDay;
-        // 计算还款时间
-        String deferRepayDate = TimeUtil.datePlusDays(order.getRepayTime(), deferDay);
         // 计算逾期费
         Integer overdueDay = null == order.getOverdueDay() ? 0 : order.getOverdueDay();// 逾期天数
         Double overdueFee = null == order.getOverdueFee() ? 0.0D : order.getOverdueFee().doubleValue();// 逾期费
+        // 计算还款时间
+        String deferRepayDate = TimeUtil.datePlusDays(order.getRepayTime(), deferDay + overdueDay);
         // 计算总续期费
         Double deferTotalFee = deferFee + overdueFee;
         //如果是null 或者 为支付成功 则可以继续生成下一笔展期订单
