@@ -2,7 +2,10 @@ package com.mod.loan.common.enums;
 
 public enum OrderEnum {
         DAI_FUKUAN(11, "待付款"),
+        WAIT_AUDIT(12, "待复核"),
         WAIT_LOAN(21, "待放款"),
+        LOANING(22, "放款中"),
+        LOAN_FAILED(23, "放款失败"),
         REPAYING(31, "还款中"),
         OVERDUE(33, "逾期"),
         BAD_DEBTS(34, "坏账"),
@@ -12,8 +15,9 @@ public enum OrderEnum {
         NORMAL_REPAY(41, "正常还款"),
         OVERDUE_REPAY(42, "逾期还款"),
         DEFER_REPAY(43, "展期还款"),
-        CANCEL(51, "交易取消"),
-
+        AUTO_AUDIT_REFUSE(51, "自动审核失败"),
+        AUDIT_REFUSE(52, "复审失败"),
+        CANCEL(53, "交易取消"),
         ;
 
         private Integer code;
