@@ -407,7 +407,8 @@ public class LoanOrderController {
 		}
 		else if (OrderEnum.OVERDUE.getCode().equals(order.getStatus())
                 || OrderEnum.BAD_DEBTS.getCode().equals(order.getStatus())
-		        || OrderEnum.DEFER_BAD_DEBTS.getCode().equals(order.getStatus())){//已逾期或坏账状态
+                || OrderEnum.DEFER_OVERDUE.getCode().equals(order.getStatus())
+                || OrderEnum.DEFER_BAD_DEBTS.getCode().equals(order.getStatus())){//已逾期或坏账状态
 			LoanBefore loanBefore = new LoanBefore();
 			loanBefore.setEvent("申请提交成功 ");
 			loanBefore.setEventTime(createdTime);
