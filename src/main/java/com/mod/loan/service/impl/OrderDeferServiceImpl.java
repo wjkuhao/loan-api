@@ -60,8 +60,6 @@ public class OrderDeferServiceImpl extends BaseServiceImpl<OrderDefer, Integer> 
             modifiedOrder.setShouldRepay(modifiedOrder.getBorrowMoney());
 
             Integer status = modifiedOrder.getStatus();
-
-            // todo 展期后逾期的费用计算。。。
             if (status.equals(OrderEnum.REPAYING.getCode()) || status.equals(OrderEnum.DEFER_OVERDUE.getCode())){
                 modifiedOrder.setStatus(OrderEnum.DEFER.getCode());
             }else if(status.equals(OrderEnum.OVERDUE.getCode())) {
