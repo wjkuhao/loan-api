@@ -7,6 +7,7 @@ public enum OrderEnum {
         LOANING(22, "放款中"),
         LOAN_FAILED(23, "放款失败"),
         REPAYING(31, "还款中"),
+        REPAY_CONFIRMING(32, "还款确认中"),
         OVERDUE(33, "逾期"),
         BAD_DEBTS(34, "坏账"),
         DEFER(35, "展期"),

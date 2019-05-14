@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.mod.loan.common.enums.OrderEnum;
 import org.apache.commons.lang.StringUtils;
 import org.joda.time.DateTime;
 import org.joda.time.Days;
@@ -121,7 +122,8 @@ public class LoanOrderController {
 		if(order.getCreateTime() != null){
 			createdTime = TimeUtils.parseTime(order.getCreateTime(),TimeUtils.dateformat0);
 		}
-		if (11 == order.getStatus()|| 12 == order.getStatus()) {//初始提交
+		if (OrderEnum.DAI_FUKUAN.getCode().equals(order.getStatus())
+                || OrderEnum.WAIT_AUDIT.getCode().equals(order.getStatus())) {//初始提交
 			LoanBefore loanBefore = new LoanBefore();
 			loanBefore.setEvent("申请提交成功 ");
 			loanBefore.setEventTime(createdTime);
@@ -139,7 +141,9 @@ public class LoanOrderController {
 			map.put("loanBeforeList",loanBeforeList);
 			return new ResultMessage(ResponseEnum.M2000, map);
 		}
-		if (21 == order.getStatus()	|| 22 == order.getStatus() || 23 == order.getStatus()) {//待放款
+		else if (OrderEnum.WAIT_LOAN.getCode().equals(order.getStatus())
+                || OrderEnum.LOANING.getCode().equals(order.getStatus())
+                || OrderEnum.LOAN_FAILED.getCode().equals(order.getStatus())) {//待放款
 			LoanBefore loanBefore = new LoanBefore();
 			loanBefore.setEvent("申请提交成功 ");
 			loanBefore.setEventTime(createdTime);
@@ -163,7 +167,9 @@ public class LoanOrderController {
 			map.put("loanBeforeList",loanBeforeList);
 			return new ResultMessage(ResponseEnum.M2000, map);
 		}
-		if ( 51 == order.getStatus()|| 52 == order.getStatus()|| 53 == order.getStatus()) {//复审失败
+		else if (OrderEnum.AUTO_AUDIT_REFUSE.getCode().equals(order.getStatus())
+                || OrderEnum.AUDIT_REFUSE.getCode().equals(order.getStatus())
+                || OrderEnum.CANCEL.getCode().equals(order.getStatus())) {//复审失败
 			//审核拒绝的订单7天后可再下单
             DateTime dd1= new DateTime(order.getCreateTime());
             if(dd1.withMillisOfDay(0).plusDays(7).isBeforeNow()){
@@ -200,12 +206,14 @@ public class LoanOrderController {
 			map.put("loanBeforeList",loanBeforeList);
 			return new ResultMessage(ResponseEnum.M2000, map);
 		}
-
-		if(31 == order.getStatus()	|| 32 == order.getStatus() ){//已放款
+		else if(OrderEnum.REPAYING.getCode().equals(order.getStatus())
+                || OrderEnum.REPAY_CONFIRMING.getCode().equals(order.getStatus())
+                || OrderEnum.DEFER.getCode().equals(order.getStatus())
+                || OrderEnum.OVERDUE_DEFER.getCode().equals(order.getStatus())){//已放款
 			if (null != order.getRepayTime()) {
 				DateTime d1 = new DateTime(new Date());
 				DateTime d2 = new DateTime(order.getRepayTime());
-				Integer remainDays = Days.daysBetween(d1,d2).getDays()+1;
+				int remainDays = Days.daysBetween(d1,d2).getDays()+1;
 				if(new DateTime(order.getRepayTime()).toString("yyyy-MM-dd ").equals(d1.toString("yyyy-MM-dd "))){
 					remainDays = 0;
 				}
@@ -217,7 +225,9 @@ public class LoanOrderController {
 			map.put("url", Constant.SERVER_H5_URL+"order/store_order_detail.html?orderId="+order.getId());
 			return new ResultMessage(ResponseEnum.M2000, map);
 		}
-		if(33 == order.getStatus()	|| 34 == order.getStatus() ){//逾期或坏账
+		else if(OrderEnum.OVERDUE.getCode().equals(order.getStatus())
+                || OrderEnum.BAD_DEBTS.getCode().equals(order.getStatus())
+                || OrderEnum.DEFER_OVERDUE.getCode().equals(order.getStatus())){//逾期或坏账
 			if (null != order.getRepayTime()) {
 				map.put("shouldRepay",StringUtil.moneyFormat(order.getShouldRepay()));
 				map.put("lastRepayTime",new DateTime(order.getRepayTime()).toString("yyyy-MM-dd "));
@@ -256,10 +266,14 @@ public class LoanOrderController {
 				statusDTO.setStatusDesc("待放款");
 			} else if (31 == order.getStatus() || 32 == order.getStatus()) {
 				statusDTO.setStatusDesc("放款成功，待还款");
-			} else if (41 == order.getStatus() || 42 == order.getStatus()) {
+			} else if (41 == order.getStatus() || 42 == order.getStatus() || 43 == order.getStatus()) {
 				statusDTO.setStatusDesc("已还款");
-			} else if (33 == order.getStatus() || 34 == order.getStatus()) {
+			} else if (OrderEnum.OVERDUE.getCode().equals(order.getStatus())
+					|| OrderEnum.BAD_DEBTS.getCode().equals(order.getStatus())
+					|| OrderEnum.DEFER_OVERDUE.getCode().equals(order.getStatus())) {
 				statusDTO.setStatusDesc("已逾期");
+			} else if (OrderEnum.DEFER.getCode().equals(order.getStatus()) || OrderEnum.OVERDUE_DEFER.getCode().equals(order.getStatus())) {
+				statusDTO.setStatusDesc("展期中");
 			} else {
 				statusDTO.setStatusDesc("");//其它
 			}
@@ -300,10 +314,10 @@ public class LoanOrderController {
 		}
 		List<LoanBefore> loanBeforeList = new ArrayList<LoanBefore>();
 		String createdTime = "";
-		if(order !=null && order.getCreateTime()!= null){
+		if(order.getCreateTime() != null){
 			createdTime = TimeUtils.parseTime(order.getCreateTime(),TimeUtils.dateformat0);
 		}
-		if (11 == order.getStatus()|| 12 == order.getStatus()) {//初始提交
+		if (OrderEnum.DAI_FUKUAN.getCode().equals(order.getStatus()) || OrderEnum.WAIT_AUDIT.getCode().equals(order.getStatus())) {//初始提交
 			LoanBefore loanBefore = new LoanBefore();
 			loanBefore.setEvent("申请提交成功 ");
 			loanBefore.setEventTime(createdTime);
@@ -316,8 +330,10 @@ public class LoanOrderController {
 
 			loanBeforeList.add(loanBefore);
 			loanBeforeList.add(loanBefore2);
-		}
-		if ( 51 == order.getStatus()|| 52 == order.getStatus()|| 53 == order.getStatus()) {//复审失败
+        }
+		else if (OrderEnum.AUTO_AUDIT_REFUSE.getCode().equals(order.getStatus())
+                || OrderEnum.AUDIT_REFUSE.getCode().equals(order.getStatus())
+                || OrderEnum.CANCEL.getCode().equals(order.getStatus())) {//复审失败
 			LoanBefore loanBefore = new LoanBefore();
 			loanBefore.setEvent("申请提交成功 ");
 			loanBefore.setEventTime(createdTime);
@@ -331,7 +347,9 @@ public class LoanOrderController {
 			loanBeforeList.add(loanBefore);
 			loanBeforeList.add(loanBefore2);
 		}
-		if (21 == order.getStatus()	|| 22 == order.getStatus() || 23 == order.getStatus() ) {//待放款
+		else if (OrderEnum.WAIT_LOAN.getCode().equals(order.getStatus())
+                || OrderEnum.LOANING.getCode().equals(order.getStatus())
+                || OrderEnum.LOAN_FAILED.getCode().equals(order.getStatus())) {//待放款
 			LoanBefore loanBefore = new LoanBefore();
 			loanBefore.setEvent("申请提交成功 ");
 			loanBefore.setEventTime(createdTime);
@@ -351,8 +369,9 @@ public class LoanOrderController {
 			loanBeforeList.add(loanBefore2);
 			loanBeforeList.add(loanBefore3);
 		}
-
-		if (31 == order.getStatus()) {//已放款
+		else if (OrderEnum.REPAYING.getCode().equals(order.getStatus())
+                || OrderEnum.DEFER.getCode().equals(order.getStatus())
+                || OrderEnum.OVERDUE_DEFER.getCode().equals(order.getStatus())) {//已放款
 			LoanBefore loanBefore = new LoanBefore();
 			loanBefore.setEvent("申请提交成功 ");
 			loanBefore.setEventTime(createdTime);
@@ -370,7 +389,7 @@ public class LoanOrderController {
 
 			DateTime d1 = new DateTime(new Date());
 			DateTime d2 = new DateTime(order.getRepayTime());
-			Integer remainDays = Days.daysBetween(d1,d2).getDays()+1;
+			int remainDays = Days.daysBetween(d1,d2).getDays()+1;
 			if(new DateTime(order.getRepayTime()).toString("yyyy-MM-dd ").equals(d1.toString("yyyy-MM-dd "))){
 				remainDays = 0;
 			}
@@ -386,7 +405,9 @@ public class LoanOrderController {
 			loanBeforeList.add(loanBefore4);
 			map.put("status", 1);//
 		}
-		if (33 == order.getStatus()||34 == order.getStatus()) {//已逾期或坏账状态
+		else if (OrderEnum.OVERDUE.getCode().equals(order.getStatus())
+                || OrderEnum.BAD_DEBTS.getCode().equals(order.getStatus())
+		        || OrderEnum.DEFER_BAD_DEBTS.getCode().equals(order.getStatus())){//已逾期或坏账状态
 			LoanBefore loanBefore = new LoanBefore();
 			loanBefore.setEvent("申请提交成功 ");
 			loanBefore.setEventTime(createdTime);
@@ -414,8 +435,9 @@ public class LoanOrderController {
 
 			map.put("status", 1);//
 		}
-
-		if (41 == order.getStatus()	|| 42 == order.getStatus()){//已还款
+		else if (OrderEnum.NORMAL_REPAY.getCode().equals(order.getStatus())
+                || OrderEnum.OVERDUE_REPAY.getCode().equals(order.getStatus())
+                || OrderEnum.DEFER_REPAY.getCode().equals(order.getStatus())){//已还款
 			LoanBefore loanBefore = new LoanBefore();
 			loanBefore.setEvent("申请提交成功 ");
 			loanBefore.setEventTime(createdTime);
