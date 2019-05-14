@@ -731,7 +731,7 @@ CREATE TABLE `tb_order`  (
   `should_repay` decimal(8, 2) NOT NULL DEFAULT 0.00 COMMENT '应还金额=借款金额+利息+逾期费用-还款减免金额',
   `had_repay` decimal(8, 2) NOT NULL DEFAULT 0.00 COMMENT '已还金额',
   `reduce_money` decimal(8, 2) NOT NULL DEFAULT 0.00 COMMENT '还款减免金额',
-  `status` tinyint(11) UNSIGNED NOT NULL DEFAULT 11 COMMENT '审核中10+：11-新建;12-等待复审;\r\n放款中20+；21-待放款;22-放款中(已受理);23-放款失败(可以重新放款);\r\n还款中30+；31-已放款/还款中;32-还款确认中;33-逾期;34-坏账；35-展期；36-逾期后展期；37-展期后逾期；\r\n已结清中40+；41-正常还款;42-逾期还款;43-展期还款; \r\n订单结束50+；51-自动审核失败 ;52-复审失败;53-取消',
+  `status` tinyint(11) UNSIGNED NOT NULL DEFAULT 11 COMMENT '审核中10+：11-新建;12-等待复审;\r\n放款中20+；21-待放款;22-放款中(已受理);23-放款失败(可以重新放款);\r\n还款中30+；31-已放款/还款中;32-还款确认中;33-逾期;34-坏账；35-展期；36-逾期后展期；37-展期后逾期；38-展期后坏账；\r\n已结清中40+；41-正常还款;42-逾期还款;43-展期还款; \r\n订单结束50+；51-自动审核失败 ;52-复审失败;53-取消',
   `create_time` datetime(0) NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   `audit_time` datetime(0) NULL DEFAULT NULL COMMENT '审核时间',
   `arrive_time` datetime(0) NULL DEFAULT NULL COMMENT '到账时间',
