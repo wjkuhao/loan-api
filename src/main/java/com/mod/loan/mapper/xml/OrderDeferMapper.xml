@@ -18,5 +18,8 @@
         <result column="repay_date" jdbcType="VARCHAR" property="repayDate"/>
         <result column="defer_repay_date" jdbcType="VARCHAR" property="deferRepayDate"/>
         <result column="remark" jdbcType="VARCHAR" property="remark"/>
+        <result column="overdue_day" jdbcType="INTEGER" property="overdueDay"/>
+        <result column="overdue_fee" jdbcType="DOUBLE" property="overdueFee"/>
+        <result column="defer_total_fee" jdbcType="DOUBLE" property="deferTotalFee"/>
     </resultMap>
 </mapper>
