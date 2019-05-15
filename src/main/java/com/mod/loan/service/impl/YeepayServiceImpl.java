@@ -177,7 +177,7 @@ public class YeepayServiceImpl implements YeepayService {
         }
         if (!validateValue.equals(JSONObject.parseObject(stringResult).getString(validateKey))){
             String errorMsg = JSONObject.parseObject(stringResult).getString("errormsg");
-            if (StringUtils.isEmpty(errorMsg)){
+            if (StringUtils.isEmpty(errorMsg)){ //易宝有errorMsg 和 errormsg 两种标签
                 errorMsg = JSONObject.parseObject(stringResult).getString("errorMsg");
             }
             return errorMsg;
@@ -289,7 +289,11 @@ public class YeepayServiceImpl implements YeepayService {
         try {
             YopResponse response = YopRsaClient.post(yeepay_repay_query_url, yoprequest);
             log.info("send yeepay repayQuery response :" + response);
-
+            String stringResult = response.getStringResult();
+            String status = JSONObject.parseObject(stringResult).getString("status");
+            if (status.equals("PROCESSING")){
+                return "订单提交成功，请等待";
+            }
             return parseResult(response, "status", "PAY_SUCCESS");
         } catch (Exception e) {
             log.error("send yeepay repayQuery has error={}", e.getMessage());
