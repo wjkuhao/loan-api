@@ -79,7 +79,7 @@ public class YeepayRepayController {
                 Merchant merchant = merchantService.findMerchantByAlias(alias);
 
                 String err = yeepayService.payRequest(merchant.getYeepay_repay_appkey(), merchant.getYeepay_repay_private_key(), repayNo, String.valueOf(uid), cardNo, amount, true, yeepay_callback_url);
-                if(err!=null){
+                if(StringUtils.isNotEmpty(err)){
                     return new ResultMessage(ResponseEnum.M4000, err);
                 }
                 redisMapper.set(RedisConst.repay_text + repayNo, orderId, Constant.SMS_EXPIRATION_TIME);
@@ -144,7 +144,7 @@ public class YeepayRepayController {
             String alias = RequestThread.getClientAlias();
             Merchant merchant = merchantService.findMerchantByAlias(alias);
             String err = yeepayService.payConfirm(merchant.getYeepay_repay_appkey(), merchant.getYeepay_repay_private_key(), repayNo, validateCode);
-            if (err!=null) {
+            if (StringUtils.isNotEmpty(err)) {
                 orderRepayUpd.setRepayStatus(OrderRepayStatusEnum.ACCEPT_FAILED.getCode());
                 orderRepayUpd.setRemark("易宝支付失败:" + err);
                 orderRepayService.updateByPrimaryKeySelective(orderRepayUpd);
@@ -190,7 +190,7 @@ public class YeepayRepayController {
             return "SUCCESS"; //收到通知 固定格式
         }
 
-        if (callbackErr==null){
+        if (StringUtils.isEmpty(callbackErr)){
             Order order = orderService.selectByPrimaryKey(orderRepay.getOrderId());
             orderRepayService.repaySuccess(orderRepay, order);
 
@@ -207,7 +207,7 @@ public class YeepayRepayController {
     @RequestMapping(value = "yeepay_repay_no_sms")
     public ResultMessage yeepay_repay_no_sms(String orderId) {
         String errMsg = orderRepayService.yeepayRepayNoSms(Long.valueOf(orderId));
-        if (errMsg == null) {
+        if (StringUtils.isEmpty(errMsg)) {
             return new ResultMessage(ResponseEnum.M2000, orderId);
         } else {
             return new ResultMessage(ResponseEnum.M4000, errMsg);
@@ -222,7 +222,7 @@ public class YeepayRepayController {
         OrderRepay orderRepay = orderRepayService.selectLastByOrderId(orderId);
 
         String errMsg = orderRepayService.yeepayRepayQuery(orderRepay.getRepayNo(), order.getMerchant());
-        if (errMsg == null) {
+        if (StringUtils.isEmpty(errMsg)) {
             orderRepayService.repaySuccess(orderRepay, order);
             return new ResultMessage(ResponseEnum.M2000, orderId);
         } else {

@@ -19,6 +19,7 @@ import com.mod.loan.util.heli.HttpClientService;
 import com.mod.loan.util.heli.util.MessageHandle;
 import com.mod.loan.util.heli.vo.request.BindCardPayVo;
 import com.mod.loan.util.heli.vo.response.BindPayValidateCodeResponseVo;
+import org.apache.commons.lang.StringUtils;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -103,7 +104,7 @@ public class OrderRepayServiceImpl extends BaseServiceImpl<OrderRepay, String> i
                 orderRepay.setUpdateTime(new Date());
                 orderRepay.setRepayStatus(OrderRepayStatusEnum.INIT.getCode());//初始状态
 
-                if (err != null) {
+                if (StringUtils.isNotEmpty(err)) {
                     orderRepay.setRepayStatus(OrderRepayStatusEnum.ACCEPT_FAILED.getCode());
                     orderRepay.setRemark("易宝受理失败:" + err);
                     orderRepayMapper.insertSelective(orderRepay);

@@ -190,6 +190,16 @@
 			</activation>
 		</profile>
 		<profile>
+			<!-- 开发环境 -->
+			<id>uat</id>
+			<properties>
+				<profiles.active>uat</profiles.active>
+			</properties>
+			<activation>
+				<activeByDefault>false</activeByDefault>
+			</activation>
+		</profile>
+		<profile>
 			<!-- 生产环境 -->
 			<id>online</id>
 			<properties>
