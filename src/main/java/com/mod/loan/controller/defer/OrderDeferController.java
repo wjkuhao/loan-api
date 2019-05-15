@@ -140,7 +140,7 @@ public class OrderDeferController {
     @RequestMapping(value = "yeepay_repay_no_sms")
     public ResultMessage yeepay_repay_no_sms(String orderId) {
         String errMsg = orderDeferService.yeepayDeferNoSms(Long.valueOf(orderId));
-        if (errMsg == null) {
+        if (StringUtils.isEmpty(errMsg)) {
             return new ResultMessage(ResponseEnum.M2000, orderId);
         } else {
             return new ResultMessage(ResponseEnum.M4000, errMsg);
@@ -176,10 +176,11 @@ public class OrderDeferController {
             return "SUCCESS"; //收到通知 固定格式
         }
 
-        if (callbackErr == null) {
+        if (StringUtils.isEmpty(callbackErr)) {
             orderDefer.setPayStatus(OrderRepayStatusEnum.REPAY_SUCCESS.getCode());
             orderDeferService.modifyOrderDeferByPayCallback(orderDefer);
         } else {
+            orderDefer.setRemark(callbackErr);
             orderDefer.setPayStatus(OrderRepayStatusEnum.REPAY_FAILED.getCode());
             orderDeferService.modifyOrderDeferByPayCallback(orderDefer);
         }
@@ -194,11 +195,12 @@ public class OrderDeferController {
         Order order = orderService.selectByPrimaryKey(orderId);
         OrderDefer orderDefer = orderDeferService.findLastValidByOrderId(orderId);
         String errMsg = orderDeferService.yeepayRepayQuery(orderDefer.getPayNo(), order.getMerchant());
-        if (errMsg == null) {
+        if (StringUtils.isEmpty(errMsg)) {
             orderDefer.setPayStatus(OrderRepayStatusEnum.REPAY_SUCCESS.getCode());
             orderDeferService.modifyOrderDeferByPayCallback(orderDefer);
             return new ResultMessage(ResponseEnum.M2000, orderId);
         } else {
+            orderDefer.setRemark(errMsg);
             orderDefer.setPayStatus(OrderRepayStatusEnum.REPAY_FAILED.getCode());
             orderDeferService.modifyOrderDeferByPayCallback(orderDefer);
             return new ResultMessage(ResponseEnum.M4000, errMsg);
