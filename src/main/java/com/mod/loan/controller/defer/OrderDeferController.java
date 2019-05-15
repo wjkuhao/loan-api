@@ -204,4 +204,14 @@ public class OrderDeferController {
             return new ResultMessage(ResponseEnum.M4000, errMsg);
         }
     }
+
+    @RequestMapping(value = "user_defer_detail")
+    public String user_defer_detail(Long uid) {
+        try {
+            return orderDeferService.userDeferDetail(uid).toJSONString();
+        } catch (Exception e) {
+            logger.error("user_defer_detail error", e);
+        }
+        return "";
+    }
 }

@@ -14,5 +14,9 @@ public interface OrderDeferMapper extends MyBaseMapper<OrderDefer> {
 
     @ResultMap("BaseResultMap")
     @Select("SELECT * FROM tb_order_defer WHERE pay_no = #{payNo}")
-    OrderDefer selectByPayNo(@Param("payNo")String payNo);
+    OrderDefer selectByPayNo(@Param("payNo") String payNo);
+
+    @ResultMap("BaseResultMap")
+    @Select("SELECT * FROM tb_order_defer WHERE uid = #{uid} ORDER By create_time DESC LIMIT 1")
+    OrderDefer selectDeferByUid(@Param("uid") Long uid);
 }

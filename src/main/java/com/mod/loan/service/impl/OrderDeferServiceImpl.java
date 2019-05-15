@@ -1,5 +1,6 @@
 package com.mod.loan.service.impl;
 
+import com.alibaba.fastjson.JSONObject;
 import com.mod.loan.common.enums.OrderEnum;
 import com.mod.loan.common.enums.OrderRepayStatusEnum;
 import com.mod.loan.common.mapper.BaseServiceImpl;
@@ -52,7 +53,7 @@ public class OrderDeferServiceImpl extends BaseServiceImpl<OrderDefer, Integer> 
     @Override
     public void modifyOrderDeferByPayCallback(OrderDefer orderDefer) {
         // 修改订单的还款日期
-        if(orderDefer.getPayStatus().equals(OrderRepayStatusEnum.REPAY_SUCCESS.getCode())){
+        if (orderDefer.getPayStatus().equals(OrderRepayStatusEnum.REPAY_SUCCESS.getCode())) {
             Order modifiedOrder = orderService.selectByPrimaryKey(orderDefer.getOrderId());
             modifiedOrder.setRepayTime(TimeUtil.parseDate(orderDefer.getDeferRepayDate()));
             modifiedOrder.setOverdueFee(new BigDecimal(0));
@@ -60,9 +61,9 @@ public class OrderDeferServiceImpl extends BaseServiceImpl<OrderDefer, Integer> 
             modifiedOrder.setShouldRepay(modifiedOrder.getBorrowMoney());
 
             Integer status = modifiedOrder.getStatus();
-            if (status.equals(OrderEnum.REPAYING.getCode()) || status.equals(OrderEnum.DEFER_OVERDUE.getCode())){
+            if (status.equals(OrderEnum.REPAYING.getCode()) || status.equals(OrderEnum.DEFER_OVERDUE.getCode())) {
                 modifiedOrder.setStatus(OrderEnum.DEFER.getCode());
-            }else if(status.equals(OrderEnum.OVERDUE.getCode())) {
+            } else if (status.equals(OrderEnum.OVERDUE.getCode())) {
                 modifiedOrder.setStatus(OrderEnum.OVERDUE_DEFER.getCode());
             }
             orderService.updateByPrimaryKeySelective(modifiedOrder);
@@ -75,9 +76,10 @@ public class OrderDeferServiceImpl extends BaseServiceImpl<OrderDefer, Integer> 
     @Override
     public String yeepayDeferNoSms(Long orderId) {
         OrderDefer orderDefer = findLastValidByOrderId(orderId);
-        if (orderDefer == null){
+        if (orderDefer == null) {
             logger.error("orderId={}，找不到对应的展期订单", orderId);
-            return "找不到对应的展期订单";        }
+            return "找不到对应的展期订单";
+        }
 
         if (orderDefer.getPayStatus().equals(OrderRepayStatusEnum.ACCEPT_SUCCESS.getCode())) {
             logger.error("orderId={}已存在展期还款中的记录", orderId);
@@ -122,4 +124,37 @@ public class OrderDeferServiceImpl extends BaseServiceImpl<OrderDefer, Integer> 
         return orderDeferMapper.selectByPayNo(payNo);
     }
 
+    @Override
+    public JSONObject userDeferDetail(Long uid) {
+        OrderDefer orderDefer = orderDeferMapper.selectDeferByUid(uid);
+        if (orderDefer != null) {
+            JSONObject data = new JSONObject();
+            data.put("userDeferCount", orderDefer.getDeferTimes());
+            data.put("userDeferStatus", orderDefer.getPayStatus());
+            String msg = "";
+            switch (orderDefer.getPayStatus()) {
+                case 1:
+                    msg = "受理成功";
+                    break;
+                case 2:
+                    msg = "受理失败";
+                    break;
+                case 3:
+                    msg = "还款成功";
+                    break;
+                case 4:
+                    msg = "还款失败";
+                    break;
+                case 5:
+                    msg = "回调信息异常";
+                    break;
+                default:
+                    msg = "初始";
+                    break;
+            }
+            data.put("userDeferMsg", msg);
+            return data;
+        }
+        return null;
+    }
 }
