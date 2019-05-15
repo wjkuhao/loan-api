@@ -177,7 +177,7 @@ public class YeepayServiceImpl implements YeepayService {
         }
         if (!validateValue.equals(JSONObject.parseObject(stringResult).getString(validateKey))){
             String errorMsg = JSONObject.parseObject(stringResult).getString("errormsg");
-            if (errorMsg==null){
+            if (StringUtils.isEmpty(errorMsg)){
                 errorMsg = JSONObject.parseObject(stringResult).getString("errorMsg");
             }
             return errorMsg;
