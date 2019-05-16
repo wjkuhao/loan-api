@@ -82,23 +82,22 @@ public class HelipayRepayServiceImpl implements HelipayRepayService {
             if (OrderEnum.REPAYING.getCode().equals(order.getStatus())
                     || OrderEnum.OVERDUE.getCode().equals(order.getStatus())
                     || OrderEnum.BAD_DEBTS.getCode().equals(order.getStatus())) {
-                return bindPaySmsCode(new BindPaySmsCodeDto(order.getShouldRepay().toString(), merchant.getHlb_id(), userBank.getForeignId(),
+                // 支付流水号
+                return bindPaySmsCode(new BindPaySmsCodeDto(StringUtil.getOrderNumber("r"), order.getShouldRepay().toString(), merchant.getHlb_id(), userBank.getForeignId(),
                         user.getId().toString(), userBank.getCardPhone(), merchant.getMerchantAlias(), orderId));
             }
         } else if ("orderDefer".equals(type)) {
-            OrderDefer order = new OrderDefer();
-            order.setOrderId(NumberUtils.toLong(orderId));
-            order = deferService.selectOne(order);
-            if (order == null) {
+            OrderDefer orderDefer = deferService.findLastValidByOrderId(NumberUtils.toLong(orderId));
+            if (orderDefer == null) {
                 return new ResultMessage(ResponseEnum.M4000.getCode(), "续期订单[" + orderId + "]不存在");
             }
-            if (order.getPayStatus() == 1) {
+            if (orderDefer.getPayStatus() == 3) {
                 return new ResultMessage(ResponseEnum.M4000.getCode(), "续期订单[" + orderId + "]已支付完成,请勿重复支付");
             }
-            if (order.getPayStatus() == 0) {
-                return bindPaySmsCode(new BindPaySmsCodeDto(order.getDeferFee().toString(), merchant.getHlb_id(), userBank.getForeignId(),
-                        user.getId().toString(), userBank.getCardPhone(), merchant.getMerchantAlias(), orderId));
-            }
+            orderDefer.setPayNo(StringUtil.getOrderNumber("r"));
+            deferService.updateByPrimaryKey(orderDefer);
+            return bindPaySmsCode(new BindPaySmsCodeDto(orderDefer.getPayNo(), orderDefer.getDeferFee().toString(), merchant.getHlb_id(), userBank.getForeignId(),
+                    user.getId().toString(), userBank.getCardPhone(), merchant.getMerchantAlias(), orderId));
         }
         return new ResultMessage(ResponseEnum.M4000.getCode(), "合利宝绑卡短信发送失败,订单号为:[" + orderId + "],短信类型为:[" + type + "]");
     }
@@ -117,9 +116,7 @@ public class HelipayRepayServiceImpl implements HelipayRepayService {
             Order order = orderService.selectByPrimaryKey(orderId);
             data.put("repayMoney", order.getShouldRepay().toString());
         } else if ("orderDefer".equals(type)) {
-            OrderDefer order = new OrderDefer();
-            order.setOrderId(orderId);
-            order = deferService.selectOne(order);
+            OrderDefer order = deferService.findLastValidByOrderId(orderId);
             data.put("repayMoney", order.getDeferFee().toString());
         }
         return new ResultMessage(ResponseEnum.M2000, data);
@@ -171,17 +168,15 @@ public class HelipayRepayServiceImpl implements HelipayRepayService {
                 orderRepay.setRepayStatus(0);
                 orderRepayService.insertSelective(orderRepay);
             }
-            return bindPayActive(new BindPayActiveDto(order.getShouldRepay().toString(), merchant.getHlb_id(), userBank.getForeignId(),
-                    user.getId().toString(), userBank.getCardPhone(), merchant.getMerchantAlias(), orderId.toString(), repayNo,
-                    Constant.SERVER_API_URL + "order/repay_result", validateCode));
+            return bindPayActive(new BindPayActiveDto(repayNo, order.getShouldRepay().toString(), merchant.getHlb_id(), userBank.getForeignId(),
+                    user.getId().toString(), userBank.getCardPhone(), merchant.getMerchantAlias(), orderId.toString(),
+                    validateCode, Constant.SERVER_API_URL + "order/repay_result"));
         } else if ("orderDefer".equals(type)) {
-            OrderDefer order = new OrderDefer();
-            order.setOrderId(orderId);
-            order = deferService.selectOne(order);
+            OrderDefer order = deferService.findLastValidByOrderId(orderId);
             amount = "dev".equals(Constant.ENVIROMENT) ? "0.11" : order.getDeferFee().toString();
-            return bindPayActive(new BindPayActiveDto(amount, merchant.getHlb_id(), userBank.getForeignId(),
-                    user.getId().toString(), userBank.getCardPhone(), merchant.getMerchantAlias(), orderId.toString(), repayNo,
-                    Constant.SERVER_API_URL + "order/defer_repay_result", validateCode));
+            return bindPayActive(new BindPayActiveDto(repayNo, amount, merchant.getHlb_id(), userBank.getForeignId(),
+                    user.getId().toString(), userBank.getCardPhone(), merchant.getMerchantAlias(), orderId.toString(),
+                    validateCode, Constant.SERVER_API_URL + "order/defer_repay_result"));
         }
         return new ResultMessage(ResponseEnum.M4000.getCode(), "合利宝绑卡短信发送失败,订单号为:[" + orderId + "],短信类型为:[" + type + "]");
 
@@ -221,9 +216,14 @@ public class HelipayRepayServiceImpl implements HelipayRepayService {
     @Override
     public void deferRepayResult(String rt2_retCode, String rt9_reason,
                                  String rt9_orderStatus, String rt5_orderId) {
-        OrderDefer orderDefer = deferService.findLastValidByOrderId(Long.parseLong(rt5_orderId));
+
+        OrderDefer orderDefer = deferService.selectByPayNo(rt5_orderId);
         if (orderDefer == null) {
             logger.error("异步通知异常,展期订单不存在：rt2_retCode={},rt9_orderStatus={},rt5_orderId={}", rt2_retCode, rt9_orderStatus, rt5_orderId);
+            return;
+        }
+        if (orderDefer.getPayStatus() == 3) {
+            logger.info("续期订单[" + orderDefer.getOrderId() + "]已支付完成,请勿重复支付");
             return;
         }
         //备注信息
@@ -246,15 +246,13 @@ public class HelipayRepayServiceImpl implements HelipayRepayService {
         ResultMessage message = null;
         String response = null;
         try {
-            // 支付流水号
-            String repayNo = StringUtil.getOrderNumber("r");
             String amount = "dev".equals(Constant.ENVIROMENT) ? "0.11" : dto.getAmount();
             BindPayValidateCodeVo requestVo = new BindPayValidateCodeVo();
             requestVo.setP1_bizType("QuickPayBindPayValidateCode");
             requestVo.setP2_customerNumber(dto.getHlbId());
             requestVo.setP3_bindId(dto.getForeignId());
             requestVo.setP4_userId(dto.getUserId());
-            requestVo.setP5_orderId(repayNo);
+            requestVo.setP5_orderId(dto.getRepayNo());
             requestVo.setP6_timestamp(new DateTime().toString(TimeUtils.dateformat5));
             requestVo.setP7_currency("CNY");
             requestVo.setP8_orderAmount(amount);
@@ -263,8 +261,8 @@ public class HelipayRepayServiceImpl implements HelipayRepayService {
             response = getHeliPayResponse(dto.getMerchant(), requestVo, null);
             BindPayValidateCodeResponseVo responseVo = JSONObject.parseObject(response, BindPayValidateCodeResponseVo.class);
             if ("0000".equals(responseVo.getRt2_retCode())) {
-                redisMapper.set(RedisConst.repay_text + repayNo, dto.getOrderId(), 300);
-                return new ResultMessage(ResponseEnum.M2000, repayNo);
+                redisMapper.set(RedisConst.repay_text + dto.getRepayNo(), dto.getOrderId(), 300);
+                return new ResultMessage(ResponseEnum.M2000, dto.getRepayNo());
             } else {
                 logger.info("绑卡支付短信受理失败，失败订单号为：{}，失败原因为：{}", dto.getOrderId(), response);
                 message = new ResultMessage(ResponseEnum.M4000.getCode(), "绑卡支付短信受理失败");

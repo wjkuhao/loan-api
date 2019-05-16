@@ -7,6 +7,7 @@ package com.mod.loan.util.heli.vo.dto;
  */
 public class BindPaySmsCodeDto {
 
+    private String repayNo;
     private String amount;
     private String hlbId;
     private String foreignId;
@@ -14,6 +15,14 @@ public class BindPaySmsCodeDto {
     private String phone;
     private String merchant;
     private String orderId;
+
+    public String getRepayNo() {
+        return repayNo;
+    }
+
+    public void setRepayNo(String repayNo) {
+        this.repayNo = repayNo;
+    }
 
     public String getAmount() {
         return amount;
@@ -71,7 +80,8 @@ public class BindPaySmsCodeDto {
         this.orderId = orderId;
     }
 
-    public BindPaySmsCodeDto(String amount, String hlbId, String foreignId, String userId, String phone, String merchant, String orderId) {
+    public BindPaySmsCodeDto(String repayNo, String amount, String hlbId, String foreignId, String userId, String phone, String merchant, String orderId) {
+        this.repayNo = repayNo;
         this.amount = amount;
         this.hlbId = hlbId;
         this.foreignId = foreignId;

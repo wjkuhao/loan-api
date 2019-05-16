@@ -7,26 +7,15 @@ package com.mod.loan.util.heli.vo.dto;
  */
 public class BindPayActiveDto extends BindPaySmsCodeDto {
 
-    private String repayNo;
 
     private String validateCode;
 
     private String callBackUrl;
 
-    public BindPayActiveDto(String amount, String hlbId, String foreignId, String userId, String phone, String merchant, String orderId,
-                            String repayNo, String callBackUrl, String validateCode) {
-        super(amount, hlbId, foreignId, userId, phone, merchant, orderId);
-        this.repayNo = repayNo;
-        this.callBackUrl = callBackUrl;
+    public BindPayActiveDto(String repayNo, String amount, String hlbId, String foreignId, String userId, String phone, String merchant, String orderId, String validateCode, String callBackUrl) {
+        super(repayNo, amount, hlbId, foreignId, userId, phone, merchant, orderId);
         this.validateCode = validateCode;
-    }
-
-    public String getRepayNo() {
-        return repayNo;
-    }
-
-    public void setRepayNo(String repayNo) {
-        this.repayNo = repayNo;
+        this.callBackUrl = callBackUrl;
     }
 
     public String getValidateCode() {
