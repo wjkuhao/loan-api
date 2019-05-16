@@ -1,7 +1,6 @@
 package com.mod.loan.task;
 
 import com.mod.loan.common.enums.MerchantEnum;
-import com.mod.loan.common.enums.OrderRepayStatusEnum;
 import com.mod.loan.model.Merchant;
 import com.mod.loan.model.Order;
 import com.mod.loan.model.OrderRepay;
@@ -15,7 +14,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
-import java.util.Date;
 import java.util.List;
 
 @Profile("online")
@@ -80,7 +78,7 @@ public class OrderTask {
 
             for (OrderRepay orderRepay : orderRepayList) {
                 Order order = orderService.selectByPrimaryKey(orderRepay.getOrderId());
-                if (41 == order.getStatus() || 42 == order.getStatus()) {
+                if (41 == order.getStatus() || 42 == order.getStatus()|| 43 == order.getStatus()) {
                     logger.info("易宝自动查询:订单={}已还款", order.getOrderNo());
                     continue;
                 }
@@ -90,6 +88,8 @@ public class OrderTask {
                     String errMsg = orderRepayService.yeepayRepayQuery(orderRepay.getRepayNo(), order.getMerchant());
                     if (StringUtils.isEmpty(errMsg)) {
                         orderRepayService.repaySuccess(orderRepay, order);
+                    }else if ("PROCESSING".equals(errMsg)){
+                        logger.info("---------yeepay query repayno= {}订单处理中-----------------",orderRepay.getRepayNo());
                     } else {
                         orderRepayService.repayFailed(orderRepay,errMsg);
                     }

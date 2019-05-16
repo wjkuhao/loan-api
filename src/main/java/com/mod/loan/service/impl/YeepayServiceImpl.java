@@ -292,7 +292,7 @@ public class YeepayServiceImpl implements YeepayService {
             String stringResult = response.getStringResult();
             String status = JSONObject.parseObject(stringResult).getString("status");
             if (status.equals("PROCESSING")){
-                return "订单提交成功，请等待";
+                return "PROCESSING";
             }
             return parseResult(response, "status", "PAY_SUCCESS");
         } catch (Exception e) {
