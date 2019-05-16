@@ -155,6 +155,6 @@ public class OrderDeferServiceImpl extends BaseServiceImpl<OrderDefer, Integer> 
             data.put("userDeferMsg", msg);
             return data;
         }
-        return null;
+        return new JSONObject();
     }
 }
