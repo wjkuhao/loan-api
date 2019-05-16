@@ -301,7 +301,7 @@ public class HelipayRepayServiceImpl implements HelipayRepayService {
             requestVo.setP13_orderIp(ip);
             requestVo.setP14_period("");
             requestVo.setP15_periodUnit("");
-            requestVo.setP16_serverCallbackUrl(Constant.SERVER_API_URL + "order/repay_result");
+            requestVo.setP16_serverCallbackUrl(dto.getCallBackUrl());
             requestVo.setP17_validateCode(dto.getValidateCode());
             requestVo.setSignatureType("MD5WITHRSA");
             response = getHeliPayResponse(dto.getMerchant(), null, requestVo);
