@@ -1,5 +1,6 @@
 package com.mod.loan.service;
 
+import com.alibaba.fastjson.JSONObject;
 import com.mod.loan.common.mapper.BaseService;
 import com.mod.loan.model.OrderDefer;
 
@@ -35,4 +36,9 @@ public interface OrderDeferService extends BaseService<OrderDefer, Integer> {
     String yeepayRepayQuery(String payNo, String merchantAlias);
 
     OrderDefer selectByPayNo(String payNo);
+
+   /**
+    * 用户详情中展期订单数据查询
+    * */
+   JSONObject userDeferDetail(Long uid);
 }
