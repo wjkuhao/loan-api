@@ -3,7 +3,6 @@ package com.mod.loan.service.impl;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.mod.loan.common.enums.OrderEnum;
-import com.mod.loan.common.enums.OrderRepayStatusEnum;
 import com.mod.loan.common.enums.ResponseEnum;
 import com.mod.loan.common.model.RequestThread;
 import com.mod.loan.common.model.ResultMessage;
@@ -32,8 +31,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -48,8 +45,6 @@ import java.util.UUID;
 public class HelipayRepayServiceImpl implements HelipayRepayService {
 
     private static Logger logger = LoggerFactory.getLogger(HelipayRepayServiceImpl.class);
-
-    private static DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
 
     @Value("${helipay.url:}")
     private String helipay_url;
@@ -155,7 +150,7 @@ public class HelipayRepayServiceImpl implements HelipayRepayService {
                 return new ResultMessage(ResponseEnum.M4000.getCode(), "订单异常");
             }
             // 已放款，逾期，坏账状态
-            if (order.getStatus()>= OrderEnum.NORMAL_REPAY.getCode() || order.getStatus()<OrderEnum.REPAYING.getCode()) {
+            if (order.getStatus() >= OrderEnum.NORMAL_REPAY.getCode() || order.getStatus() < OrderEnum.REPAYING.getCode()) {
                 logger.info("订单非还款状态，订单号为：{}", order.getId());
                 return new ResultMessage(ResponseEnum.M4000.getCode(), "订单状态异常");
             }
@@ -219,30 +214,29 @@ public class HelipayRepayServiceImpl implements HelipayRepayService {
             orderRepay1.setRepayStatus(3);
             orderRepayService.updateOrderRepayInfo(orderRepay1, order1);
         } else {
-            logger.info("异步通知异常：rt2_retCode={},rt9_orderStatus={},rt5_orderId={}", rt2_retCode, rt9_orderStatus, rt5_orderId);
+            logger.error("异步通知异常：rt2_retCode={},rt9_orderStatus={},rt5_orderId={}", rt2_retCode, rt9_orderStatus, rt5_orderId);
         }
     }
 
     @Override
-    public void deferRepayResult(String rt2_retCode,
+    public void deferRepayResult(String rt2_retCode, String rt9_reason,
                                  String rt9_orderStatus, String rt5_orderId) {
+        OrderDefer orderDefer = deferService.findLastValidByOrderId(Long.parseLong(rt5_orderId));
+        if (orderDefer == null) {
+            logger.error("异步通知异常,展期订单不存在：rt2_retCode={},rt9_orderStatus={},rt5_orderId={}", rt2_retCode, rt9_orderStatus, rt5_orderId);
+            return;
+        }
+        //备注信息
+        orderDefer.setRemark(rt9_orderStatus + ":" + rt9_reason);
         // 只处理受理成功并且支付成功的订单
         if ("0000".equals(rt2_retCode) && "SUCCESS".equals(rt9_orderStatus)) {
-            OrderDefer order = new OrderDefer();
-            order.setOrderId(Long.parseLong(rt5_orderId));
-            order = deferService.selectOne(order);
-            //续期付款成功
-            if (order.getPayStatus().equals(OrderRepayStatusEnum.REPAY_SUCCESS.getCode())) {
-                return;
-            }
-            //更新续期订单表状态
-            order.setPayStatus(3);
-            order.setPayNo(rt9_orderStatus);
-            order.setPayTime(formatter.format(LocalDate.now()));
-            deferService.updateByPrimaryKey(order);
+            orderDefer.setPayStatus(3);
+            logger.info("异步通知成功：rt2_retCode={},rt9_orderStatus={},rt5_orderId={}", rt2_retCode, rt9_orderStatus, rt5_orderId);
         } else {
-            logger.info("异步通知异常：rt2_retCode={},rt9_orderStatus={},rt5_orderId={}", rt2_retCode, rt9_orderStatus, rt5_orderId);
+            orderDefer.setPayStatus(4);
+            logger.error("异步通知异常：rt2_retCode={},rt9_orderStatus={},rt5_orderId={}", rt2_retCode, rt9_orderStatus, rt5_orderId);
         }
+        deferService.modifyOrderDeferByPayCallback(orderDefer);
     }
 
     /**

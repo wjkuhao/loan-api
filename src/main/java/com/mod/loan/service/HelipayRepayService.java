@@ -10,11 +10,11 @@ public interface HelipayRepayService {
     ResultMessage repayActive(String repayNo, String validateCode, String type);
 
     void repayResult(String rt2_retCode,
-                       String rt9_orderStatus, String rt5_orderId);
+                     String rt9_orderStatus, String rt5_orderId);
 
     ResultMessage bindPaySmsProcess(String orderId, String type);
 
-    void deferRepayResult(String rt2_retCode,
-                       String rt9_orderStatus, String rt5_orderId);
+    void deferRepayResult(String rt2_retCode, String rt9_reason,
+                          String rt9_orderStatus, String rt5_orderId);
 
 }

@@ -3,6 +3,8 @@ package com.mod.loan.controller.order;
 import com.mod.loan.common.annotation.LoginRequired;
 import com.mod.loan.common.model.ResultMessage;
 import com.mod.loan.service.HelipayRepayService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -18,6 +20,8 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("order")
 public class HelipayRepayController {
+
+    private static Logger logger = LoggerFactory.getLogger(HelipayRepayController.class);
 
     @Autowired
     private HelipayRepayService helipayRepayService;
@@ -96,10 +100,11 @@ public class HelipayRepayController {
      */
     @LoginRequired(check = false)
     @RequestMapping(value = "defer_repay_result")
-    public String defer_repay_result(@RequestParam(required = true) String rt2_retCode,
-                                     @RequestParam(required = true) String rt9_orderStatus, @RequestParam(required = true) String rt5_orderId) {
-        helipayRepayService.deferRepayResult(rt2_retCode,
-                rt9_orderStatus, rt5_orderId);
+    public String defer_repay_result(@RequestParam(required = true) String rt2_retCode, String rt9_reason,
+                                     @RequestParam(required = true) String rt9_orderStatus,
+                                     @RequestParam(required = true) String rt5_orderId) {
+        logger.info("展期订单合利宝异步通知:rt2_retCode={},rt9_reason={},rt9_orderStatus={},rt5_orderId={}", rt2_retCode, rt9_reason, rt9_orderStatus, rt5_orderId);
+        helipayRepayService.deferRepayResult(rt2_retCode, rt9_reason, rt9_orderStatus, rt5_orderId);
         return "success";
 
     }
