@@ -117,7 +117,7 @@ public class HelipayRepayServiceImpl implements HelipayRepayService {
             data.put("repayMoney", order.getShouldRepay().toString());
         } else if ("orderDefer".equals(type)) {
             OrderDefer order = deferService.findLastValidByOrderId(orderId);
-            data.put("repayMoney", order.getDeferFee().toString());
+            data.put("repayMoney", order.getDeferTotalFee().toString());
         }
         return new ResultMessage(ResponseEnum.M2000, data);
     }
@@ -228,6 +228,7 @@ public class HelipayRepayServiceImpl implements HelipayRepayService {
         }
         //备注信息
         orderDefer.setRemark(rt9_orderStatus + ":" + rt9_reason);
+        orderDefer.setPayType("helipay");
         // 只处理受理成功并且支付成功的订单
         if ("0000".equals(rt2_retCode) && "SUCCESS".equals(rt9_orderStatus)) {
             orderDefer.setPayStatus(3);
