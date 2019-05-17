@@ -61,9 +61,9 @@ public class OrderDeferServiceImpl extends BaseServiceImpl<OrderDefer, Integer> 
             modifiedOrder.setShouldRepay(modifiedOrder.getBorrowMoney());
 
             Integer status = modifiedOrder.getStatus();
-            if (status.equals(OrderEnum.REPAYING.getCode()) || status.equals(OrderEnum.DEFER_OVERDUE.getCode())) {
+            if (status.equals(OrderEnum.REPAYING.getCode())) {
                 modifiedOrder.setStatus(OrderEnum.DEFER.getCode());
-            } else if (status.equals(OrderEnum.OVERDUE.getCode())) {
+            } else if (status.equals(OrderEnum.OVERDUE.getCode()) || status.equals(OrderEnum.DEFER_OVERDUE.getCode())) {
                 modifiedOrder.setStatus(OrderEnum.OVERDUE_DEFER.getCode());
             }
             orderService.updateByPrimaryKeySelective(modifiedOrder);
