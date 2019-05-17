@@ -173,7 +173,7 @@ public class HelipayRepayServiceImpl implements HelipayRepayService {
                     validateCode, Constant.SERVER_API_URL + "order/repay_result"));
         } else if ("orderDefer".equals(type)) {
             OrderDefer order = deferService.findLastValidByOrderId(orderId);
-            amount = "dev".equals(Constant.ENVIROMENT) ? "0.11" : order.getDeferFee().toString();
+            amount = "dev".equals(Constant.ENVIROMENT) ? "0.11" : order.getDeferTotalFee().toString();
             return bindPayActive(new BindPayActiveDto(repayNo, amount, merchant.getHlb_id(), userBank.getForeignId(),
                     user.getId().toString(), userBank.getCardPhone(), merchant.getMerchantAlias(), orderId.toString(),
                     validateCode, Constant.SERVER_API_URL + "order/defer_repay_result"));
