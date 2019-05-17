@@ -241,6 +241,7 @@ public class YeepayServiceImpl implements YeepayService {
         } catch (Exception e) {
             e.printStackTrace();
             log.error("callback error={}",e.getMessage());
+            return e.getMessage();
         }
 
         return null;

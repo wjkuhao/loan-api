@@ -196,6 +196,7 @@ public class OrderDeferController {
         OrderDefer orderDefer = orderDeferService.findLastValidByOrderId(orderId);
         String errMsg = orderDeferService.yeepayRepayQuery(orderDefer.getPayNo(), order.getMerchant());
         if (StringUtils.isEmpty(errMsg)) {
+            orderDefer.setRemark("展期易宝交易成功");
             orderDefer.setPayStatus(OrderRepayStatusEnum.REPAY_SUCCESS.getCode());
             orderDeferService.modifyOrderDeferByPayCallback(orderDefer);
             return new ResultMessage(ResponseEnum.M2000, orderId);
