@@ -200,7 +200,11 @@ public class OrderDeferController {
             orderDefer.setPayStatus(OrderRepayStatusEnum.REPAY_SUCCESS.getCode());
             orderDeferService.modifyOrderDeferByPayCallback(orderDefer);
             return new ResultMessage(ResponseEnum.M2000, orderId);
-        } else {
+        }else if ("PROCESSING".equals(errMsg)) {
+            logger.info("---------yeepay query repayno= {}展期订单处理中-----------------", orderDefer.getPayNo());
+            return new ResultMessage(ResponseEnum.M4000, "订单处理中,请等待结果");
+        }
+        else {
             orderDefer.setRemark(errMsg);
             orderDefer.setPayStatus(OrderRepayStatusEnum.REPAY_FAILED.getCode());
             orderDeferService.modifyOrderDeferByPayCallback(orderDefer);

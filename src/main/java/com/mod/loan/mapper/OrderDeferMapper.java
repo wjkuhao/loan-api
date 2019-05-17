@@ -6,6 +6,8 @@ import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.ResultMap;
 import org.apache.ibatis.annotations.Select;
 
+import java.util.List;
+
 public interface OrderDeferMapper extends MyBaseMapper<OrderDefer> {
 
     @ResultMap("BaseResultMap")
@@ -19,4 +21,6 @@ public interface OrderDeferMapper extends MyBaseMapper<OrderDefer> {
     @ResultMap("BaseResultMap")
     @Select("SELECT * FROM tb_order_defer WHERE uid = #{uid} ORDER By create_time DESC LIMIT 1")
     OrderDefer selectDeferByUid(@Param("uid") Long uid);
+
+    List<OrderDefer> selectOrderDefer();
 }
