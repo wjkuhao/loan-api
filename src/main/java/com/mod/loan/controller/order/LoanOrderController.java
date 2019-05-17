@@ -112,7 +112,9 @@ public class LoanOrderController {
 		Long uid = RequestThread.getUid();
 		Map<String,Object> map = new HashMap<String,Object>();
 		Order order = orderService.findUserLatestOrder(uid);
-		if(null == order || 41 == order.getStatus() || 42 == order.getStatus()){
+		if(null == order || OrderEnum.NORMAL_REPAY.getCode().equals(order.getStatus())
+                || OrderEnum.OVERDUE_REPAY.getCode().equals(order.getStatus())
+                || OrderEnum.DEFER_REPAY.getCode().equals(order.getStatus())){
 			map.put("orderStatus",0);//0-首页显示获取额度
 			return new ResultMessage(ResponseEnum.M2000.getCode(),map);
 		}
