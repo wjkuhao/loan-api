@@ -6,10 +6,7 @@ import com.mod.loan.common.enums.OrderRepayStatusEnum;
 import com.mod.loan.common.mapper.BaseServiceImpl;
 import com.mod.loan.config.Constant;
 import com.mod.loan.mapper.OrderDeferMapper;
-import com.mod.loan.model.Merchant;
-import com.mod.loan.model.Order;
-import com.mod.loan.model.OrderDefer;
-import com.mod.loan.model.UserBank;
+import com.mod.loan.model.*;
 import com.mod.loan.service.*;
 import com.mod.loan.util.StringUtil;
 import com.mod.loan.util.TimeUtil;
@@ -20,6 +17,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @Service("orderDeferService")
 public class OrderDeferServiceImpl extends BaseServiceImpl<OrderDefer, Integer> implements OrderDeferService {
@@ -156,5 +154,10 @@ public class OrderDeferServiceImpl extends BaseServiceImpl<OrderDefer, Integer> 
             return data;
         }
         return new JSONObject();
+    }
+
+    @Override
+    public List<OrderDefer> selectOrderDefer() {
+       return orderDeferMapper.selectOrderDefer();
     }
 }

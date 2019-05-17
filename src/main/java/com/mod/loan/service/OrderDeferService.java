@@ -4,6 +4,8 @@ import com.alibaba.fastjson.JSONObject;
 import com.mod.loan.common.mapper.BaseService;
 import com.mod.loan.model.OrderDefer;
 
+import java.util.List;
+
 public interface OrderDeferService extends BaseService<OrderDefer, Integer> {
 
     /**
@@ -41,4 +43,6 @@ public interface OrderDeferService extends BaseService<OrderDefer, Integer> {
     * 用户详情中展期订单数据查询
     * */
    JSONObject userDeferDetail(Long uid);
+
+    List<OrderDefer> selectOrderDefer();
 }
