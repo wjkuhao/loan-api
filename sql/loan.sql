@@ -1199,6 +1199,7 @@ CREATE TABLE `tb_merchant_defer_config`  (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `merchant` VARCHAR(50) DEFAULT NULL COMMENT '商户名称',
   `status` TINYINT(1) DEFAULT 0 COMMENT '续期开关: 0-禁用 1-启用',
+  `defer_day` TINYINT(2) DEFAULT 7 COMMENT '续期天数',
   `daily_defer_rate` DOUBLE(7, 2) DEFAULT NULL COMMENT '日续期费率:百分比',
   `daily_defer_fee` DOUBLE(7, 2) DEFAULT NULL COMMENT '日续期费',
   `daily_other_fee` DOUBLE(7, 2) DEFAULT NULL COMMENT '日额外费',
