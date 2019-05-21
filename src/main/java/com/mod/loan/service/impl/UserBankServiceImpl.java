@@ -35,6 +35,7 @@ import com.mod.loan.util.heli.vo.request.BindCardVo;
 import com.mod.loan.util.heli.vo.response.AgreementSendValidateCodeResponseVo;
 import com.mod.loan.util.heli.vo.response.BindCardResponseVo;
 import com.mod.loan.util.huiju.CreateLinkStringByGet;
+import org.apache.commons.lang.StringUtils;
 import org.dom4j.Document;
 import org.dom4j.DocumentHelper;
 import org.joda.time.DateTime;
@@ -500,8 +501,8 @@ public class UserBankServiceImpl extends BaseServiceImpl<UserBank, Long> impleme
 		String seriesNo = StringUtil.getOrderNumber("c");
         String err = yeepayService.authBindCardRequest(merchant.getYeepay_repay_appkey(), merchant.getYeepay_repay_private_key(),
 				seriesNo, String.valueOf(uid), cardNo, user.getUserCertNo(), user.getUserName(), cardPhone);
-        if (err!=null){
-            return new ResultMessage(ResponseEnum.M4000,err);
+        if (StringUtils.isNotEmpty(err)){
+            return new ResultMessage(ResponseEnum.M4000.getCode(),err);
         }
 
         AgreementBindCardValidateCodeVo requestVo = new AgreementBindCardValidateCodeVo();
