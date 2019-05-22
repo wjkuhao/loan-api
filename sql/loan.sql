@@ -1223,6 +1223,7 @@ CREATE TABLE `tb_order_defer`  (
   `overdue_day` TINYINT(2) default NUll COMMENT '逾期天数',
   `overdue_fee` DOUBLE(7, 2) DEFAULT NULL COMMENT '逾期费',
   `defer_day` TINYINT(2) default NUll COMMENT '续期天数',
+  `reduce_fee` DOUBLE(7, 2) DEFAULT NULL COMMENT '减免金额',
   `daily_defer_fee` DOUBLE(7, 2) DEFAULT NULL COMMENT '日续期费',
   `defer_fee` DOUBLE(7, 2) DEFAULT NULL COMMENT '续期费',
   `defer_times` TINYINT(2) DEFAULT NULL COMMENT '当前第几次续期',
