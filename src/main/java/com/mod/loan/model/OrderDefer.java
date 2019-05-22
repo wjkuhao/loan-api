@@ -17,6 +17,7 @@ public class OrderDefer {
     //`user_phone` VARCHAR(20) DEFAULT NULL COMMENT '手机',
     //`overdue_day` TINYINT(2) default NUll COMMENT '逾期天数',
     //`overdue_fee` DOUBLE(7, 2) DEFAULT NULL COMMENT '逾期费',
+    //`reduce_fee` DOUBLE(7, 2) DEFAULT NULL COMMENT '减免金额',
     //`defer_day` TINYINT(2) default NUll COMMENT '续期天数',
     //`daily_defer_fee` DOUBLE(7, 2) DEFAULT NULL COMMENT '日续期费',
     //`defer_fee` DOUBLE(7, 2) DEFAULT NULL COMMENT '续期费',
@@ -44,6 +45,8 @@ public class OrderDefer {
     private Integer overdueDay;
     @Column(name = "overdue_fee")
     private Double overdueFee;
+    @Column(name = "reduce_fee")
+    private Double reduceFee;
     @Column(name = "defer_day")
     private Integer deferDay;
     @Column(name = "daily_defer_fee")
@@ -127,6 +130,14 @@ public class OrderDefer {
 
     public void setOverdueFee(Double overdueFee) {
         this.overdueFee = overdueFee;
+    }
+
+    public Double getReduceFee() {
+        return reduceFee;
+    }
+
+    public void setReduceFee(Double reduceFee) {
+        this.reduceFee = reduceFee;
     }
 
     public Integer getDeferDay() {
