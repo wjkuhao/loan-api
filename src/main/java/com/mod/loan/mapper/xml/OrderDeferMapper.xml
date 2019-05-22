@@ -21,6 +21,7 @@
         <result column="overdue_day" jdbcType="INTEGER" property="overdueDay"/>
         <result column="overdue_fee" jdbcType="DOUBLE" property="overdueFee"/>
         <result column="defer_total_fee" jdbcType="DOUBLE" property="deferTotalFee"/>
+        <result column="reduce_fee" jdbcType="DOUBLE" property="reduceFee"/>
     </resultMap>
 
 
