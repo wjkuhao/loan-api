@@ -24,7 +24,7 @@ CREATE TABLE `report_order_loan`  (
   PRIMARY KEY (`id`) USING BTREE,
   UNIQUE INDEX `idx_day_merchant`(`day_key`, `merchant`) USING BTREE,
   INDEX `idx_merchant`(`merchant`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 12597 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '放款统计报表' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB  CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '放款统计报表' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Table structure for report_order_repay
@@ -54,7 +54,7 @@ CREATE TABLE `report_order_repay`  (
   PRIMARY KEY (`id`) USING BTREE,
   UNIQUE INDEX `idx_day_merchant`(`day_key`, `merchant`) USING BTREE,
   INDEX `idx_merchant`(`merchant`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 13406 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '还款统计报表' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB  CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '还款统计报表' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Table structure for report_partner_effect
@@ -75,7 +75,7 @@ CREATE TABLE `report_partner_effect`  (
   PRIMARY KEY (`id`) USING BTREE,
   UNIQUE INDEX `idx_day_merchant_origin`(`day_key`, `merchant`, `user_origin`) USING BTREE,
   INDEX `idx_merchant`(`merchant`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 154335 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '渠道统计报表' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB  CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '渠道统计报表' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Table structure for report_register_order
@@ -96,7 +96,7 @@ CREATE TABLE `report_register_order`  (
   `create_time` datetime(0) NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP(0),
   PRIMARY KEY (`id`) USING BTREE,
   UNIQUE INDEX `idx_day_merchant`(`day_key`, `merchant`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 8402 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB  CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Table structure for tb_app_article
@@ -111,7 +111,7 @@ CREATE TABLE `tb_app_article`  (
   `update_time` datetime(0) NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP(0) COMMENT '更新时间',
   `merchant` varchar(20) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '所属商户',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 971 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '自定义文章' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB  CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '自定义文章' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Table structure for tb_app_banner
@@ -129,7 +129,7 @@ CREATE TABLE `tb_app_banner`  (
   `end_time` datetime(0) NULL DEFAULT NULL COMMENT '定时结束时间',
   `merchant` varchar(20) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '所属商户',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 24 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB  CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Table structure for tb_app_entry
@@ -147,7 +147,7 @@ CREATE TABLE `tb_app_entry`  (
   `end_time` datetime(0) NULL DEFAULT NULL COMMENT '定时结束时间',
   `merchant` varchar(20) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '所属商户',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 16 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '首页快捷入口' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB  CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '首页快捷入口' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Table structure for tb_app_feedback
@@ -163,7 +163,7 @@ CREATE TABLE `tb_app_feedback`  (
   `merchant` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL,
   PRIMARY KEY (`id`) USING BTREE,
   INDEX `uid`(`uid`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 79052 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '意见反馈' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB  CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '意见反馈' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Table structure for tb_app_home
@@ -179,7 +179,7 @@ CREATE TABLE `tb_app_home`  (
   `update_time` datetime(0) NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP(0),
   `merchant` varchar(20) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '所属商户',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 37 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '首页图片弹窗' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB  CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '首页图片弹窗' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Table structure for tb_app_notice
@@ -197,7 +197,7 @@ CREATE TABLE `tb_app_notice`  (
   `merchant` varchar(20) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '所属商户',
   `notice_tag` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '标签',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 55 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '平台公告' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB  CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '平台公告' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Table structure for tb_app_startup
@@ -214,7 +214,7 @@ CREATE TABLE `tb_app_startup`  (
   `end_time` datetime(0) NULL DEFAULT NULL COMMENT '定时结束时间',
   `merchant` varchar(20) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '所属商户',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 6 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '启动页广告' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB  CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '启动页广告' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Table structure for tb_app_version
@@ -233,7 +233,7 @@ CREATE TABLE `tb_app_version`  (
   `app_market` varchar(300) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '应用市场地址',
   `create_time` datetime(0) NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 244 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = 'app版本控制' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB  CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = 'app版本控制' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Table structure for tb_bank
@@ -273,7 +273,7 @@ CREATE TABLE `tb_blacklist`  (
   PRIMARY KEY (`id`) USING BTREE,
   UNIQUE INDEX `idx_uid`(`uid`) USING BTREE,
   INDEX `idx_tel`(`tel`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 51818 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '商户自建黑名单' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB  CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '商户自建黑名单' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Table structure for tb_manager
@@ -295,7 +295,7 @@ CREATE TABLE `tb_manager`  (
   `account_status` int(2) NOT NULL DEFAULT 0 COMMENT '状态0-正常；1-已停用',
   `account_type` int(2) NOT NULL DEFAULT 0 COMMENT '类型0-公司员工；',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 14 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '后台登录帐号' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB  CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '后台登录帐号' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Table structure for tb_manager_company
@@ -310,7 +310,7 @@ CREATE TABLE `tb_manager_company`  (
   `remark` varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '备注',
   `company_phone` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '联系电话',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 2 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '公司列表' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB  CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '公司列表' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Table structure for tb_manager_department
@@ -324,7 +324,7 @@ CREATE TABLE `tb_manager_department`  (
   `department_type` int(2) NOT NULL COMMENT '部门类型0-内部部门；',
   `remark` varchar(20) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '备注',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 2 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '部门信息' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB  CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '部门信息' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Table structure for tb_manager_resource
@@ -339,7 +339,7 @@ CREATE TABLE `tb_manager_resource`  (
   `resource_order` int(11) NOT NULL COMMENT '排列顺序',
   `resource_status` int(11) NOT NULL DEFAULT 0 COMMENT '状态0-正常；1-已停用 ',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 53 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '模块资源' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB  CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '模块资源' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Table structure for tb_manager_role
@@ -352,7 +352,7 @@ CREATE TABLE `tb_manager_role`  (
   `role_status` int(11) NOT NULL DEFAULT 0 COMMENT '状态0-正常；1-已停用',
   `role_type` int(11) NOT NULL DEFAULT 0 COMMENT '类型0-普通用户；1-系统管理员',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 9 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '角色信息' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB  CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '角色信息' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Table structure for tb_manager_role_resource
@@ -363,7 +363,7 @@ CREATE TABLE `tb_manager_role_resource`  (
   `role_id` bigint(20) NOT NULL,
   `resource_id` bigint(20) NOT NULL,
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 247 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '角色权限' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB  CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '角色权限' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Table structure for tb_market_channel
@@ -378,7 +378,7 @@ CREATE TABLE `tb_market_channel`  (
   `create_time` datetime(0) NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   `update_time` datetime(0) NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP(0) COMMENT '修改时间',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 3 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '栏目' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB  CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '栏目' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Table structure for tb_market_config
@@ -393,7 +393,7 @@ CREATE TABLE `tb_market_config`  (
   `update_time` datetime(0) NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP(0) COMMENT '修改时间',
   PRIMARY KEY (`id`) USING BTREE,
   UNIQUE INDEX `idx_code`(`code`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 25 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB  CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Table structure for tb_market_flow
@@ -406,7 +406,7 @@ CREATE TABLE `tb_market_flow`  (
   `flow_uv` bigint(20) NULL DEFAULT 0 COMMENT '独立访客',
   `create_time` datetime(0) NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 6261 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '流量统计' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB  CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '流量统计' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Table structure for tb_market_module
@@ -421,7 +421,7 @@ CREATE TABLE `tb_market_module`  (
   `create_time` datetime(0) NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   `update_time` datetime(0) NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP(0) COMMENT '修改时间',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 3 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB  CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Table structure for tb_market_product
@@ -443,7 +443,7 @@ CREATE TABLE `tb_market_product`  (
   `update_time` datetime(0) NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP(0) COMMENT '修改时间',
   `num` int(11) NULL DEFAULT 0 COMMENT '人数',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 533 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB  CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Table structure for tb_merchant
@@ -517,7 +517,7 @@ CREATE TABLE `tb_merchant_login_record`  (
   `create_time` datetime(0) NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`) USING BTREE,
   INDEX `idx_manager_id`(`manager_id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 482342 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '用户登录记录' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB  CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '用户登录记录' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Table structure for tb_merchant_manager
@@ -540,7 +540,7 @@ CREATE TABLE `tb_merchant_manager`  (
   `user_security` tinyint(4) UNSIGNED NOT NULL DEFAULT 1 COMMENT '0-不安全，1-安全。默认1',
   PRIMARY KEY (`id`) USING BTREE,
   UNIQUE INDEX `idx_merchant_login`(`merchant`, `login_name`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 5179 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '商户后台人员信息表' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB  CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '商户后台人员信息表' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Table structure for tb_merchant_manager_origin
@@ -553,7 +553,7 @@ CREATE TABLE `tb_merchant_manager_origin`  (
   PRIMARY KEY (`id`) USING BTREE,
   INDEX `idx_origin_id`(`origin_id`) USING BTREE,
   INDEX `idx_manager_id`(`manager_id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 4051 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB  CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Table structure for tb_merchant_origin
@@ -593,7 +593,7 @@ CREATE TABLE `tb_merchant_rate`  (
   `product_type` tinyint(4) NULL DEFAULT 0 COMMENT '0-通用，1-新客，2-次新，3-续客',
   `borrow_type` int(4) NULL DEFAULT 99 COMMENT '借款次数,99-通用次数',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 130 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '分期产品表' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB  CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '分期产品表' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Table structure for tb_merchant_resource
@@ -608,7 +608,7 @@ CREATE TABLE `tb_merchant_resource`  (
   `resource_order` int(11) NULL DEFAULT 0 COMMENT '排列顺序',
   `resource_status` int(11) NOT NULL DEFAULT 0 COMMENT '状态0-正常；1-已停用 ',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 52 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB  CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Table structure for tb_merchant_role
@@ -621,7 +621,7 @@ CREATE TABLE `tb_merchant_role`  (
   `role_remark` varchar(64) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '备注',
   `role_status` int(11) NOT NULL DEFAULT 0 COMMENT '状态0-正常；1-已停用',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 901 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB  CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Table structure for tb_merchant_role_ref
@@ -632,7 +632,7 @@ CREATE TABLE `tb_merchant_role_ref`  (
   `role_id` bigint(20) NOT NULL,
   `resource_id` bigint(20) NOT NULL,
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 16630 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB  CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Table structure for tb_message_voice
@@ -653,7 +653,7 @@ CREATE TABLE `tb_message_voice`  (
   PRIMARY KEY (`id`) USING BTREE,
   UNIQUE INDEX `idx_call_id`(`call_id`) USING BTREE,
   INDEX `idx_order_id`(`order_id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 1361462 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB  CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Table structure for tb_moxie_mobile
@@ -674,7 +674,7 @@ CREATE TABLE `tb_moxie_mobile`  (
   PRIMARY KEY (`id`) USING BTREE,
   UNIQUE INDEX `idx_task_id`(`task_id`) USING BTREE,
   INDEX `idx_uid`(`uid`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 5477371 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB  CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Table structure for tb_moxie_zfb
@@ -693,7 +693,7 @@ CREATE TABLE `tb_moxie_zfb`  (
   PRIMARY KEY (`id`) USING BTREE,
   UNIQUE INDEX `idx_task_id`(`task_id`) USING BTREE,
   INDEX `idx_uid`(`uid`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 4712464 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB  CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Table structure for tb_moxie_zfb_fail
@@ -708,7 +708,7 @@ CREATE TABLE `tb_moxie_zfb_fail`  (
   `create_time` datetime(0) NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP(0),
   PRIMARY KEY (`id`) USING BTREE,
   UNIQUE INDEX `id_task_id`(`task_id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 852407 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB  CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Table structure for tb_order
@@ -749,7 +749,7 @@ CREATE TABLE `tb_order`  (
   INDEX `idx_merchant`(`merchant`) USING BTREE,
   INDEX `idx_status`(`status`) USING BTREE,
   INDEX `idx_create_time`(`create_time`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 5844438 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '订单表' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB  CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '订单表' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Table structure for tb_order_audit
@@ -767,7 +767,7 @@ CREATE TABLE `tb_order_audit`  (
   PRIMARY KEY (`id`) USING BTREE,
   INDEX `idx_order_id`(`order_id`) USING BTREE,
   INDEX `idx_audit_id`(`audit_id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 1837763 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '审核记录' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB  CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '审核记录' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Table structure for tb_order_pay
@@ -814,7 +814,7 @@ CREATE TABLE `tb_order_recycle_log`  (
   `create_time` datetime(0) NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`) USING BTREE,
   INDEX `idx_follow_user_id`(`follow_user_id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 1967624 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '逾期催收记录' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB  CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '逾期催收记录' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Table structure for tb_order_recycle_record
@@ -833,7 +833,7 @@ CREATE TABLE `tb_order_recycle_record`  (
   PRIMARY KEY (`id`) USING BTREE,
   INDEX `idx_order_id`(`order_id`) USING BTREE,
   INDEX `idx_uid`(`uid`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 2208415 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '逾期催收记录' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB  CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '逾期催收记录' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Table structure for tb_order_repay
@@ -867,7 +867,7 @@ CREATE TABLE `tb_question_ref`  (
   `article_id` bigint(20) NULL DEFAULT NULL COMMENT '文章id',
   `idx` int(11) NULL DEFAULT 0 COMMENT '排序',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 985 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '类型与问题详情中间表' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB  CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '类型与问题详情中间表' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Table structure for tb_question_type
@@ -881,7 +881,7 @@ CREATE TABLE `tb_question_type`  (
   `create_time` datetime(0) NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   `merchant` varchar(20) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '所属商户',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 288 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '帮助中心问题类型' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB  CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '帮助中心问题类型' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Table structure for tb_recycle_group
@@ -896,7 +896,7 @@ CREATE TABLE `tb_recycle_group`  (
   `start_day` int(11) NULL COMMENT '逾期开始时间(大于等于)',
   `end_day` int(11) NULL COMMENT '逾期结束时间(小于)',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 161 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB  CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Table structure for tb_recycle_order_export
@@ -912,7 +912,7 @@ CREATE TABLE `tb_recycle_order_export`  (
   `create_time` datetime(0) NULL DEFAULT CURRENT_TIMESTAMP,
   `update_time` datetime(0) NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP(0),
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 158 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '催收订单导出任务表' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB  CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '催收订单导出任务表' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Table structure for tb_recycle_user
@@ -927,7 +927,7 @@ CREATE TABLE `tb_recycle_user`  (
   `follow_user_id` bigint(20) NOT NULL COMMENT '催收人员id',
   `merchant` varchar(20) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 1203 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB  CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Table structure for tb_user
@@ -961,7 +961,7 @@ CREATE TABLE `tb_user`  (
   INDEX `idx_merchant`(`merchant`) USING BTREE,
   INDEX `idx_create_time`(`create_time`) USING BTREE,
   INDEX `idx_user_cert_no`(`user_cert_no`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 7951895 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB  CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Table structure for tb_user_address_list
@@ -998,7 +998,7 @@ CREATE TABLE `tb_user_bank`  (
   `bind_type` tinyint(4) NOT NULL DEFAULT 1 COMMENT '绑卡类型:1：合利宝；2：富友；3：汇聚; 4：易宝',
   PRIMARY KEY (`id`) USING BTREE,
   INDEX `idx_uid`(`uid`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 4497020 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB  CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Table structure for tb_user_device
@@ -1242,3 +1242,17 @@ CREATE TABLE `tb_order_defer`  (
   INDEX `idx_pay_time`(`pay_time`) USING BTREE
 ) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
 
+-- ----------------------------
+DROP TABLE IF EXISTS `tb_user_register_code_stat`;
+CREATE TABLE `tb_user_register_code_stat`  (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `user_phone` VARCHAR(20) DEFAULT NULL COMMENT '手机',
+  `merchant` VARCHAR(50) DEFAULT NULL COMMENT '商户名称',
+  `day_count` TINYINT(4) default NUll COMMENT '当日获取验证码次数',
+  `total_count` TINYINT(4) default NUll COMMENT '获取总验证码次数',
+  `register_date` CHAR(10) DEFAULT NULL COMMENT '注册日期',
+  `create_time` CHAR(19) DEFAULT NULL COMMENT '插入时间',
+  `update_time` CHAR(19) DEFAULT NULL COMMENT '更新时间',
+  PRIMARY KEY (`id`) USING BTREE,
+  INDEX `idx_phone`(`user_phone`, register_date, merchant ) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
