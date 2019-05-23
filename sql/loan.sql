@@ -1252,8 +1252,8 @@ CREATE TABLE `tb_user_register_code_stat`  (
   `day_count` TINYINT(4) default NUll COMMENT '当日获取验证码次数',
   `total_count` TINYINT(4) default NUll COMMENT '获取总验证码次数',
   `register_date` CHAR(10) DEFAULT NULL COMMENT '注册日期',
-  `create_time` CHAR(19) DEFAULT NULL COMMENT '插入时间',
-  `update_time` CHAR(19) DEFAULT NULL COMMENT '更新时间',
+  `create_time` CHAR(30) DEFAULT NULL COMMENT '插入时间',
+  `update_time` CHAR(30) DEFAULT NULL COMMENT '更新时间',
   PRIMARY KEY (`id`) USING BTREE,
-  INDEX `idx_phone`(`user_phone`, register_date, merchant ) USING BTREE
+  INDEX `idx_phone`(`user_phone`, merchant ) USING BTREE
 ) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;

@@ -9,6 +9,7 @@ import com.mod.loan.config.redis.RedisMapper;
 import com.mod.loan.model.Blacklist;
 import com.mod.loan.model.MerchantOrigin;
 import com.mod.loan.model.Order;
+import com.mod.loan.model.UserRegisterCodeStat;
 import com.mod.loan.service.*;
 import com.mod.loan.util.*;
 import com.mod.loan.util.sms.EnumSmsTemplate;
@@ -61,7 +62,9 @@ public class RegisterController {
 	@Autowired
     private BlacklistService blacklistService;
 	@Autowired
-    MerchantOriginService merchantOriginService;
+    private MerchantOriginService merchantOriginService;
+	@Autowired
+	private UserRegisterCodeStatService userRegisterCodeStatService;
 
 	@RequestMapping(value = "graph_code")
 	public ResultMessage graph_code() throws IOException {
@@ -94,11 +97,18 @@ public class RegisterController {
 		if (userService.selectUserByPhone(phone, alias) != null) {
 			return new ResultMessage(ResponseEnum.M2001);
 		}
+
 		String verifyCode = redisMapper.get("web_user_register_graph_code:" + uuid);
 		redisMapper.remove("web_user_register_graph_code:" + uuid);
 		if (!graph_code.equals(verifyCode)) {
 			return new ResultMessage(ResponseEnum.M2002);
 		}
+
+		UserRegisterCodeStat userRegisterCodeStat = userRegisterCodeStatService.selectDayCount(phone, alias);
+		if(userRegisterCodeStat.getDayCount().compareTo(3)>0){
+			return new ResultMessage(ResponseEnum.M4000.getCode(), "操作过于频繁");
+		}
+
 		String randomNum = RandomUtils.generateRandomNum(4);
 		// 发送验证码，5分钟内有效
 		redisMapper.set(RedisConst.USER_PHONE_CODE + phone, randomNum, 300);
@@ -118,6 +128,12 @@ public class RegisterController {
         if (userService.selectUserByPhone(phone, alias) != null) {
             return new ResultMessage(ResponseEnum.M2001);
         }
+
+		UserRegisterCodeStat userRegisterCodeStat = userRegisterCodeStatService.selectDayCount(phone, alias);
+		if(userRegisterCodeStat.getDayCount().compareTo(3)>0){
+			return new ResultMessage(ResponseEnum.M4000.getCode(), "操作过于频繁");
+		}
+
         String randomNum = RandomUtils.generateRandomNum(4);
         // 发送验证码，5分钟内有效
         redisMapper.set(RedisConst.USER_PHONE_CODE + phone, randomNum, 300);
