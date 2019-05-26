@@ -740,6 +740,7 @@ CREATE TABLE `tb_order`  (
   `order_version` int(11) NULL DEFAULT 0 COMMENT '版本号，防止并发操作',
   `merchant` varchar(16) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '商户别名',
   `follow_user_id` bigint(20) NULL DEFAULT 0 COMMENT '催收人id',
+  `recycle_date` CHAR(10) DEFAULT NULL COMMENT '入催日期',
   `product_id` bigint(20) NOT NULL,
   `user_type` tinyint(4) NULL DEFAULT 1 COMMENT '1-新客，2-次新，3-续客',
   `recycle_type` tinyint(4) NULL DEFAULT 0 COMMENT '催收标签0-其他1-承诺还款2-谈判-高负债3-谈判-还款意愿低4-无人接听5-关机6-无法接通7-设置8-通话中9-停机10-跳票11-家人代偿12-线下已还款13-失联（本人通讯录无效）14-拒绝还款15-部分还款16-谈判中17-第三方转告18-停止催收',
@@ -1257,3 +1258,26 @@ CREATE TABLE `tb_user_register_code_stat`  (
   PRIMARY KEY (`id`) USING BTREE,
   INDEX `idx_phone`(`user_phone`, merchant ) USING BTREE
 ) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
+
+
+-- ----------------------------
+DROP TABLE IF EXISTS `report_recycle_repay_stat`;
+CREATE TABLE `report_recycle_repay_stat`  (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `recycled_id` bigint(20) DEFAULT NULL COMMENT '催收人ID',
+  `recycled_name` VARCHAR(20) DEFAULT NULL COMMENT '催收人姓名',
+  `merchant` VARCHAR(50) DEFAULT NULL COMMENT '商户名称',
+  `recycle_cnt` TINYINT(4) NOT NULL default 0 COMMENT '入催订单数',
+  `not_return_cnt` TINYINT(4) NOT NULL default 0 COMMENT '未还订单数',
+  `overdue_day` TINYINT(4) NOT NULL default 0 COMMENT '逾期天数',
+  `repay_1_rate` DOUBLE(3, 2) NOT NULL default 0.00 COMMENT '入催一天还款率',
+  `repay_3_rate` DOUBLE(3, 2) NOT NULL default 0.00 COMMENT '入催三天还款率',
+  `repay_7_rate` DOUBLE(3, 2) NOT NULL default 0.00 COMMENT '入催七天还款率',
+  `repay_60_rate` DOUBLE(3, 2) NOT NULL default 0.00 COMMENT '入催六十天还款率',
+  `recycle_date` CHAR(10) DEFAULT NULL COMMENT '入催日期',
+  `create_time` CHAR(30) DEFAULT NULL COMMENT '插入时间',
+  `update_time` CHAR(30) DEFAULT NULL COMMENT '更新时间',
+  PRIMARY KEY (`id`) USING BTREE,
+  UNIQUE KEY  `idx_date`(`recycle_date`, recycled_id ) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
+

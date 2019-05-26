@@ -165,6 +165,20 @@ public class Order {
     private Integer userType;
 
     /**
+     * 入催日期
+     */
+    @Column(name = "recycle_date")
+    private String recycleDate;
+
+    public String getRecycleDate() {
+        return recycleDate;
+    }
+
+    public void setRecycleDate(String recycleDate) {
+        this.recycleDate = recycleDate;
+    }
+
+    /**
      * @return id
      */
     public Long getId() {

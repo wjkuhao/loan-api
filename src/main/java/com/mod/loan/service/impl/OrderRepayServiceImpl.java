@@ -229,7 +229,7 @@ public class OrderRepayServiceImpl extends BaseServiceImpl<OrderRepay, String> i
     public void repaySuccess(OrderRepay orderRepay, Order order) {
         if (OrderEnum.NORMAL_REPAY.getCode().equals(order.getStatus())
                 || OrderEnum.OVERDUE_REPAY.getCode().equals(order.getStatus())
-                || OrderEnum.DEFER_REPAY.getCode().equals(order.getStatus())) {
+                || OrderEnum.DEFER_REPAY.getCode().equals(order.getStatus())){
             logger.info("订单{}已还款：", order.getId());
             return ;
         }

@@ -14,10 +14,7 @@ import com.mod.loan.model.Merchant;
 import com.mod.loan.model.Order;
 import com.mod.loan.model.OrderRepay;
 import com.mod.loan.model.User;
-import com.mod.loan.service.MerchantService;
-import com.mod.loan.service.OrderRepayService;
-import com.mod.loan.service.OrderService;
-import com.mod.loan.service.UserService;
+import com.mod.loan.service.*;
 import com.mod.loan.util.CheckUtils;
 import com.mod.loan.util.HttpUtils;
 import com.mod.loan.util.MD5;
@@ -63,6 +60,8 @@ public class HuijuRepayController {
 	private MerchantService merchantService;
 	@Autowired
 	private RedisMapper redisMapper;
+	@Autowired
+	ReportRecycleRepayStatService reportRecycleRepayStatService;
 
 	/**
 	 * h5 借款详情 线上主动还款 绑卡支付短信
@@ -307,6 +306,7 @@ public class HuijuRepayController {
 			orderRepay1.setUpdateTime(new Date());
 			orderRepay1.setRepayStatus(3);
 			orderRepayService.updateOrderRepayInfo(orderRepay1, order1);
+			reportRecycleRepayStatService.sendRecycleToMQ(order.getRecycleDate(), order.getFollowUserId());
 			return "success";
 		}else if("101".equals(map.get("r6_Status"))){
 //			logger.error("汇聚异步通知失败：r6_Status={},r2_OrderNo={}", map.get("r6_Status"),map.get("r2_OrderNo"));

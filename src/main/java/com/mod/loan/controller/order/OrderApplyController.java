@@ -6,6 +6,7 @@ import com.mod.loan.common.enums.OrderEnum;
 import com.mod.loan.common.enums.ResponseEnum;
 import com.mod.loan.common.model.RequestThread;
 import com.mod.loan.common.model.ResultMessage;
+import com.mod.loan.config.rabbitmq.RabbitConst;
 import com.mod.loan.config.redis.RedisConst;
 import com.mod.loan.config.redis.RedisMapper;
 import com.mod.loan.model.*;
@@ -224,7 +225,7 @@ public class OrderApplyController {
 		JSONObject jsonObject = new JSONObject();
 		jsonObject.put("orderId", order.getId());
 		jsonObject.put("merchant", order.getMerchant());
-		rabbitTemplate.convertAndSend("queue_risk_order_notify", jsonObject);
+		rabbitTemplate.convertAndSend(RabbitConst.queue_risk_order_notify, jsonObject);
 
 		return new ResultMessage(ResponseEnum.M2000);
 	}
