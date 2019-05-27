@@ -80,17 +80,19 @@ public class HelipayRepayServiceImpl implements HelipayRepayService {
         Merchant merchant = merchantService.findMerchantByAlias(RequestThread.getClientAlias());
         if ("order".equals(type)) {
             Order order = orderService.selectByPrimaryKey(NumberUtils.toLong(orderId));
-            // 已放款，逾期，坏账，展期，展期逾期，展期坏账状态
+            // 已放款，逾期，坏账，展期，逾期后展期，展期逾期，展期坏账状态
             if (OrderEnum.REPAYING.getCode().equals(order.getStatus())
                     || OrderEnum.OVERDUE.getCode().equals(order.getStatus())
                     || OrderEnum.BAD_DEBTS.getCode().equals(order.getStatus())
                     || OrderEnum.DEFER.getCode().equals(order.getStatus())
+                    || OrderEnum.OVERDUE_DEFER.getCode().equals(order.getStatus())
                     || OrderEnum.DEFER_OVERDUE.getCode().equals(order.getStatus())
                     || OrderEnum.DEFER_BAD_DEBTS.getCode().equals(order.getStatus())) {
                 // 支付流水号
                 return bindPaySmsCode(new BindPaySmsCodeDto(StringUtil.getOrderNumber("r"), order.getShouldRepay().toString(), merchant.getHlb_id(), userBank.getForeignId(),
                         user.getId().toString(), userBank.getCardPhone(), merchant.getMerchantAlias(), orderId));
             }
+            return new ResultMessage(ResponseEnum.M4000.getCode(), "该订单状态下不能还款,订单号为:[" + orderId + "],订单状态为:[" + order.getStatus() + "]");
         } else if ("orderDefer".equals(type)) {
             OrderDefer orderDefer = deferService.findLastValidByOrderId(NumberUtils.toLong(orderId));
             if (orderDefer == null) {
