@@ -81,7 +81,10 @@ public class HelipayRepayServiceImpl implements HelipayRepayService {
             // 已放款，逾期，坏账状态
             if (OrderEnum.REPAYING.getCode().equals(order.getStatus())
                     || OrderEnum.OVERDUE.getCode().equals(order.getStatus())
-                    || OrderEnum.BAD_DEBTS.getCode().equals(order.getStatus())) {
+                    || OrderEnum.BAD_DEBTS.getCode().equals(order.getStatus())
+                    || OrderEnum.DEFER.getCode().equals(order.getStatus())
+                    || OrderEnum.DEFER_OVERDUE.getCode().equals(order.getStatus())
+                    || OrderEnum.DEFER_BAD_DEBTS.getCode().equals(order.getStatus())) {
                 // 支付流水号
                 return bindPaySmsCode(new BindPaySmsCodeDto(StringUtil.getOrderNumber("r"), order.getShouldRepay().toString(), merchant.getHlb_id(), userBank.getForeignId(),
                         user.getId().toString(), userBank.getCardPhone(), merchant.getMerchantAlias(), orderId));
@@ -216,7 +219,6 @@ public class HelipayRepayServiceImpl implements HelipayRepayService {
     @Override
     public void deferRepayResult(String rt2_retCode, String rt9_reason,
                                  String rt9_orderStatus, String rt5_orderId) {
-
         OrderDefer orderDefer = deferService.selectByPayNo(rt5_orderId);
         if (orderDefer == null) {
             logger.error("异步通知异常,展期订单不存在：rt2_retCode={},rt9_orderStatus={},rt5_orderId={}", rt2_retCode, rt9_orderStatus, rt5_orderId);
@@ -260,6 +262,7 @@ public class HelipayRepayServiceImpl implements HelipayRepayService {
             requestVo.setP9_phone(dto.getPhone());
             requestVo.setSignatureType("MD5WITHRSA");
             response = getHeliPayResponse(dto.getMerchant(), requestVo, null);
+            logger.info("helipay bindPaySmsCode:{}", requestVo);
             BindPayValidateCodeResponseVo responseVo = JSONObject.parseObject(response, BindPayValidateCodeResponseVo.class);
             if ("0000".equals(responseVo.getRt2_retCode())) {
                 redisMapper.set(RedisConst.repay_text + dto.getRepayNo(), dto.getOrderId(), 300);
@@ -304,6 +307,7 @@ public class HelipayRepayServiceImpl implements HelipayRepayService {
             requestVo.setP17_validateCode(dto.getValidateCode());
             requestVo.setSignatureType("MD5WITHRSA");
             response = getHeliPayResponse(dto.getMerchant(), null, requestVo);
+            logger.info("helipay bindPayActive:{}", requestVo);
             BindCardPayResponseVo responseVo = JSONObject.parseObject(response, BindCardPayResponseVo.class);
             if (!"0000".equals(responseVo.getRt2_retCode())) {
                 logger.error("绑卡支付受理失败，result={}", response);
