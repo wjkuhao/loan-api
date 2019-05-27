@@ -226,7 +226,6 @@ public class YeepayRepayController {
         String errMsg = orderRepayService.yeepayRepayQuery(orderRepay.getRepayNo(), order.getMerchant());
         if (StringUtils.isEmpty(errMsg)) {
             orderRepayService.repaySuccess(orderRepay, order);
-            reportRecycleRepayStatService.sendRecycleToMQ(order.getRecycleDate(), order.getFollowUserId());
             return new ResultMessage(ResponseEnum.M2000, orderId);
         }
         else if ("PROCESSING".equals(errMsg)){
