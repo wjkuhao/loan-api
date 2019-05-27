@@ -21,11 +21,12 @@
         <result column="overdue_day" jdbcType="INTEGER" property="overdueDay"/>
         <result column="overdue_fee" jdbcType="DOUBLE" property="overdueFee"/>
         <result column="defer_total_fee" jdbcType="DOUBLE" property="deferTotalFee"/>
+        <result column="reduce_fee" jdbcType="DOUBLE" property="reduceFee"/>
     </resultMap>
 
 
     <select id="selectOrderDefer" resultMap="BaseResultMap">
-      select pay_no, uid, order_id from tb_order_defer where pay_status = 1 and pay_time &lt;= date_format(date_sub(now(), interval 2 minute ), '%Y-%m-%d %H:%i:%s');
+      select id, pay_no, uid, order_id from tb_order_defer where pay_status = 1 and pay_time &lt;= date_format(date_sub(now(), interval 2 minute ), '%Y-%m-%d %H:%i:%s');
   </select>
 
 </mapper>

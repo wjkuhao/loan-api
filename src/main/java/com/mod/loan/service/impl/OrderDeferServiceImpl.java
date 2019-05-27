@@ -86,7 +86,7 @@ public class OrderDeferServiceImpl extends BaseServiceImpl<OrderDefer, Integer> 
 
         try {
             String payNo = StringUtil.getOrderNumber("d");// 支付流水号
-            String amount = "dev".equals(Constant.ENVIROMENT) ? "0.11" : orderDefer.getDeferFee().toString();
+            String amount = "dev".equals(Constant.ENVIROMENT) ? "0.11" : orderDefer.getDeferTotalFee().toString();
             Merchant merchant = merchantService.findMerchantByAlias(orderDefer.getMerchant());
             UserBank userBank = userBankService.selectUserCurrentBankCard(orderDefer.getUid());
 

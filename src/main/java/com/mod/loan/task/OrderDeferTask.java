@@ -42,7 +42,7 @@ public class OrderDeferTask {
             for (OrderDefer orderDefer : orderDefers) {
                 Order order = orderService.selectByPrimaryKey(orderDefer.getOrderId());
                 if (41 == order.getStatus() || 42 == order.getStatus()|| 43 == order.getStatus()) {
-                    logger.info("展期易宝自动查询:订单={}已还款", order.getOrderNo());
+                    logger.info("展期易宝自动查询:订单={}已还款", order.getId());
                     continue;
                 }
 

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mod.loan.mapper.UserRegisterCodeStatMapper">
+  <resultMap id="BaseResultMap" type="com.mod.loan.model.UserRegisterCodeStat">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="user_phone" jdbcType="VARCHAR" property="userPhone" />
+    <result column="day_count" jdbcType="INTEGER" property="dayCount" />
+    <result column="total_count" jdbcType="INTEGER" property="totalCount" />
+    <result column="register_date" jdbcType="INTEGER" property="registerDate" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+    <result column="merchant" jdbcType="VARCHAR" property="merchant" />
+
+  </resultMap>
+
+  <select id="selectDayCount" resultMap="BaseResultMap">
+    select id, day_count, total_count, register_date
+    from tb_user_register_code_stat
+    where user_phone=#{userPhone}
+    and merchant=#{merchant}
+  </select>
+
+
+</mapper>

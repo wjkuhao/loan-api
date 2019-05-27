@@ -59,7 +59,10 @@ public class OrderDeferController {
         if (null == merchantDeferConfig || merchantDeferConfig.getStatus() < 1) {
             return new ResultMessage(ResponseEnum.M4000.getCode(), "商户不支持续期");
         }
-
+        // 续期天数: 如果配置了有效的续期天数 使用配置的续期天数; 否则使用默认的续期天数
+        if (null != merchantDeferConfig.getDeferDay() && merchantDeferConfig.getDeferDay() > 0) {
+            deferDay = merchantDeferConfig.getDeferDay();
+        }
         // 计算当前第几次续期
         int deferTimes = orderDeferService.selectCount(new OrderDefer(orderId)) + 1;// 当前续期个数加1
         if (null != merchantDeferConfig.getMaxDeferTimes() //
@@ -107,6 +110,17 @@ public class OrderDeferController {
             orderDefer.setPayStatus(OrderRepayStatusEnum.INIT.getCode());
             orderDeferService.insertSelective(orderDefer);
             return new ResultMessage(ResponseEnum.M2000.getCode(), orderDefer);
+        } else {
+            // 更新续期单子: 可能是用户生成了续期单 一直未支付;后面要重新按照新的费率进行计算
+            orderDeferOld.setDeferDay(deferDay);
+            orderDeferOld.setDailyDeferFee(dailyDeferFee);
+            orderDeferOld.setDeferFee(deferFee);
+            orderDeferOld.setRepayDate(TimeUtil.dateFormat(order.getRepayTime()));
+            orderDeferOld.setDeferRepayDate(deferRepayDate);
+            orderDeferOld.setOverdueDay(overdueDay);
+            orderDeferOld.setOverdueFee(overdueFee);
+            orderDeferOld.setDeferTotalFee(deferTotalFee);
+            orderDeferService.updateByPrimaryKeySelective(orderDeferOld);
         }
 
         return new ResultMessage(ResponseEnum.M2000.getCode(), orderDeferOld);
@@ -200,11 +214,10 @@ public class OrderDeferController {
             orderDefer.setPayStatus(OrderRepayStatusEnum.REPAY_SUCCESS.getCode());
             orderDeferService.modifyOrderDeferByPayCallback(orderDefer);
             return new ResultMessage(ResponseEnum.M2000, orderId);
-        }else if ("PROCESSING".equals(errMsg)) {
+        } else if ("PROCESSING".equals(errMsg)) {
             logger.info("---------yeepay query repayno= {}展期订单处理中-----------------", orderDefer.getPayNo());
             return new ResultMessage(ResponseEnum.M4000, "订单处理中,请等待结果");
-        }
-        else {
+        } else {
             orderDefer.setRemark(errMsg);
             orderDefer.setPayStatus(OrderRepayStatusEnum.REPAY_FAILED.getCode());
             orderDeferService.modifyOrderDeferByPayCallback(orderDefer);
