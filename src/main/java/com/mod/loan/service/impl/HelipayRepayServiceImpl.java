@@ -78,7 +78,7 @@ public class HelipayRepayServiceImpl implements HelipayRepayService {
         Merchant merchant = merchantService.findMerchantByAlias(RequestThread.getClientAlias());
         if ("order".equals(type)) {
             Order order = orderService.selectByPrimaryKey(NumberUtils.toLong(orderId));
-            // 已放款，逾期，坏账状态
+            // 已放款，逾期，坏账，展期，展期逾期，展期坏账状态
             if (OrderEnum.REPAYING.getCode().equals(order.getStatus())
                     || OrderEnum.OVERDUE.getCode().equals(order.getStatus())
                     || OrderEnum.BAD_DEBTS.getCode().equals(order.getStatus())
