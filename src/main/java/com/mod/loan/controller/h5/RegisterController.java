@@ -174,7 +174,7 @@ public class RegisterController {
 		//海豚对渠道号base64
 		if ("haitun".equals(alias)){
             origin_id = Base64ToMultipartFileUtil.decodeOrigin(origin_id);
-        }else if ("huijie".equals(alias)) {
+        }else if ("huijie".equals(alias) || "care".equals(alias)) {
             try {
                 origin_id = DesUtil.decryption(origin_id, null);
             } catch (Exception e) {
