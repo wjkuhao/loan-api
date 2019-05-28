@@ -36,6 +36,9 @@ public class Constant {
 	public static Integer SMS_EXPIRATION_TIME = 60*5; //5分钟
 	public static long NATURE_ORIGIN_ID = 61L; //自然流量配置的ID号
 
+	public static String OSS_ENDPOINT_OUT_URL;
+	public static String OSS_ENDPOINT_IN_URL;
+
 
 	@Value("${environment:}")
 	public void setENVIROMENT(String environment) {
@@ -127,4 +130,9 @@ public class Constant {
 		Constant.MOHE_LOGIN_REPORT_URL = moheLoginReportUrl;
 	}
 
+	@Value("${oss.endpoint.out:}")
+	public static void setOssEndpointOutUrl(String ossEndpointOutUrl) { OSS_ENDPOINT_OUT_URL = ossEndpointOutUrl; }
+
+	@Value("${oss.endpoint.in:}")
+	public static void setOssEndpointInUrl(String ossEndpointInUrl) { OSS_ENDPOINT_IN_URL = ossEndpointInUrl; }
 }

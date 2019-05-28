@@ -15,9 +15,6 @@ public class OSSUtil {
 
 	private static Logger logger = LoggerFactory.getLogger(UploadController.class);
 
-	private static String endpoint_out = "https://oss-cn-hangzhou.aliyuncs.com";// 外网
-	private static String endpoint_in = "https://oss-cn-hangzhou-internal.aliyuncs.com";// 内网
-
 	public static String upload(MultipartFile file) {
 		String fileName = file.getOriginalFilename();
 		String fileType = fileName.substring(fileName.lastIndexOf("."));
@@ -69,9 +66,9 @@ public class OSSUtil {
 	 */
 	private static String endPointUrl(String env) {
 		if ("dev".equals(env)) {
-			return OSSUtil.endpoint_out;
+			return Constant.OSS_ENDPOINT_OUT_URL;
 		}
-		return OSSUtil.endpoint_in;
+		return Constant.OSS_ENDPOINT_IN_URL;
 	}
 
 }
