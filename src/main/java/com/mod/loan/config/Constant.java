@@ -131,8 +131,8 @@ public class Constant {
 	}
 
 	@Value("${oss.endpoint.out:}")
-	public static void setOssEndpointOutUrl(String ossEndpointOutUrl) { OSS_ENDPOINT_OUT_URL = ossEndpointOutUrl; }
+	public void setOssEndpointOutUrl(String ossEndpointOutUrl) { Constant.OSS_ENDPOINT_OUT_URL = ossEndpointOutUrl; }
 
 	@Value("${oss.endpoint.in:}")
-	public static void setOssEndpointInUrl(String ossEndpointInUrl) { OSS_ENDPOINT_IN_URL = ossEndpointInUrl; }
+	public void setOssEndpointInUrl(String ossEndpointInUrl) { Constant.OSS_ENDPOINT_IN_URL = ossEndpointInUrl; }
 }
