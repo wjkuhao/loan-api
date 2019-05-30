@@ -160,13 +160,15 @@ public class OrderApplyController {
             // 整个系统没有查到进行的单子
             // 再检查一下是否最近风控拒绝了
             Order orderIng = orderService.findUserLatestOrder(uid);
-            // 审核拒绝的订单7天内无法再下单
-            if (orderIng.getStatus() == 51 || orderIng.getStatus() == 52) {
-                DateTime applyTime = new DateTime(orderIng.getCreateTime()).plusDays(7);
-                DateTime nowTime = new DateTime();
-                Integer remainDays = Days.daysBetween(nowTime.withMillisOfDay(0), applyTime.withMillisOfDay(0)).getDays();
-                if (0 < remainDays && remainDays <= 7) {
-                    return new ResultMessage(ResponseEnum.M4000.getCode(), "请" + remainDays + "天后重试提单");
+            if (null != orderIng) {
+                // 审核拒绝的订单7天内无法再下单
+                if (orderIng.getStatus() == 51 || orderIng.getStatus() == 52) {
+                    DateTime applyTime = new DateTime(orderIng.getCreateTime()).plusDays(7);
+                    DateTime nowTime = new DateTime();
+                    Integer remainDays = Days.daysBetween(nowTime.withMillisOfDay(0), applyTime.withMillisOfDay(0)).getDays();
+                    if (0 < remainDays && remainDays <= 7) {
+                        return new ResultMessage(ResponseEnum.M4000.getCode(), "请" + remainDays + "天后重试提单");
+                    }
                 }
             }
         }
