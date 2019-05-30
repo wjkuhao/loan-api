@@ -204,15 +204,17 @@ public class RegisterController {
             }
 
             // 检查是否存在多头借贷
-            String manyHeadQueyUrl = String.format(Constant.MANY_HEAD_QUERY_URL, phone, "");
-            String result = okHttpReader.get(manyHeadQueyUrl, null, null);
+            String manyHeadQueryUrl = String.format(Constant.MANY_HEAD_QUERY_URL, phone, "");
+            String result = okHttpReader.get(manyHeadQueryUrl, null, null);
             if (null != result && result.length() > 0) {
                 JSONObject manyHeadJson = JSON.parseObject(result);
-                boolean isManyHead = manyHeadJson.getJSONObject("data").getBoolean("isManyHead");
-                if (isManyHead) {
-                    logger.info("存在多头借贷，无法注册， phone={}", phone);
-                    return new ResultMessage(ResponseEnum.M4000.getCode(), "审核不通过");
-                }
+                if ("2000".equals(manyHeadJson.getString("status"))) {
+					boolean isManyHead = manyHeadJson.getJSONObject("data").getBoolean("isManyHead");
+					if (isManyHead) {
+						logger.info("存在多头借贷，无法注册， phone={}", phone);
+						return new ResultMessage(ResponseEnum.M4000.getCode(), "审核不通过");
+					}
+				}
             }
         }
 

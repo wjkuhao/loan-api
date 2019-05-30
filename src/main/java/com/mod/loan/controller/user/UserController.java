@@ -342,6 +342,7 @@ public class UserController {
         }
         Map<String, Boolean> resJson = new HashMap<>();
         resJson.put("isManyHead", isManyHead);
+
         return new ResultMessage(ResponseEnum.M2000, resJson);
     }
 
