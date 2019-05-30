@@ -5,6 +5,7 @@ import com.mod.loan.common.mapper.BaseServiceImpl;
 import com.mod.loan.config.rabbitmq.RabbitConst;
 import com.mod.loan.model.ReportRecycleRepayStat;
 import com.mod.loan.service.ReportRecycleRepayStatService;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
@@ -24,7 +25,7 @@ public class ReportRecycleRepayStatServiceImpl extends BaseServiceImpl<ReportRec
 
 	@Override
 	public void sendRecycleToMQ(String recycleDate, Long recycledId) {
-	    if (recycledId!=null) {
+	    if (StringUtils.isNotEmpty(recycleDate)) {
             JSONObject jsonObject = new JSONObject();
             jsonObject.put("recycleDate", recycleDate);
             jsonObject.put("recycledId", recycledId);

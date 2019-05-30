@@ -225,13 +225,13 @@ public class YeepayRepayController {
 
         String errMsg = orderRepayService.yeepayRepayQuery(orderRepay.getRepayNo(), order.getMerchant());
         if (StringUtils.isEmpty(errMsg)) {
-            orderRepayService.repaySuccess(orderRepay, order);
+            //orderRepayService.repaySuccess(orderRepay, order);
             return new ResultMessage(ResponseEnum.M2000, orderId);
         }
         else if ("PROCESSING".equals(errMsg)){
             return new ResultMessage(ResponseEnum.M4000, "订单处理中");
         }else {
-            orderRepayService.repayFailed(orderRepay, errMsg);
+            //orderRepayService.repayFailed(orderRepay, errMsg);
             return new ResultMessage(ResponseEnum.M4000, errMsg);
         }
     }
