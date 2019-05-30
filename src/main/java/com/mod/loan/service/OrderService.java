@@ -59,6 +59,11 @@ public interface OrderService extends BaseService<Order,Long> {
     boolean checkUnfinishOrderByPhone(String phone);
 
     /**
+     * 通过身份证查找用户是否存在未完成的订单
+     */
+    boolean checkUnfinishOrderByCertNo(String certNo);
+
+    /**
      * 根据当前订单状态更新支付成功后订单状态
      * @param status
      * @return

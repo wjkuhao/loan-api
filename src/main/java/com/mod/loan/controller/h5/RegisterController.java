@@ -1,8 +1,11 @@
 package com.mod.loan.controller.h5;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.google.code.kaptcha.impl.DefaultKaptcha;
 import com.mod.loan.common.enums.ResponseEnum;
 import com.mod.loan.common.model.ResultMessage;
+import com.mod.loan.config.Constant;
 import com.mod.loan.config.rabbitmq.RabbitConst;
 import com.mod.loan.config.redis.RedisConst;
 import com.mod.loan.config.redis.RedisMapper;
@@ -35,7 +38,7 @@ import java.util.UUID;
 
 /**
  * 用户注册
- * 
+ *
  * @author wugy 2018年5月3日 下午9:32:05
  */
 @CrossOrigin("*")
@@ -65,6 +68,8 @@ public class RegisterController {
     private MerchantOriginService merchantOriginService;
 	@Autowired
 	private UserRegisterCodeStatService userRegisterCodeStatService;
+	@Autowired
+	private OkHttpReader okHttpReader;
 
 	@RequestMapping(value = "graph_code")
 	public ResultMessage graph_code() throws IOException {
@@ -196,6 +201,18 @@ public class RegisterController {
             if (orderService.checkUnfinishOrderByPhone(phone)) {
                 logger.info("存在进行中的订单，无法注册， phone={}", phone);
                 return new ResultMessage(ResponseEnum.M4000.getCode(), "审核不通过");
+            }
+
+            // 检查是否存在多头借贷
+            String manyHeadQueyUrl = String.format(Constant.MANY_HEAD_QUERY_URL, phone, "");
+            String result = okHttpReader.get(manyHeadQueyUrl, null, null);
+            if (null != result && result.length() > 0) {
+                JSONObject manyHeadJson = JSON.parseObject(result);
+                boolean isManyHead = manyHeadJson.getJSONObject("data").getBoolean("isManyHead");
+                if (isManyHead) {
+                    logger.info("存在多头借贷，无法注册， phone={}", phone);
+                    return new ResultMessage(ResponseEnum.M4000.getCode(), "审核不通过");
+                }
             }
         }
 

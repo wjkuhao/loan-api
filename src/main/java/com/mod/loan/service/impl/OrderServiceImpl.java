@@ -105,16 +105,26 @@ public class OrderServiceImpl  extends BaseServiceImpl<Order,Long> implements Or
     @Override
     public boolean checkUnfinishOrderByPhone(String phone) {
         List<User> users = userService.selectUserByPhone(phone);
-        for (User user : users) {
-            List<Order> orderList = orderMapper.getByUid(user.getId());
-            for (Order order : orderList) {
-                if(order.getStatus() < 40){
-                    return true;
-                }
-            }
-        }
-        return false;
+		return checkUnfinishOrder(users);
     }
+
+	@Override
+	public boolean checkUnfinishOrderByCertNo(String certNo) {
+		List<User> users = userService.selectUserByCertNo(certNo);
+		return checkUnfinishOrder(users);
+	}
+
+	private boolean checkUnfinishOrder(List<User> users) {
+		for (User user : users) {
+			List<Order> orderList = orderMapper.getByUid(user.getId());
+			for (Order order : orderList) {
+				if(order.getStatus() < 40){
+					return true;
+				}
+			}
+		}
+		return false;
+	}
 
 	@Override
 	public int setRepaySuccStatusByCurrStatus(Integer status) {
