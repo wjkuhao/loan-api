@@ -121,13 +121,6 @@ public class OrderApplyController {
         User user = userService.selectByPrimaryKey(uid);
         Blacklist blacklist = blacklistService.getByPhone(user.getUserPhone());
         if (null != blacklist) {
-            // 校验灰名单锁定天数
-            if (1 == blacklist.getType()) {
-                DateTime d1 = new DateTime(new Date());
-                DateTime d2 = new DateTime(blacklist.getInvalidTime());
-                Integer remainDays = Days.daysBetween(d1, d2).getDays() + 1;
-                return new ResultMessage(ResponseEnum.M4000.getCode(), "暂时无法下单，请于" + remainDays + "天后再尝试");
-            }
             // 黑名单
             if (2 == blacklist.getType()) {
                 return new ResultMessage(ResponseEnum.M4000.getCode(), "您不符合下单条件");
@@ -227,6 +220,14 @@ public class OrderApplyController {
         orderPhone.setParamValue(paramValue);
         orderPhone.setPhoneModel(phoneModel + "|" + phoneMemory);
         orderPhone.setPhoneType(phoneType);
+
+        //灰名单客户直接进入人审
+        if (blacklist !=null && 1 == blacklist.getType()){
+            order.setAuditTime(new Date());
+            order.setStatus(OrderEnum.WAIT_AUDIT.getCode());
+            orderService.addOrder(order, orderPhone);
+            return new ResultMessage(ResponseEnum.M2000);
+        }
 
         // 老客户不走风控，直接进入放款列表
         Integer borrowType = orderService.countPaySuccessByUid(uid);
