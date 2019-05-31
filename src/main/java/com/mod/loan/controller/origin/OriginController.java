@@ -32,7 +32,9 @@ public class OriginController {
         try {
             if ("haitun".equals(merchant)) {
                 id = Base64ToMultipartFileUtil.decodeOrigin(id);
-            }else if ("huijie".equals(merchant) || "care".equals(merchant)){
+            } else if ("huijie".equals(merchant)) {
+                id = DesUtil.decryption(id, null);
+            } else {
                 id = DesUtil.decryption(id, null);
             }
 
@@ -41,8 +43,8 @@ public class OriginController {
                 return new ResultMessage(ResponseEnum.M2000, merchantOrigin.getStatus());
             }
             return new ResultMessage(ResponseEnum.M2000, 1); //1表示停用
-        }catch (Exception e){
-            logger.error("origin/status error id={}, merchant={}",id, merchant);
+        } catch (Exception e) {
+            logger.error("origin/status error id={}, merchant={}", id, merchant);
             return new ResultMessage(ResponseEnum.M2000, 1); //1表示停用
         }
 
