@@ -21,6 +21,7 @@ public class CustomerServiceController {
 		telMap.put("dawang","13282833651");
 		telMap.put("huijie","13282833651");
 		telMap.put("haitun","057128064320");
+		telMap.put("care","057128064320");
 	}
 	/**
 	 * 客服信息查询
