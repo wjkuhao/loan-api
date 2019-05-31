@@ -25,7 +25,7 @@
   </select>
 
   <select id="getByPhone"  resultMap="BaseResultMap">
-    select * from tb_blacklist where tel=#{tel} ORDER BY create_time desc limit 1;
+    select * from tb_blacklist where tel=#{tel} ORDER BY type desc, create_time desc limit 1;
   </select>
 
 </mapper>
