@@ -17,9 +17,9 @@ public class CustomerServiceController {
 
 	private HashMap<String, String> telMap= new HashMap<>();
 	{
-		telMap.put("mx","13282833651");
-		telMap.put("dawang","13282833651");
-		telMap.put("huijie","13282833651");
+		telMap.put("mx","13282106125");
+		telMap.put("dawang","13282106125");
+		telMap.put("huijie","13282106125");
 		telMap.put("haitun","057128064320");
 		telMap.put("care","057128064320");
 	}
