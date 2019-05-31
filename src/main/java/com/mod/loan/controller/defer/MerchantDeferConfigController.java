@@ -10,6 +10,7 @@ import com.mod.loan.service.BlacklistService;
 import com.mod.loan.service.MerchantDeferConfigService;
 import com.mod.loan.service.OrderService;
 import com.mod.loan.service.UserService;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -43,7 +44,7 @@ public class MerchantDeferConfigController {
      * @return 4000-不支持 2000-支持
      */
     @GetMapping("/status")
-    public ResultMessage status(@RequestParam String merchant, @RequestParam String orderId) {
+    public ResultMessage status(@RequestParam String merchant, @RequestParam(required = false) String orderId) {
         MerchantDeferConfig condition = new MerchantDeferConfig();
         condition.setMerchant(merchant);
         MerchantDeferConfig merchantDeferConfig = merchantDeferConfigService.selectOne(condition);
@@ -51,12 +52,15 @@ public class MerchantDeferConfigController {
             return new ResultMessage(ResponseEnum.M4000.getCode(), "商户不支持续期");
         }
 
-        Order order = orderService.selectByPrimaryKey(Long.valueOf(orderId));
-        User user = userService.selectByPrimaryKey(order.getUid());
-        Blacklist blacklist = blacklistService.getByPhone(user.getUserPhone());
-        if (blacklist!=null){
-            return new ResultMessage(ResponseEnum.M4000.getCode(), "客户不支持续期");
+        if (StringUtils.isNotEmpty(orderId)){
+            Order order = orderService.selectByPrimaryKey(Long.valueOf(orderId));
+            User user = userService.selectByPrimaryKey(order.getUid());
+            Blacklist blacklist = blacklistService.getByPhone(user.getUserPhone());
+            if (blacklist!=null){
+                return new ResultMessage(ResponseEnum.M4000.getCode(), "客户不支持续期");
+            }
         }
+
         return new ResultMessage(ResponseEnum.M2000, merchantDeferConfig);
     }
 
