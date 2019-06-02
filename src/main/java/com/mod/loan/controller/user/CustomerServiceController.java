@@ -20,7 +20,7 @@ public class CustomerServiceController {
 		telMap.put("mx","13282106125");
 		telMap.put("dawang","13282106125");
 		telMap.put("huijie","13282106125");
-		telMap.put("haitun","057128064320");
+		telMap.put("haitun","16505243279");
 		telMap.put("care","057128064320");
 	}
 	/**
