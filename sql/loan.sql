@@ -294,6 +294,7 @@ CREATE TABLE `tb_manager`  (
   `last_login_ip` varchar(30) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '最后登录IP',
   `account_status` int(2) NOT NULL DEFAULT 0 COMMENT '状态0-正常；1-已停用',
   `account_type` int(2) NOT NULL DEFAULT 0 COMMENT '类型0-公司员工；',
+  `user_security` tinyint(1) NOT NULL DEFAULT 1 COMMENT '安全验证: 0-不安全 1-安全，默认1',
   PRIMARY KEY (`id`) USING BTREE
 ) ENGINE = InnoDB  CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '后台登录帐号' ROW_FORMAT = Dynamic;
 
