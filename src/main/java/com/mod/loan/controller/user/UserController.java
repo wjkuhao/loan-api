@@ -28,10 +28,13 @@ import com.mod.loan.util.sms.EnumSmsTemplate;
 import com.mod.loan.util.sms.SmsMessage;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.imageio.ImageIO;
@@ -47,6 +50,8 @@ import java.util.Map;
 @RestController
 @RequestMapping(value = "user")
 public class UserController {
+    private static Logger logger = LoggerFactory.getLogger(UserController.class);
+
 
     @Autowired
     private DefaultKaptcha defaultKaptcha;
@@ -354,6 +359,31 @@ public class UserController {
         resJson.put("isManyHead", isManyHead);
 
         return new ResultMessage(ResponseEnum.M2000, resJson);
+    }
+
+    /**
+     * 点击PV、UV统计
+     *
+     * @param userId        用户id
+     * @param merchant      商户名称
+     * @param loanMarketUrl 贷超链接
+     * @return
+     * @author NIELIN 20190604
+     */
+    @LoginRequired
+    @RequestMapping(value = "PVTotal")
+    public ResultMessage pvTotal(@RequestParam("loanMarketUrl") String loanMarketUrl) {
+        logger.info("#[点击PV、UV统计]-[开始]-loanMarketUrl={}", loanMarketUrl);
+        Long userId = RequestThread.getUid();
+        String merchant = RequestThread.getClientAlias();
+        try {
+            userService.pvTotal(userId, merchant, loanMarketUrl);
+            logger.info("#[点击PV、UV统计]-[结束]");
+            return new ResultMessage(ResponseEnum.M2000);
+        } catch (Exception e) {
+            logger.error("#[点击PV、UV统计]-[异常]-e={}", e);
+            return new ResultMessage(ResponseEnum.M4000);
+        }
     }
 
 }

@@ -37,4 +37,8 @@ public interface RedisConst {
 
 	String lock_user_product_order = "lock_user_product_order:";
 	String lock_user_product_order_pay = "lock_user_product_order_pay:";
+    /**
+     * 点击PV、UV统计时判断是否同一个当天点击过
+     */
+    String DAY4USER = "PVTotal";
 }

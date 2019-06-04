@@ -50,4 +50,15 @@ public interface UserService extends BaseService< User,Long>{
 	 */
 	List<User> selectUserByPhone(String phone);
 
+	/**
+	 * 点击PV、UV统计
+	 *
+	 * @param userId        用户id
+	 * @param merchant      商户名称
+	 * @param loanMarketUrl 贷超链接
+	 * @return
+	 * @author NIELIN 20190604
+	 */
+	void pvTotal(Long userId, String merchant, String loanMarketUrl) throws Exception;
+
 }

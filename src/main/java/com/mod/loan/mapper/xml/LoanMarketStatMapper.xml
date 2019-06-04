@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mod.loan.mapper.LoanMarketStatMapper">
+    <resultMap id="BaseResultMap" type="com.mod.loan.model.LoanMarketStat">
+        <id column="id" jdbcType="BIGINT" property="id"/>
+        <result column="merchant" jdbcType="VARCHAR" property="merchant"/>
+        <result column="loan_market_url" jdbcType="VARCHAR" property="loanMarketUrl"/>
+        <result column="loan_market_pv" jdbcType="TINYINT" property="loanMarketPv"/>
+        <result column="loan_market_uv" jdbcType="TINYINT" property="loanMarketUv"/>
+        <result column="stat_date" jdbcType="CHAR" property="statDate"/>
+        <result column="update_time" jdbcType="CHAR" property="updateTime"/>
+    </resultMap>
+</mapper>

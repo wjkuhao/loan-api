@@ -3,9 +3,12 @@ package com.mod.loan.service.impl;
 import com.alibaba.fastjson.JSONObject;
 import com.mod.loan.common.mapper.BaseServiceImpl;
 import com.mod.loan.config.Constant;
+import com.mod.loan.config.redis.RedisConst;
+import com.mod.loan.config.redis.RedisMapper;
 import com.mod.loan.mapper.*;
 import com.mod.loan.model.*;
 import com.mod.loan.service.UserService;
+import com.mod.loan.util.TimeUtils;
 import com.mod.loan.util.aliyun.OSSUtil;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -20,6 +23,7 @@ import java.util.List;
 public class UserServiceImpl  extends BaseServiceImpl< User,Long> implements UserService{
 
 	private static Logger log = LoggerFactory.getLogger(UserServiceImpl.class);
+
 	@Autowired
 	UserMapper userMapper;
 	@Autowired
@@ -30,6 +34,11 @@ public class UserServiceImpl  extends BaseServiceImpl< User,Long> implements Use
 	UserInfoMapper userInfoMapper;
 	@Autowired
 	UserBankMapper userBankMapper;
+	@Autowired
+	LoanMarketStatMapper loanMarketStatMapper;
+	@Autowired
+	RedisMapper redisMapper;
+
 	@Override
 	public User selectUserByPhone(String userPhone,String merchant) {
 		// TODO Auto-generated method stub
@@ -172,5 +181,37 @@ public class UserServiceImpl  extends BaseServiceImpl< User,Long> implements Use
 	@Override
 	public List<User> selectUserByPhone(String phone) {
 		return userMapper.selectAllByPhone(phone);
+	}
+
+	@Override
+	public void pvTotal(Long userId, String merchant, String loanMarketUrl) throws Exception {
+		if (null == userId || StringUtils.isEmpty(merchant)) {
+			throw new Exception("参数为空");
+		}
+		LoanMarketStat loanMarketStat = new LoanMarketStat();
+		loanMarketStat.setMerchant(merchant);
+		loanMarketStat.setStatDate(TimeUtils.parseTime(new Date(), TimeUtils.dateformat2));
+		//查询今天改商品的点击统计记录
+		LoanMarketStat loanMarketStat4Query = loanMarketStatMapper.selectOne(loanMarketStat);
+		log.info("#[查询今天改商品的点击统计记录]-loanMarketStat4Query={}", JSONObject.toJSON(loanMarketStat4Query));
+		loanMarketStat.setLoanMarketUrl(loanMarketUrl);
+		loanMarketStat.setUpdateTime(TimeUtils.parseTime(new Date(), TimeUtils.dateformat1));
+		if (null == loanMarketStat4Query) {
+			loanMarketStat.setLoanMarketPv(1);
+			loanMarketStat.setLoanMarketUv(1);
+			loanMarketStatMapper.insertSelective(loanMarketStat);
+		} else {
+			loanMarketStat.setId(loanMarketStat4Query.getId());
+			loanMarketStat.setLoanMarketPv(null == loanMarketStat4Query.getLoanMarketPv() ? 1 : loanMarketStat4Query.getLoanMarketPv() + 1);
+			//同一个人只算一次
+			String userId4Redis = redisMapper.get(RedisConst.DAY4USER + userId);
+			if (StringUtils.isEmpty(userId4Redis)) {
+				redisMapper.set(RedisConst.DAY4USER + userId, userId, 24 * 60 * 60);
+				loanMarketStat.setLoanMarketUv((null == loanMarketStat4Query.getLoanMarketUv() ? 1 : loanMarketStat4Query.getLoanMarketUv() + 1));
+			} else {
+				loanMarketStat.setLoanMarketUv((null == loanMarketStat4Query.getLoanMarketUv() ? 1 : loanMarketStat4Query.getLoanMarketUv()));
+			}
+			loanMarketStatMapper.updateByPrimaryKey(loanMarketStat);
+		}
 	}
 }
