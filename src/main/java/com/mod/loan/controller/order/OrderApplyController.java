@@ -222,7 +222,7 @@ public class OrderApplyController {
         orderPhone.setPhoneType(phoneType);
 
         //灰名单客户直接进入人审
-        if (blacklist !=null && 1 == blacklist.getType()){
+        if (blacklist != null && 1 == blacklist.getType()) {
             order.setAuditTime(new Date());
             order.setStatus(OrderEnum.WAIT_AUDIT.getCode());
             orderService.addOrder(order, orderPhone);
@@ -246,6 +246,20 @@ public class OrderApplyController {
         rabbitTemplate.convertAndSend(RabbitConst.queue_risk_order_notify, jsonObject);
 
         return new ResultMessage(ResponseEnum.M2000);
+    }
+
+    @LoginRequired
+    @RequestMapping("/auto_apply_order")
+    public ResultMessage autoApplyOrder() {
+        String merchantAlias = RequestThread.getClientAlias();
+        MerchantConfig merchantConfig = merchantConfigService.selectByMerchant(merchantAlias);
+        int status = 1;
+        if (null != merchantConfig && null != merchantConfig.getAutoApplyOrder()) {
+            status = merchantConfig.getAutoApplyOrder();
+        }
+        JSONObject data = new JSONObject();
+        data.put("status", status);
+        return new ResultMessage(ResponseEnum.M2000, data);
     }
 
 }
