@@ -1288,7 +1288,7 @@ CREATE TABLE `report_recycle_repay_stat`  (
 
 -- uv/pv
 DROP TABLE IF EXISTS `tb_loan_market_stat`;
-CREATE TABLE `tb_merchant_resource`  (
+CREATE TABLE `tb_loan_market_stat`  (
   `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键',
   `merchant` VARCHAR(50) DEFAULT NULL COMMENT '商户名称',
   `loan_market_url` VARCHAR(255) DEFAULT NULL COMMENT '贷超链接',
