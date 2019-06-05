@@ -59,6 +59,6 @@ public interface UserService extends BaseService< User,Long>{
 	 * @return
 	 * @author NIELIN 20190604
 	 */
-	void pvTotal(Long userId, String merchant, String loanMarketUrl) throws Exception;
+    void pvTotal(Long userId, String merchant, String loanMarketUrl);
 
 }

@@ -10,4 +10,15 @@
         <result column="stat_date" jdbcType="CHAR" property="statDate"/>
         <result column="update_time" jdbcType="CHAR" property="updateTime"/>
     </resultMap>
+
+    <!-- 更新PV\UV统计 -->
+    <update id="updateLoanMarketStatById">
+       update tb_loan_market_stat set loan_market_pv = (#{loanMarketPv}+1),loan_market_uv = (#{loanMarketUv}+1),,loan_market_url = #{loanMarketUrl},update_time = #{updateTime} where id = #{id};
+    </update>
+
+    <!-- 更新PV统计 -->
+    <update id="updatePvTotalById">
+       update tb_loan_market_stat set loan_market_pv = (#{loanMarketPv}+1),loan_market_url = #{loanMarketUrl},update_time = #{updateTime} where id = #{id};
+    </update>
+
 </mapper>

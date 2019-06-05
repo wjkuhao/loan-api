@@ -184,9 +184,10 @@ public class UserServiceImpl  extends BaseServiceImpl< User,Long> implements Use
 	}
 
 	@Override
-	public void pvTotal(Long userId, String merchant, String loanMarketUrl) throws Exception {
+	public void pvTotal(Long userId, String merchant, String loanMarketUrl) {
 		if (null == userId || StringUtils.isEmpty(merchant)) {
-			throw new Exception("参数为空");
+			log.info("参数为空");
+			throw new RuntimeException("参数为空");
 		}
 		LoanMarketStat loanMarketStat = new LoanMarketStat();
 		loanMarketStat.setMerchant(merchant);
@@ -194,24 +195,23 @@ public class UserServiceImpl  extends BaseServiceImpl< User,Long> implements Use
 		//查询今天改商品的点击统计记录
 		LoanMarketStat loanMarketStat4Query = loanMarketStatMapper.selectOne(loanMarketStat);
 		log.info("#[查询今天改商品的点击统计记录]-loanMarketStat4Query={}", JSONObject.toJSON(loanMarketStat4Query));
-		loanMarketStat.setLoanMarketUrl(loanMarketUrl);
-		loanMarketStat.setUpdateTime(TimeUtils.parseTime(new Date(), TimeUtils.dateformat1));
 		if (null == loanMarketStat4Query) {
+			loanMarketStat.setLoanMarketUrl(loanMarketUrl);
+			loanMarketStat.setUpdateTime(TimeUtils.parseTime(new Date(), TimeUtils.dateformat1));
 			loanMarketStat.setLoanMarketPv(1);
 			loanMarketStat.setLoanMarketUv(1);
 			loanMarketStatMapper.insertSelective(loanMarketStat);
 		} else {
-			loanMarketStat.setId(loanMarketStat4Query.getId());
-			loanMarketStat.setLoanMarketPv(null == loanMarketStat4Query.getLoanMarketPv() ? 1 : loanMarketStat4Query.getLoanMarketPv() + 1);
+			loanMarketStat4Query.setLoanMarketUrl(loanMarketUrl);
+			loanMarketStat4Query.setUpdateTime(TimeUtils.parseTime(new Date(), TimeUtils.dateformat1));
 			//同一个人只算一次
-			String userId4Redis = redisMapper.get(RedisConst.DAY4USER + userId);
+			String userId4Redis = redisMapper.get(RedisConst.PV_UV_Total + userId);
 			if (StringUtils.isEmpty(userId4Redis)) {
-				redisMapper.set(RedisConst.DAY4USER + userId, userId, 24 * 60 * 60);
-				loanMarketStat.setLoanMarketUv((null == loanMarketStat4Query.getLoanMarketUv() ? 1 : loanMarketStat4Query.getLoanMarketUv() + 1));
+				redisMapper.set(RedisConst.PV_UV_Total + userId, userId, 24 * 60 * 60);
+				loanMarketStatMapper.updateLoanMarketStatById(loanMarketStat4Query);
 			} else {
-				loanMarketStat.setLoanMarketUv((null == loanMarketStat4Query.getLoanMarketUv() ? 1 : loanMarketStat4Query.getLoanMarketUv()));
+				loanMarketStatMapper.updatePvTotalById(loanMarketStat4Query);
 			}
-			loanMarketStatMapper.updateByPrimaryKey(loanMarketStat);
 		}
 	}
 }

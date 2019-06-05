@@ -40,5 +40,5 @@ public interface RedisConst {
     /**
      * 点击PV、UV统计时判断是否同一个当天点击过
      */
-    String DAY4USER = "PVTotal";
+    String PV_UV_Total = "PVTotal:";
 }

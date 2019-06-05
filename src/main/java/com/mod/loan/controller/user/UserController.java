@@ -376,14 +376,9 @@ public class UserController {
         logger.info("#[点击PV、UV统计]-[开始]-loanMarketUrl={}", loanMarketUrl);
         Long userId = RequestThread.getUid();
         String merchant = RequestThread.getClientAlias();
-        try {
-            userService.pvTotal(userId, merchant, loanMarketUrl);
-            logger.info("#[点击PV、UV统计]-[结束]");
-            return new ResultMessage(ResponseEnum.M2000);
-        } catch (Exception e) {
-            logger.error("#[点击PV、UV统计]-[异常]-e={}", e);
-            return new ResultMessage(ResponseEnum.M4000);
-        }
+        userService.pvTotal(userId, merchant, loanMarketUrl);
+        logger.info("#[点击PV、UV统计]-[结束]");
+        return new ResultMessage(ResponseEnum.M2000);
     }
 
 }
