@@ -47,8 +47,7 @@ public class FuyouRepayController {
 	UserBankService userBankService;
 	@Autowired
 	MerchantService merchantService;
-	@Autowired
-	ReportRecycleRepayStatService reportRecycleRepayStatService;
+
 	/**
 	 * 查询商户支持的支付通道
 	 */
@@ -224,8 +223,6 @@ public class FuyouRepayController {
 		orderRepay1.setUpdateTime(new Date());
 		orderRepay1.setRepayStatus(3);
 		orderRepayService.updateOrderRepayInfo(orderRepay1, order1);
-		reportRecycleRepayStatService.sendRecycleToMQ(order.getRecycleDate(), order.getFollowUserId());
-		return;
 	}
 
 }

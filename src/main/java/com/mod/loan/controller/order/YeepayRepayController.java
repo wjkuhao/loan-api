@@ -43,20 +43,18 @@ public class YeepayRepayController {
     private final RedisMapper redisMapper;
     private final MerchantService merchantService;
     private final UserService userService;
-    private final ReportRecycleRepayStatService reportRecycleRepayStatService;
 
     @Value("${yeepay.callback.url:}")
     String yeepay_callback_url;
 
     @Autowired
-    public YeepayRepayController(OrderService orderService, OrderRepayService orderRepayService, YeepayService yeepayService, RedisMapper redisMapper, MerchantService merchantService, UserService userService, ReportRecycleRepayStatService reportRecycleRepayStatService) {
+    public YeepayRepayController(OrderService orderService, OrderRepayService orderRepayService, YeepayService yeepayService, RedisMapper redisMapper, MerchantService merchantService, UserService userService ) {
         this.orderService = orderService;
         this.orderRepayService = orderRepayService;
         this.yeepayService = yeepayService;
         this.redisMapper = redisMapper;
         this.merchantService = merchantService;
         this.userService = userService;
-        this.reportRecycleRepayStatService = reportRecycleRepayStatService;
     }
 
     @LoginRequired
@@ -197,7 +195,6 @@ public class YeepayRepayController {
             if (StringUtils.isEmpty(callbackErr)){
                 Order order = orderService.selectByPrimaryKey(orderRepay.getOrderId());
                 orderRepayService.repaySuccess(orderRepay, order);
-                reportRecycleRepayStatService.sendRecycleToMQ(order.getRecycleDate(), order.getFollowUserId());
             }else {
                orderRepayService.repayFailed(orderRepay, callbackErr);
             }
