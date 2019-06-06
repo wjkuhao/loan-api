@@ -182,7 +182,7 @@ public class OrderDeferController {
         StringBuffer repayNo = new StringBuffer();
         String callbackErr = null;
         try {
-            callbackErr = yeepayService.repayCallbackMultiAcct(DesUtil.encryption(merchant.getYeepay_repay_private_key()), responseMsg, repayNo);
+            callbackErr = yeepayService.repayCallbackMultiAcct(DesUtil.decryption(merchant.getYeepay_repay_private_key()), responseMsg, repayNo);
         } catch (Exception e) {
             logger.error("易宝异步通知:异常uid={}, e={}",param, e);
         }

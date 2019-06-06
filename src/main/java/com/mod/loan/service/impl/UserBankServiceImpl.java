@@ -534,7 +534,7 @@ public class UserBankServiceImpl extends BaseServiceImpl<UserBank, Long> impleme
 		Merchant merchant = merchantService.findMerchantByAlias(user.getMerchant());
         String err;
         try {
-            err = yeepayService.authBindCardConfirm(DesUtil.encryption(merchant.getYeepay_repay_appkey()), DesUtil.encryption(merchant.getYeepay_repay_private_key()), validateCodeVo.getP4_orderId(), validateCode);
+            err = yeepayService.authBindCardConfirm(DesUtil.decryption(merchant.getYeepay_repay_appkey()), DesUtil.decryption(merchant.getYeepay_repay_private_key()), validateCodeVo.getP4_orderId(), validateCode);
         } catch (Exception e) {
             log.error("易宝绑卡确认异常uid={}, error={}", uid, e);
             err="bindYeepaySms Exception";
