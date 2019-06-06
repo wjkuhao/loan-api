@@ -1285,3 +1285,18 @@ CREATE TABLE `report_recycle_repay_stat`  (
   UNIQUE KEY  `idx_date`(`recycle_date`, recycled_id ) USING BTREE
 ) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
 
+
+-- uv/pv
+DROP TABLE IF EXISTS `tb_loan_market_stat`;
+CREATE TABLE `tb_loan_market_stat`  (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键',
+  `merchant` VARCHAR(50) DEFAULT NULL COMMENT '商户名称',
+  `loan_market_url` VARCHAR(255) DEFAULT NULL COMMENT '贷超链接',
+  `loan_market_pv` int(11) DEFAULT 0 COMMENT 'pv',
+  `loan_market_uv` int(11) DEFAULT 0 COMMENT 'uv',
+  `stat_date` char(10) default NULL COMMENT '统计日期: yyyy-MM-dd',
+  `update_time` char(19) default null COMMENT '更新时: yyyy-MM-dd HH:mm:ss',
+  PRIMARY KEY (`id`) USING BTREE,
+  INDEX `idx_merchant_stats_date`(`merchant`, stat_date) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
+

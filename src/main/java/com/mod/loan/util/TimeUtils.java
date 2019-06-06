@@ -15,6 +15,8 @@ public class TimeUtils {
 	public final static String dateformat4 = "yyyyMMdd";
 	public final static String dateformat5 = "yyyyMMddHHmmss";
 	public final static String dateformat6 = "yyyyMMddHHmmssSSS";
+	public final static String dateformat7 = "HHmm";
+	public final static String dateformat8 = "HHmmss";
 
 	private TimeUtils() {
 		throw new Error("can't instance this tool class");
@@ -94,7 +96,5 @@ public class TimeUtils {
 		}
 		return d;
 	}
-
-
 
 }
