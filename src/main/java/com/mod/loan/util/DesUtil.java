@@ -25,6 +25,9 @@ public class DesUtil {
         Cipher cipher = null;
         try {
             cipher = Cipher.getInstance(DES_ALGORITHM);
+            if (secretKey==null){
+                secretKey = DEFAULT_KEY;
+            }
             cipher.init(Cipher.ENCRYPT_MODE, generateKey(secretKey));
 
         } catch (NoSuchAlgorithmException | NoSuchPaddingException e) {
@@ -51,6 +54,13 @@ public class DesUtil {
 
     }
 
+    public static String encryption(String plainData) throws Exception {
+        return encryption(plainData, null);
+    }
+
+    public static String decryption(String plainData) throws Exception {
+        return decryption(plainData, null);
+    }
 
     /**
      * DES解密
@@ -59,6 +69,7 @@ public class DesUtil {
      * @return 原始字符串
      */
     public static String decryption(String secretData, String secretKey) throws Exception {
+
         Cipher cipher;
         try {
             cipher = Cipher.getInstance(DES_ALGORITHM);

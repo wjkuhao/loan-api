@@ -13,6 +13,7 @@ import com.mod.loan.model.Order;
 import com.mod.loan.model.OrderRepay;
 import com.mod.loan.model.UserBank;
 import com.mod.loan.service.*;
+import com.mod.loan.util.DesUtil;
 import com.mod.loan.util.StringUtil;
 import com.mod.loan.util.TimeUtils;
 import com.mod.loan.util.heli.HttpClientService;
@@ -88,7 +89,7 @@ public class OrderRepayServiceImpl extends BaseServiceImpl<OrderRepay, String> i
                 Merchant merchant = merchantService.findMerchantByAlias(order.getMerchant());
                 UserBank userBank = userBankService.selectUserCurrentBankCard(order.getUid());
 
-                String err = yeepayService.payRequest(merchant.getYeepay_repay_appkey(), merchant.getYeepay_repay_private_key(),
+                String err = yeepayService.payRequest(DesUtil.decryption(merchant.getYeepay_repay_appkey()), DesUtil.decryption(merchant.getYeepay_repay_private_key()),
                         repayNo, String.valueOf(order.getUid()), userBank.getCardNo(), amount, false, yeepay_callback_url);
 
                 // 还款记录表
@@ -212,7 +213,13 @@ public class OrderRepayServiceImpl extends BaseServiceImpl<OrderRepay, String> i
     @Override
     public String yeepayRepayQuery(String repayNo, String merchantAlias) {
         Merchant merchant = merchantService.findMerchantByAlias(merchantAlias);
-        return yeepayService.repayQuery(merchant.getYeepay_repay_appkey(), merchant.getYeepay_repay_private_key(), repayNo, null);
+        String errMsg = null;
+        try {
+            errMsg = yeepayService.repayQuery(DesUtil.decryption(merchant.getYeepay_repay_appkey()), DesUtil.decryption(merchant.getYeepay_repay_private_key()), repayNo, null);
+        }catch (Exception e){
+            logger.error("易宝还款查询异常，repayNo={}, error={}",repayNo, e);
+        }
+        return errMsg;
     }
 
     @Override

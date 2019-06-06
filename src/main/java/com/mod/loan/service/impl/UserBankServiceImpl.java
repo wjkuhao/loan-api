@@ -20,10 +20,7 @@ import com.mod.loan.service.MerchantService;
 import com.mod.loan.service.UserBankService;
 import com.mod.loan.service.UserService;
 import com.mod.loan.service.YeepayService;
-import com.mod.loan.util.HttpUtils;
-import com.mod.loan.util.MD5;
-import com.mod.loan.util.StringUtil;
-import com.mod.loan.util.TimeUtils;
+import com.mod.loan.util.*;
 import com.mod.loan.util.fuyou.util.XMapUtil;
 import com.mod.loan.util.fuyou.vo.FuyouBindVo;
 import com.mod.loan.util.fuyou.vo.FuyouSmsVo;
@@ -499,9 +496,16 @@ public class UserBankServiceImpl extends BaseServiceImpl<UserBank, Long> impleme
 
 		Merchant merchant = merchantService.findMerchantByAlias(user.getMerchant());
 		String seriesNo = StringUtil.getOrderNumber("c");
-        String err = yeepayService.authBindCardRequest(merchant.getYeepay_repay_appkey(), merchant.getYeepay_repay_private_key(),
-				seriesNo, String.valueOf(uid), cardNo, user.getUserCertNo(), user.getUserName(), cardPhone);
-        if (StringUtils.isNotEmpty(err)){
+		String err;
+		try {
+			err = yeepayService.authBindCardRequest(DesUtil.decryption(merchant.getYeepay_repay_appkey()), DesUtil.decryption(merchant.getYeepay_repay_private_key()),
+					seriesNo, String.valueOf(uid), cardNo, user.getUserCertNo(), user.getUserName(), cardPhone);
+		} catch (Exception e) {
+            log.error("易宝绑卡异常uid={}, error={}", uid, e);
+            err="authBindCardRequest Exception";
+		}
+
+		if (StringUtils.isNotEmpty(err)){
             return new ResultMessage(ResponseEnum.M4000.getCode(),err);
         }
 
@@ -528,7 +532,14 @@ public class UserBankServiceImpl extends BaseServiceImpl<UserBank, Long> impleme
 		}
 
 		Merchant merchant = merchantService.findMerchantByAlias(user.getMerchant());
-		String err = yeepayService.authBindCardConfirm(merchant.getYeepay_repay_appkey(), merchant.getYeepay_repay_private_key(), validateCodeVo.getP4_orderId(), validateCode);
+        String err;
+        try {
+            err = yeepayService.authBindCardConfirm(DesUtil.encryption(merchant.getYeepay_repay_appkey()), DesUtil.encryption(merchant.getYeepay_repay_private_key()), validateCodeVo.getP4_orderId(), validateCode);
+        } catch (Exception e) {
+            log.error("易宝绑卡确认异常uid={}, error={}", uid, e);
+            err="bindYeepaySms Exception";
+        }
+
         if (err!=null){
             return new ResultMessage(ResponseEnum.M4000, err);
         }
