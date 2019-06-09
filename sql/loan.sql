@@ -1101,6 +1101,7 @@ CREATE TABLE `tb_order_risk_info`  (
   `user_phone`  varchar(20) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '用户手机',
   `user_name`   varchar(30) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT ' 用户姓名',
   `user_cert_no` varchar(20) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT ' 身份证号',
+  `risk_model_score` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '天机、拍拍、天御模型分数JSON串',
   `create_time` char(19) DEFAULT NULL COMMENT '创建时间',
   `update_time` char(19) DEFAULT NULL COMMENT '更新时间',
   PRIMARY KEY (`id`) USING BTREE,
@@ -1245,6 +1246,7 @@ CREATE TABLE `tb_order_defer`  (
   PRIMARY KEY (`id`) USING BTREE,
   INDEX `idx_order_id`(`order_id`) USING BTREE,
   INDEX `idx_pay_no`(`pay_no`) USING BTREE,
+  INDEX `idx_uid`(`uid`) USING BTREE,
   INDEX `idx_pay_time`(`pay_time`) USING BTREE
 ) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
 
@@ -1299,4 +1301,22 @@ CREATE TABLE `tb_loan_market_stat`  (
   PRIMARY KEY (`id`) USING BTREE,
   INDEX `idx_merchant_stats_date`(`merchant`, stat_date) USING BTREE
 ) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
+
+
+-- uv/pv
+DROP TABLE IF EXISTS `tb_merchant_quota_config`;
+CREATE TABLE `tb_merchant_rate`  (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `quota_name` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '额度名称',
+  `quota_value` int(11) NOT NULL COMMENT '提升额度，可以为负数',
+  `comparator` varchar(11) DEFAULT NULL COMMENT '字段比较符: eq/gt/lt/gte/lte/range/in/exists',
+  `preset_value` varchar(128) DEFAULT NULL COMMENT '预设值: 后台配置',
+  `merchant` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '商户别名',
+  `quota_type` tinyint(4) NULL  COMMENT '1-天机分，2-展期次数',
+  `status` tinyint(4) NULL DEFAULT 1 COMMENT '1-启用, 0-停用',
+  `create_time` datetime(0) NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `update_time` datetime(0) NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP(0) COMMENT '修改时间',
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE = InnoDB  CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '商户提额配置表' ROW_FORMAT = Dynamic;
+
 
