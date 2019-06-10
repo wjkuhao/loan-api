@@ -57,8 +57,6 @@ public class KuaiqianServiceImpl implements KuaiqianService {
     @Autowired
     MerchantService merchantService;
     @Autowired
-    ReportRecycleRepayStatService reportRecycleRepayStatService;
-    @Autowired
     private RedisMapper redisMapper;
     @Autowired
     private RabbitTemplate rabbitTemplate;
@@ -175,7 +173,6 @@ public class KuaiqianServiceImpl implements KuaiqianService {
             order1.setHadRepay(amount);
             order1.setStatus(orderService.setRepaySuccStatusByCurrStatus(order.getStatus()));
             orderRepayService.updateOrderRepayInfo(orderRepay1, order1);
-            reportRecycleRepayStatService.sendRecycleToMQ(order.getRecycleDate(), order.getFollowUserId());
             //成功返回订单号，便于查看详情
             return new ResultMessage(ResponseEnum.M2000, order.getId());
             //订单已创建，受理中
@@ -271,7 +268,6 @@ public class KuaiqianServiceImpl implements KuaiqianService {
             order1.setHadRepay(new BigDecimal(MapUtils.getString(respMap, "amount")));
             order1.setStatus(orderService.setRepaySuccStatusByCurrStatus(order.getStatus()));
             orderRepayService.updateOrderRepayInfo(orderRepay1, order1);
-            reportRecycleRepayStatService.sendRecycleToMQ(order.getRecycleDate(), order.getFollowUserId());
             //成功返回订单号，便于查看详情
             return new ResultMessage(ResponseEnum.M2000, order.getId());
         } else if ("C0".equals(MapUtils.getString(respMap, "responseCode"))
