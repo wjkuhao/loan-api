@@ -106,7 +106,7 @@ public class Constant {
     }
 
     @Value("${oss.static.bucket.name:}")
-    public static void setOSS_STATIC_BUCKET_NAME(String oSS_STATIC_BUCKET_NAME) {
+    public void setOSS_STATIC_BUCKET_NAME(String oSS_STATIC_BUCKET_NAME) {
         OSS_STATIC_BUCKET_NAME = oSS_STATIC_BUCKET_NAME;
     }
 
