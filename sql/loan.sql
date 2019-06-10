@@ -1139,7 +1139,7 @@ CREATE TABLE `tb_user_deduction`  (
   INDEX `idx_user_origin`(`user_origin`) USING BTREE,
   INDEX `idx_merchant`(`merchant`) USING BTREE,
   INDEX `idx_create_time`(`create_time`) USING BTREE
-) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '扣量用户' ROW_FORMAT = Dynamic;;
+) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '扣量用户' ROW_FORMAT = Dynamic;
 
 
 DROP TABLE IF EXISTS `report_register_order_deduction`;
@@ -1303,9 +1303,9 @@ CREATE TABLE `tb_loan_market_stat`  (
 ) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
 
 
--- uv/pv
+-- tb_merchant_quota_config
 DROP TABLE IF EXISTS `tb_merchant_quota_config`;
-CREATE TABLE `tb_merchant_rate`  (
+CREATE TABLE `tb_merchant_quota_config`  (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `quota_name` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '额度名称',
   `quota_value` int(11) NOT NULL COMMENT '提升额度，可以为负数',
