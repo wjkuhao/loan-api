@@ -14,6 +14,7 @@ import com.mod.loan.model.OrderRepay;
 import com.mod.loan.model.User;
 import com.mod.loan.service.*;
 import com.mod.loan.util.CheckUtils;
+import com.mod.loan.util.DesUtil;
 import com.mod.loan.util.StringUtil;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
@@ -42,20 +43,18 @@ public class YeepayRepayController {
     private final RedisMapper redisMapper;
     private final MerchantService merchantService;
     private final UserService userService;
-    private final ReportRecycleRepayStatService reportRecycleRepayStatService;
 
     @Value("${yeepay.callback.url:}")
     String yeepay_callback_url;
 
     @Autowired
-    public YeepayRepayController(OrderService orderService, OrderRepayService orderRepayService, YeepayService yeepayService, RedisMapper redisMapper, MerchantService merchantService, UserService userService, ReportRecycleRepayStatService reportRecycleRepayStatService) {
+    public YeepayRepayController(OrderService orderService, OrderRepayService orderRepayService, YeepayService yeepayService, RedisMapper redisMapper, MerchantService merchantService, UserService userService ) {
         this.orderService = orderService;
         this.orderRepayService = orderRepayService;
         this.yeepayService = yeepayService;
         this.redisMapper = redisMapper;
         this.merchantService = merchantService;
         this.userService = userService;
-        this.reportRecycleRepayStatService = reportRecycleRepayStatService;
     }
 
     @LoginRequired
@@ -80,7 +79,8 @@ public class YeepayRepayController {
                 String alias = RequestThread.getClientAlias();
                 Merchant merchant = merchantService.findMerchantByAlias(alias);
 
-                String err = yeepayService.payRequest(merchant.getYeepay_repay_appkey(), merchant.getYeepay_repay_private_key(), repayNo, String.valueOf(uid), cardNo, amount, true, yeepay_callback_url);
+                String err = yeepayService.payRequest(DesUtil.decryption(merchant.getYeepay_repay_appkey()), DesUtil.decryption(merchant.getYeepay_repay_private_key()),
+                        repayNo, String.valueOf(uid), cardNo, amount, true, yeepay_callback_url);
                 if(StringUtils.isNotEmpty(err)){
                     return new ResultMessage(ResponseEnum.M4000, err);
                 }
@@ -145,7 +145,7 @@ public class YeepayRepayController {
 
             String alias = RequestThread.getClientAlias();
             Merchant merchant = merchantService.findMerchantByAlias(alias);
-            String err = yeepayService.payConfirm(merchant.getYeepay_repay_appkey(), merchant.getYeepay_repay_private_key(), repayNo, validateCode);
+            String err = yeepayService.payConfirm(DesUtil.decryption(merchant.getYeepay_repay_appkey()), DesUtil.decryption(merchant.getYeepay_repay_private_key()), repayNo, validateCode);
             if (StringUtils.isNotEmpty(err)) {
                 orderRepayUpd.setRepayStatus(OrderRepayStatusEnum.ACCEPT_FAILED.getCode());
                 orderRepayUpd.setRemark("易宝支付失败:" + err);
@@ -180,24 +180,26 @@ public class YeepayRepayController {
         User user = userService.selectByPrimaryKey(uid);
         Merchant merchant = merchantService.findMerchantByAlias(user.getMerchant());
 
-        StringBuffer repayNo = new StringBuffer();
-        String callbackErr = yeepayService.repayCallbackMultiAcct(merchant.getYeepay_repay_private_key(), responseMsg, repayNo);
-        logger.info("易宝异步通知:param={},callbackErr={},repayNo={}",param, callbackErr, repayNo);
+        try {
+            StringBuffer repayNo = new StringBuffer();
+            String callbackErr = yeepayService.repayCallbackMultiAcct(DesUtil.decryption(merchant.getYeepay_repay_private_key()), responseMsg, repayNo);
+            logger.info("易宝异步通知:param={},callbackErr={},repayNo={}", param, callbackErr, repayNo);
+           //设置OrderRepay
+            OrderRepay orderRepay = orderRepayService.selectByPrimaryKey(repayNo.toString());
+            //对应的订单不存在 或者 可能已经线下还款
+            if (orderRepay==null||orderRepay.getRepayStatus().equals(OrderRepayStatusEnum.REPAY_SUCCESS.getCode())) {
+                logger.info("易宝异步通知:param={}订单已还款",param);
+                return "SUCCESS"; //收到通知 固定格式
+            }
 
-        //设置OrderRepay
-        OrderRepay orderRepay = orderRepayService.selectByPrimaryKey(repayNo.toString());
-        //对应的订单不存在 或者 可能已经线下还款
-        if (orderRepay==null||orderRepay.getRepayStatus().equals(OrderRepayStatusEnum.REPAY_SUCCESS.getCode())) {
-            logger.info("易宝异步通知:param={}订单已还款",param);
-            return "SUCCESS"; //收到通知 固定格式
-        }
-
-        if (StringUtils.isEmpty(callbackErr)){
-            Order order = orderService.selectByPrimaryKey(orderRepay.getOrderId());
-            orderRepayService.repaySuccess(orderRepay, order);
-            reportRecycleRepayStatService.sendRecycleToMQ(order.getRecycleDate(), order.getFollowUserId());
-        }else {
-           orderRepayService.repayFailed(orderRepay, callbackErr);
+            if (StringUtils.isEmpty(callbackErr)){
+                Order order = orderService.selectByPrimaryKey(orderRepay.getOrderId());
+                orderRepayService.repaySuccess(orderRepay, order);
+            }else {
+               orderRepayService.repayFailed(orderRepay, callbackErr);
+            }
+        }catch (Exception e){
+            logger.error("易宝异步通知:uid={},error={}", param, e);
         }
         return "SUCCESS"; //收到通知 固定格式
     }

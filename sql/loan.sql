@@ -294,6 +294,7 @@ CREATE TABLE `tb_manager`  (
   `last_login_ip` varchar(30) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '最后登录IP',
   `account_status` int(2) NOT NULL DEFAULT 0 COMMENT '状态0-正常；1-已停用',
   `account_type` int(2) NOT NULL DEFAULT 0 COMMENT '类型0-公司员工；',
+  `user_security` tinyint(1) NOT NULL DEFAULT 1 COMMENT '安全验证: 0-不安全 1-安全，默认1',
   PRIMARY KEY (`id`) USING BTREE
 ) ENGINE = InnoDB  CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '后台登录帐号' ROW_FORMAT = Dynamic;
 
@@ -459,24 +460,24 @@ CREATE TABLE `tb_merchant`  (
   `merchant_market` text CHARACTER SET utf8 COLLATE utf8_general_ci NULL COMMENT '贷款超市',
   `merchant_channel` varchar(200) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '商户已开通的支付平台',
   `bind_type` tinyint(4) NOT NULL DEFAULT 1 COMMENT '绑卡类型：1，合利宝；2，富友；3，汇聚',
-  `lianlian_id` varchar(30) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '连连编号------(弃用)',
+  `lianlian_id` varchar(64) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '连连编号------(弃用)',
   `private_key` text CHARACTER SET utf8 COLLATE utf8_general_ci NULL COMMENT '连连私钥------(弃用)',
   `public_key` text CHARACTER SET utf8 COLLATE utf8_general_ci NULL COMMENT '连连公钥------(弃用)',
-  `hlb_id` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '合利宝商户编号',
+  `hlb_id` varchar(128) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '合利宝商户编号',
   `hlb_rsa_private_key` text CHARACTER SET utf8 COLLATE utf8_general_ci NULL COMMENT '合利宝rsa签名私钥',
   `hlb_rsa_public_key` text CHARACTER SET utf8 COLLATE utf8_general_ci NULL COMMENT '合利宝rsa签名公钥------(弃用)',
   `hlb_md5_key` text CHARACTER SET utf8 COLLATE utf8_general_ci NULL COMMENT '合利宝md5私钥------(弃用)',
   `hlb_des_key` text CHARACTER SET utf8 COLLATE utf8_general_ci NULL COMMENT '合利宝des字段加密------(弃用)',
-  `fuyou_merid` varchar(30) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '富友商户id',
-  `fuyou_secureid` varchar(64) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '富友代收付交易密钥',
-  `fuyou_h5key` varchar(64) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '富友B2C/B2B网关支付密钥或手机银行App支付密钥',
-  `huiju_id` varchar(30) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '汇聚商编',
+  `fuyou_merid` varchar(64) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '富友商户id',
+  `fuyou_secureid` varchar(128) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '富友代收付交易密钥',
+  `fuyou_h5key` varchar(128) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '富友B2C/B2B网关支付密钥或手机银行App支付密钥',
+  `huiju_id` varchar(64) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '汇聚商编',
   `huiju_md5_key` varchar(64) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '汇聚md5私钥',
-  `yeepay_group_no` varchar(30) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '易宝商户编号',
-  `yeepay_repay_appkey` varchar(30) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '易宝还款appkey',
-  `yeepay_repay_private_key` varchar(2048) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '易宝还款私钥',
-  `yeepay_loan_appkey` varchar(30) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '易宝放款appkey',
-  `yeepay_loan_private_key` varchar(2048) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '易宝放款私钥',
+  `yeepay_group_no` varchar(128) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '易宝商户编号',
+  `yeepay_repay_appkey` varchar(128) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '易宝还款appkey',
+  `yeepay_repay_private_key` varchar(3072) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '易宝还款私钥',
+  `yeepay_loan_appkey` varchar(128) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '易宝放款appkey',
+  `yeepay_loan_private_key` varchar(3072) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '易宝放款私钥',
   `hlb_merchant_sign` varchar(128) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '合利宝商户端签名sign',
   `create_time` datetime(0) NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`merchant_alias`) USING BTREE
@@ -495,6 +496,9 @@ CREATE TABLE `tb_merchant_config`  (
   `overdue_blacklist_day` tinyint(2)   COMMENT '加入黑名单逾期天数',
   `reject_keyword` VARCHAR(128)   COMMENT '地址、公司拒绝关键字，逗号分格',
   `ident_invalid_day` tinyint(2)   COMMENT '认证失效天数',
+  `auto_apply_order` tinyint(1) DEFAULT 1 COMMENT '自动提单:0-关闭 1-自动提单',
+  `service_phone` varchar(20) DEFAULT NULl COMMENT '客服电话',
+  `default_origin_status` tinyint(1) DEFAULT 1 COMMENT '默认渠道号(61)注册:0-拒绝 1-允许',
   `create_time` CHAR(19) DEFAULT NULL COMMENT '插入时间',
   `update_time` CHAR(19) DEFAULT NULL COMMENT '更新时间',
   PRIMARY KEY (`id`) USING BTREE,
@@ -1097,6 +1101,7 @@ CREATE TABLE `tb_order_risk_info`  (
   `user_phone`  varchar(20) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '用户手机',
   `user_name`   varchar(30) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT ' 用户姓名',
   `user_cert_no` varchar(20) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT ' 身份证号',
+  `risk_model_score` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '天机、拍拍、天御模型分数JSON串',
   `create_time` char(19) DEFAULT NULL COMMENT '创建时间',
   `update_time` char(19) DEFAULT NULL COMMENT '更新时间',
   PRIMARY KEY (`id`) USING BTREE,
@@ -1134,7 +1139,7 @@ CREATE TABLE `tb_user_deduction`  (
   INDEX `idx_user_origin`(`user_origin`) USING BTREE,
   INDEX `idx_merchant`(`merchant`) USING BTREE,
   INDEX `idx_create_time`(`create_time`) USING BTREE
-) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '扣量用户' ROW_FORMAT = Dynamic;;
+) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '扣量用户' ROW_FORMAT = Dynamic;
 
 
 DROP TABLE IF EXISTS `report_register_order_deduction`;
@@ -1241,6 +1246,7 @@ CREATE TABLE `tb_order_defer`  (
   PRIMARY KEY (`id`) USING BTREE,
   INDEX `idx_order_id`(`order_id`) USING BTREE,
   INDEX `idx_pay_no`(`pay_no`) USING BTREE,
+  INDEX `idx_uid`(`uid`) USING BTREE,
   INDEX `idx_pay_time`(`pay_time`) USING BTREE
 ) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
 
@@ -1280,4 +1286,37 @@ CREATE TABLE `report_recycle_repay_stat`  (
   PRIMARY KEY (`id`) USING BTREE,
   UNIQUE KEY  `idx_date`(`recycle_date`, recycled_id ) USING BTREE
 ) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
+
+
+-- uv/pv
+DROP TABLE IF EXISTS `tb_loan_market_stat`;
+CREATE TABLE `tb_loan_market_stat`  (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键',
+  `merchant` VARCHAR(50) DEFAULT NULL COMMENT '商户名称',
+  `loan_market_url` VARCHAR(255) DEFAULT NULL COMMENT '贷超链接',
+  `loan_market_pv` int(11) DEFAULT 0 COMMENT 'pv',
+  `loan_market_uv` int(11) DEFAULT 0 COMMENT 'uv',
+  `stat_date` char(10) default NULL COMMENT '统计日期: yyyy-MM-dd',
+  `update_time` char(19) default null COMMENT '更新时: yyyy-MM-dd HH:mm:ss',
+  PRIMARY KEY (`id`) USING BTREE,
+  INDEX `idx_merchant_stats_date`(`merchant`, stat_date) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
+
+
+-- tb_merchant_quota_config
+DROP TABLE IF EXISTS `tb_merchant_quota_config`;
+CREATE TABLE `tb_merchant_quota_config`  (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `quota_name` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '额度名称',
+  `quota_value` int(11) NOT NULL COMMENT '提升额度，可以为负数',
+  `comparator` varchar(11) DEFAULT NULL COMMENT '字段比较符: eq/gt/lt/gte/lte/range/in/exists',
+  `preset_value` varchar(128) DEFAULT NULL COMMENT '预设值: 后台配置',
+  `merchant` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '商户别名',
+  `quota_type` tinyint(4) NULL  COMMENT '1-天机分，2-展期次数',
+  `status` tinyint(4) NULL DEFAULT 1 COMMENT '1-启用, 0-停用',
+  `create_time` datetime(0) NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `update_time` datetime(0) NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP(0) COMMENT '修改时间',
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE = InnoDB  CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '商户提额配置表' ROW_FORMAT = Dynamic;
+
 

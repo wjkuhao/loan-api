@@ -13,8 +13,10 @@ import com.mod.loan.mapper.AppFeedbackMapper;
 import com.mod.loan.mapper.UserDeviceMapper;
 import com.mod.loan.mapper.UserMapper;
 import com.mod.loan.model.AppFeedback;
+import com.mod.loan.model.MerchantConfig;
 import com.mod.loan.model.User;
 import com.mod.loan.model.UserDevice;
+import com.mod.loan.service.MerchantConfigService;
 import com.mod.loan.service.OrderService;
 import com.mod.loan.service.UserDeductionService;
 import com.mod.loan.service.UserService;
@@ -26,10 +28,13 @@ import com.mod.loan.util.sms.EnumSmsTemplate;
 import com.mod.loan.util.sms.SmsMessage;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.imageio.ImageIO;
@@ -45,6 +50,8 @@ import java.util.Map;
 @RestController
 @RequestMapping(value = "user")
 public class UserController {
+    private static Logger logger = LoggerFactory.getLogger(UserController.class);
+
 
     @Autowired
     private DefaultKaptcha defaultKaptcha;
@@ -66,6 +73,9 @@ public class UserController {
 
     @Autowired
     private OrderService orderService;
+
+    @Autowired
+    private MerchantConfigService merchantConfigService;
 
     /**
      * 用户额度与借款周期配置
@@ -202,6 +212,11 @@ public class UserController {
         }
         if (userService.selectUserByPhone(phone, RequestThread.getClientAlias()) != null) {
             return new ResultMessage(ResponseEnum.M4000.getCode(), "手机号已注册");
+        }
+        //自然流量开关
+        MerchantConfig merchantConfig = merchantConfigService.selectByMerchant(RequestThread.getClientAlias());
+        if (merchantConfig!=null && merchantConfig.getDefaultOriginStatus()==0){
+            return new ResultMessage(ResponseEnum.M4000.getCode(), "当前渠道不能注册");
         }
 
         Long uid = userService.addUser(phone, password, origin, RequestThread.getClientAlias(), null);
@@ -344,6 +359,26 @@ public class UserController {
         resJson.put("isManyHead", isManyHead);
 
         return new ResultMessage(ResponseEnum.M2000, resJson);
+    }
+
+    /**
+     * 点击PV、UV统计
+     *
+     * @param userId        用户id
+     * @param merchant      商户名称
+     * @param loanMarketUrl 贷超链接
+     * @return
+     * @author NIELIN 20190604
+     */
+    @LoginRequired
+    @RequestMapping(value = "PVTotal")
+    public ResultMessage pvTotal(@RequestParam("loanMarketUrl") String loanMarketUrl) {
+        logger.info("#[点击PV、UV统计]-[开始]-loanMarketUrl={}", loanMarketUrl);
+        Long userId = RequestThread.getUid();
+        String merchant = RequestThread.getClientAlias();
+        userService.pvTotal(userId, merchant, loanMarketUrl);
+        logger.info("#[点击PV、UV统计]-[结束]");
+        return new ResultMessage(ResponseEnum.M2000);
     }
 
 }

@@ -8,6 +8,7 @@ import com.mod.loan.model.Merchant;
 import com.mod.loan.service.HeliPayService;
 import com.mod.loan.service.MerchantService;
 import com.mod.loan.service.YeepayService;
+import com.mod.loan.util.DesUtil;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,7 +57,7 @@ public class BalanceQueryTask {
 //                    case 3://汇聚
 //                        break;
                     case 4://易宝
-                        errMsg = yeepayService.balanceQuery(merchant.getYeepay_loan_appkey(), merchant.getYeepay_loan_private_key(), balance);
+                        errMsg = yeepayService.balanceQuery(DesUtil.decryption(merchant.getYeepay_loan_appkey()),DesUtil.decryption(merchant.getYeepay_loan_private_key()), balance);
                         break;
                     default:
                         logger.error("bindType = {} unsupport", bindType);

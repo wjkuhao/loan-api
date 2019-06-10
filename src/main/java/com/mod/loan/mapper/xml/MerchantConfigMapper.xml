@@ -8,8 +8,18 @@
     <result column="mx_risk_token" jdbcType="VARCHAR" property="mxRiskToken" />
     <result column="mx_risk_renew_token" jdbcType="VARCHAR" property="mxRiskRenewToken" />
     <result column="h5_url" jdbcType="VARCHAR" property="h5Url" />
+    <result column="overdue_blacklist_day" jdbcType="TINYINT" property="overdueBlacklistDay" />
+    <result column="reject_keyword" jdbcType="VARCHAR" property="rejectKeyword" />
+    <result column="ident_invalid_day" jdbcType="TINYINT" property="identInvalidDay" />
+    <result column="auto_apply_order" jdbcType="TINYINT" property="autoApplyOrder" />
+    <result column="service_phone" jdbcType="VARCHAR" property="servicePhone" />
+    <result column="default_origin_status" jdbcType="TINYINT" property="defaultOriginStatus" />
     <result column="create_time" jdbcType="TINYINT" property="createTime" />
     <result column="update_time" jdbcType="VARCHAR" property="updateTime" />
   </resultMap>
+
+  <select id="selectByMerchant" resultMap="BaseResultMap">
+    select * from tb_merchant_config where merchant = #{merchant}
+  </select>
 
 </mapper>

@@ -6,6 +6,7 @@ import com.mod.loan.common.enums.ResponseEnum;
 import com.mod.loan.common.model.ResultMessage;
 import com.mod.loan.model.*;
 import com.mod.loan.service.*;
+import com.mod.loan.util.DesUtil;
 import com.mod.loan.util.TimeUtil;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -179,7 +180,12 @@ public class OrderDeferController {
         Merchant merchant = merchantService.findMerchantByAlias(user.getMerchant());
 
         StringBuffer repayNo = new StringBuffer();
-        String callbackErr = yeepayService.repayCallbackMultiAcct(merchant.getYeepay_repay_private_key(), responseMsg, repayNo);
+        String callbackErr = null;
+        try {
+            callbackErr = yeepayService.repayCallbackMultiAcct(DesUtil.decryption(merchant.getYeepay_repay_private_key()), responseMsg, repayNo);
+        } catch (Exception e) {
+            logger.error("易宝异步通知:异常uid={}, e={}",param, e);
+        }
         logger.info("展期易宝异步通知:param={},callbackErr={},repayNo={}", param, callbackErr, repayNo);
 
         //设置OrderRepay

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mod.loan.mapper.LoanMarketStatMapper">
+    <resultMap id="BaseResultMap" type="com.mod.loan.model.LoanMarketStat">
+        <id column="id" jdbcType="BIGINT" property="id"/>
+        <result column="merchant" jdbcType="VARCHAR" property="merchant"/>
+        <result column="loan_market_url" jdbcType="VARCHAR" property="loanMarketUrl"/>
+        <result column="loan_market_pv" jdbcType="TINYINT" property="loanMarketPv"/>
+        <result column="loan_market_uv" jdbcType="TINYINT" property="loanMarketUv"/>
+        <result column="stat_date" jdbcType="CHAR" property="statDate"/>
+        <result column="update_time" jdbcType="CHAR" property="updateTime"/>
+    </resultMap>
+
+    <!-- 更新PV\UV统计 -->
+    <update id="updateLoanMarketStatById">
+       update tb_loan_market_stat set loan_market_pv =(loan_market_pv+1),loan_market_uv =(loan_market_uv+1),loan_market_url = #{loanMarketUrl},update_time = #{updateTime} where id = #{id};
+    </update>
+
+    <!-- 更新PV统计 -->
+    <update id="updatePvTotalById">
+       update tb_loan_market_stat set loan_market_pv = (loan_market_pv+1),loan_market_url = #{loanMarketUrl},update_time = #{updateTime} where id = #{id};
+    </update>
+
+</mapper>
