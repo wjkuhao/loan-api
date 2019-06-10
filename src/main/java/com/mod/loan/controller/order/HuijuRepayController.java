@@ -313,8 +313,8 @@ public class HuijuRepayController {
 			return "success";
 		}else{
 			logger.error("汇聚异步通知异常：r6_Status={},r2_OrderNo={}", map.get("r6_Status"),map.get("r2_OrderNo"));
-		}
-		return "fail";
+		}return "fail";
+
 	}
 
 

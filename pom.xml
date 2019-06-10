@@ -184,6 +184,37 @@
 			<version>3.14.0</version>
 		</dependency>
 
+		<!-- 快钱支付架包 -->
+		<dependency>
+			<groupId>com.99bill.pay</groupId>
+			<artifactId>bcprov-jdk15</artifactId>
+			<version>1.0.0</version>
+		</dependency>
+		<dependency>
+			<groupId>com.99bill.pay</groupId>
+			<artifactId>if-crypto-metadata</artifactId>
+			<version>4.3.20</version>
+		</dependency>
+		<dependency>
+			<groupId>com.99bill.pay</groupId>
+			<artifactId>if-crypto-sdk</artifactId>
+			<version>1.0.0</version>
+		</dependency>
+		<dependency>
+			<groupId>com.99bill.pay</groupId>
+			<artifactId>jibx-run</artifactId>
+			<version>1.0.0</version>
+		</dependency>
+		<dependency>
+			<groupId>com.99bill.pay</groupId>
+			<artifactId>commons-collections</artifactId>
+			<version>1.0.0</version>
+		</dependency>
+		<dependency>
+			<groupId>com.99bill.pay</groupId>
+			<artifactId>commons-beanutils</artifactId>
+			<version>1.0.0</version>
+		</dependency>
 
 	</dependencies>
 	<profiles>

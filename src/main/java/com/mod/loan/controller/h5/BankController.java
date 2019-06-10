@@ -28,6 +28,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.io.IOException;
@@ -203,6 +204,9 @@ public class BankController {
         case 4:
             message = userBankService.sendYeepaySms(uid, cardNo, cardPhone, bank);
             break;
+		case 6:
+			message = userBankService.sendKuaiqianSms(uid, cardNo, cardPhone, bank);
+			break;
 		default:
 			log.error("绑卡异常,该商户未开通相关绑卡渠道,merchant={},bindType={}", merchant.getMerchantAlias(), bindType);
 			message = new ResultMessage(ResponseEnum.M4000);
@@ -265,6 +269,9 @@ public class BankController {
         case 4:
             message = userBankService.bindYeepaySms(validateCode, uid, bindInfo);
             break;
+		case 6:
+			message = userBankService.bindKuaiqianSms(validateCode, uid, bindInfo);
+			break;
 		default:
 			log.error("绑卡异常,该商户未开通相关绑卡渠道,merchant={},bindType={}", merchant.getMerchantAlias(), bindType);
 			message = new ResultMessage(ResponseEnum.M4000);

@@ -104,6 +104,18 @@ public class Merchant {
     @Column(name = "hlb_merchant_sign")
     private String hlbMerchantSign;
 
+    @Column(name = "kq_merchant_id")
+    private String kqMerchantId;
+
+    @Column(name = "kq_terminal_id")
+    private String kqTerminalId;
+
+    @Column(name = "kq_cert_path")
+    private String kqCertPath;
+
+    @Column(name = "kq_cert_pwd")
+    private String kqCertPwd;
+
     public String getYeepay_loan_appkey() {
         return yeepay_loan_appkey;
     }
@@ -355,5 +367,37 @@ public class Merchant {
 
     public void setHlbMerchantSign(String hlbMerchantSign) {
         this.hlbMerchantSign = hlbMerchantSign;
+    }
+
+    public String getKqMerchantId() {
+        return kqMerchantId;
+    }
+
+    public void setKqMerchantId(String kqMerchantId) {
+        this.kqMerchantId = kqMerchantId;
+    }
+
+    public String getKqTerminalId() {
+        return kqTerminalId;
+    }
+
+    public void setKqTerminalId(String kqTerminalId) {
+        this.kqTerminalId = kqTerminalId;
+    }
+
+    public String getKqCertPath() {
+        return kqCertPath;
+    }
+
+    public void setKqCertPath(String kqCertPath) {
+        this.kqCertPath = kqCertPath;
+    }
+
+    public String getKqCertPwd() {
+        return kqCertPwd;
+    }
+
+    public void setKqCertPwd(String kqCertPwd) {
+        this.kqCertPwd = kqCertPwd;
     }
 }
