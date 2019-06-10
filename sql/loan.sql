@@ -479,6 +479,15 @@ CREATE TABLE `tb_merchant`  (
   `yeepay_loan_appkey` varchar(128) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '易宝放款appkey',
   `yeepay_loan_private_key` varchar(3072) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '易宝放款私钥',
   `hlb_merchant_sign` varchar(128) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '合利宝商户端签名sign',
+  `kq_terminal_id` varchar(32) DEFAULT NULL COMMENT '快钱终端号',
+  `kq_merchant_id` varchar(32) DEFAULT NULL COMMENT '快钱商户号',
+  `kq_cert_pwd` varchar(32) DEFAULT NULL COMMENT '快钱证书密码',
+  `kq_cert_path` varchar(64) DEFAULT NULL COMMENT '快钱证书路径',
+  `kq_cer_pfx_path` varchar(64) DEFAULT NULL COMMENT '快钱公钥路径',
+  `kq_merchant_code` varchar(32) DEFAULT NULL COMMENT '快钱商户会员号',
+  `cj_partnerId` varchar(32) DEFAULT NULL COMMENT '畅捷商户号',
+  `cj_public_key` varchar(1024) DEFAULT NULL COMMENT '畅捷公钥',
+  `cj_merchant_private_key` varchar(1024) DEFAULT NULL COMMENT '商户私钥',
   `create_time` datetime(0) NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`merchant_alias`) USING BTREE
 ) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
