@@ -478,6 +478,8 @@ CREATE TABLE `tb_merchant`  (
   `yeepay_loan_appkey` varchar(30) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '易宝放款appkey',
   `yeepay_loan_private_key` varchar(2048) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '易宝放款私钥',
   `hlb_merchant_sign` varchar(128) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '合利宝商户端签名sign',
+  `hlb_entrusted_sign_key` varchar(64) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '合利宝委托代付签名signKey',
+  `hlb_entrusted_private_key` varchar(1024) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '合利宝委托代付私钥',
   `create_time` datetime(0) NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`merchant_alias`) USING BTREE
 ) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
@@ -997,6 +999,7 @@ CREATE TABLE `tb_user_bank`  (
   `remark` text CHARACTER SET utf8 COLLATE utf8_general_ci NULL,
   `card_code_helipay` varchar(10) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '合利宝银行代码code',
   `bind_type` tinyint(4) NOT NULL DEFAULT 1 COMMENT '绑卡类型:1：合利宝；2：富友；3：汇聚; 4：易宝',
+  `hlb_entrusted_cuid` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '合利宝委托代付(合利宝分配用户号)',
   PRIMARY KEY (`id`) USING BTREE,
   INDEX `idx_uid`(`uid`) USING BTREE
 ) ENGINE = InnoDB  CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;

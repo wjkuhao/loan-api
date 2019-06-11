@@ -104,6 +104,12 @@ public class Merchant {
     @Column(name = "hlb_merchant_sign")
     private String hlbMerchantSign;
 
+    @Column(name = "hlb_entrusted_sign_key")
+    private String hlbEntrustedSignKey;
+
+    @Column(name = "hlb_entrusted_private_key")
+    private String hlbEntrustedPrivateKey;
+
     public String getYeepay_loan_appkey() {
         return yeepay_loan_appkey;
     }
@@ -355,5 +361,21 @@ public class Merchant {
 
     public void setHlbMerchantSign(String hlbMerchantSign) {
         this.hlbMerchantSign = hlbMerchantSign;
+    }
+
+    public String getHlbEntrustedSignKey() {
+        return hlbEntrustedSignKey;
+    }
+
+    public void setHlbEntrustedSignKey(String hlbEntrustedSignKey) {
+        this.hlbEntrustedSignKey = hlbEntrustedSignKey;
+    }
+
+    public String getHlbEntrustedPrivateKey() {
+        return hlbEntrustedPrivateKey;
+    }
+
+    public void setHlbEntrustedPrivateKey(String hlbEntrustedPrivateKey) {
+        this.hlbEntrustedPrivateKey = hlbEntrustedPrivateKey;
     }
 }

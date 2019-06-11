@@ -183,8 +183,17 @@
 			<artifactId>okhttp</artifactId>
 			<version>3.14.0</version>
 		</dependency>
-
-
+		<!-- 合利宝委托支付使用的包 -->
+		<dependency>
+			<groupId>commons-collections</groupId>
+			<artifactId>commons-collections</artifactId>
+			<version>3.2.2</version>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-test</artifactId>
+			<version>RELEASE</version>
+		</dependency>
 	</dependencies>
 	<profiles>
 		<profile>
@@ -194,17 +203,17 @@
 				<profiles.active>dev</profiles.active>
 			</properties>
 			<activation>
-				<activeByDefault>true</activeByDefault>
+				<activeByDefault>false</activeByDefault>
 			</activation>
 		</profile>
 		<profile>
-			<!-- 开发环境 -->
-			<id>uat</id>
+			<!-- 测试环境 -->
+			<id>test</id>
 			<properties>
-				<profiles.active>uat</profiles.active>
+				<profiles.active>test</profiles.active>
 			</properties>
 			<activation>
-				<activeByDefault>false</activeByDefault>
+				<activeByDefault>true</activeByDefault>
 			</activation>
 		</profile>
 		<profile>

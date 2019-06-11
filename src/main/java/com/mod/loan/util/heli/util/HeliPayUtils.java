@@ -4,8 +4,11 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.mod.loan.util.MD5;
+import com.mod.loan.util.TimeUtils;
 import com.mod.loan.util.heli.HttpClientService;
+import org.joda.time.DateTime;
 
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 public class HeliPayUtils {
@@ -42,21 +45,6 @@ public class HeliPayUtils {
 		return MD5.toMD5(content.toString());
 	}
 
-//	public Map<String, Object> getPostJson(HttpServletRequest request) throws IOException {
-//		java.io.ByteArrayOutputStream inBuffer = new java.io.ByteArrayOutputStream();
-//		java.io.InputStream input = request.getInputStream();
-//		byte[] tmp = new byte[1024];
-//		int len = 0;
-//		while ((len = input.read(tmp)) > 0) {
-//			inBuffer.write(tmp, 0, len);
-//		}
-//		byte[] requestData = inBuffer.toByteArray();
-//		String requestJsonStr = new String(requestData, "UTF-8");
-//		System.out.println(requestJsonStr);
-//		JSONObject requestJson = JSON.parseObject(requestJsonStr);
-//		System.out.println(requestJson);
-//		return parseJSON2Map(requestJson);
-//	}
 
 	public Map<String, Object> parseJSON2Map(JSONObject json) {
 		Map<String, Object> map = new HashMap();
@@ -94,6 +82,22 @@ public class HeliPayUtils {
 		}
 
 		return output.toString();
+	}
+
+	/**
+	 * 委托代付接口时间戳
+	 * */
+	public static String getTimestamp() {
+		SimpleDateFormat STRING_FORMAT_TIMESTAMP_TEST = new SimpleDateFormat("yyyy-MM-dd_HH:mm:ss.sss");
+		String dateString1 = STRING_FORMAT_TIMESTAMP_TEST.format(new Date());
+		return dateString1;
+	}
+
+	/**
+	 * 委托代付接口获取订单ID
+	 * */
+	public static String getOrderId(String uid) {
+		return String.format("%s%s%s", "p", new DateTime().toString(TimeUtils.dateformat5), uid);
 	}
 
 }
