@@ -458,7 +458,7 @@ CREATE TABLE `tb_merchant`  (
   `merchant_zfb` varchar(40) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '商户支付宝',
   `merchant_status` tinyint(4) NOT NULL COMMENT '商户状态',
   `merchant_market` text CHARACTER SET utf8 COLLATE utf8_general_ci NULL COMMENT '贷款超市',
-  `merchant_channel` varchar(200) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '商户已开通的支付平台',
+  `merchant_channel` varchar(1024) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '商户已开通的支付平台',
   `bind_type` tinyint(4) NOT NULL DEFAULT 1 COMMENT '绑卡类型：1，合利宝；2，富友；3，汇聚',
   `lianlian_id` varchar(64) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '连连编号------(弃用)',
   `private_key` text CHARACTER SET utf8 COLLATE utf8_general_ci NULL COMMENT '连连私钥------(弃用)',
@@ -479,6 +479,21 @@ CREATE TABLE `tb_merchant`  (
   `yeepay_loan_appkey` varchar(128) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '易宝放款appkey',
   `yeepay_loan_private_key` varchar(3072) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '易宝放款私钥',
   `hlb_merchant_sign` varchar(128) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '合利宝商户端签名sign',
+  `hlb_entrusted_sign_key` varchar(64) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '合利宝委托代付签名signKey',
+  `hlb_entrusted_private_key` varchar(1024) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '合利宝委托代付私钥',
+  `kq_terminal_id` varchar(32) DEFAULT NULL COMMENT '快钱终端号',
+  `kq_merchant_id` varchar(32) DEFAULT NULL COMMENT '快钱商户号',
+  `kq_cert_pwd` varchar(32) DEFAULT NULL COMMENT '快钱证书密码',
+  `kq_cert_path` varchar(64) DEFAULT NULL COMMENT '快钱证书路径',
+  `kq_cer_pfx_path` varchar(64) DEFAULT NULL COMMENT '快钱公钥路径',
+  `kq_merchant_code` varchar(32) DEFAULT NULL COMMENT '快钱商户会员号',
+  `cj_partnerId` varchar(32) DEFAULT NULL COMMENT '畅捷商户号',
+  `cj_public_key` varchar(1024) DEFAULT NULL COMMENT '畅捷公钥',
+  `cj_merchant_private_key` varchar(1024) DEFAULT NULL COMMENT '商户私钥',
+  `huichao_merid` varchar(30) DEFAULT NULL COMMENT '汇潮的商户id',
+  `huichao_public_key` varchar(500) DEFAULT NULL COMMENT '汇潮自己的公钥',
+  `huichao_merchant_repay_private_key` varchar(1000) DEFAULT NULL COMMENT '汇潮商户的微信、支付宝、代扣的私钥',
+  `huichao_merchant_pay_private_key` varchar(1000) DEFAULT NULL COMMENT '汇潮商户的代付的私钥',
   `create_time` datetime(0) NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`merchant_alias`) USING BTREE
 ) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
@@ -1140,7 +1155,7 @@ CREATE TABLE `tb_user_deduction`  (
   INDEX `idx_user_origin`(`user_origin`) USING BTREE,
   INDEX `idx_merchant`(`merchant`) USING BTREE,
   INDEX `idx_create_time`(`create_time`) USING BTREE
-) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '扣量用户' ROW_FORMAT = Dynamic;;
+) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '扣量用户' ROW_FORMAT = Dynamic;
 
 
 DROP TABLE IF EXISTS `report_register_order_deduction`;
@@ -1304,6 +1319,7 @@ CREATE TABLE `tb_loan_market_stat`  (
 ) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
 
 
+-- tb_merchant_quota_config
 DROP TABLE IF EXISTS `tb_merchant_quota_config`;
 CREATE TABLE `tb_merchant_quota_config`  (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,

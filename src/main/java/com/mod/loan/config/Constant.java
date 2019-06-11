@@ -18,6 +18,9 @@ public class Constant {
     public static String HUIJU_PAY_URL;
     public static String HUIJU_NOTIFY_URL;
 
+    public static String KUAIQIAN_PAY_URL;
+    public static String KUAIQIAN_PAY_QUERY_URL;
+
     public static String OSS_STATIC_BUCKET_NAME;
     public static String OSS_ACCESSKEY_ID;
     public static String OSS_ACCESS_KEY_SECRET;
@@ -38,6 +41,12 @@ public class Constant {
 
     public static String OSS_ENDPOINT_OUT_URL;
     public static String OSS_ENDPOINT_IN_URL;
+
+    /**
+     * 合利宝委托代付
+     * */
+    public static String HELIPAY_ENTRUSTED_URL;
+    public static String HELIPAY_ENTRUSTED_FILE_URL;
 
     /**
      * 查询是否存在多头借贷的接口
@@ -94,6 +103,14 @@ public class Constant {
         HUIJU_SMS_URL = huijuSmsUrl;
     }
 
+    @Value("${kuaiqian.pay.url:}")
+    public void setKuaiqianPayUrl(String kuaiqianPayUrl) {KUAIQIAN_PAY_URL = kuaiqianPayUrl;}
+
+    @Value("${kuaiqian.pay.query.url:}")
+    public void setKuaiqianPayQueryUrl(String kuaiqianPayQueryUrl) {
+        KUAIQIAN_PAY_QUERY_URL = kuaiqianPayQueryUrl;
+    }
+
     @Value("${oss.static.bucket.name:}")
     public void setOSS_STATIC_BUCKET_NAME(String oSS_STATIC_BUCKET_NAME) {
         OSS_STATIC_BUCKET_NAME = oSS_STATIC_BUCKET_NAME;
@@ -148,4 +165,15 @@ public class Constant {
     public void setManyHeadQueryUrl(String manyHeadQueryUrl) {
         Constant.MANY_HEAD_QUERY_URL = manyHeadQueryUrl;
     }
+
+    @Value("${helipay.entrusted.url:}")
+    public void setHelipayEntrustedUrl(String helipayEntrustedUrl) {
+        Constant.HELIPAY_ENTRUSTED_URL = helipayEntrustedUrl;
+    }
+
+    @Value("${helipay.entrusted.file.url:}")
+    public void setHelipayEntrustedFileUrl(String helipayEntrustedFileUrl) {
+        Constant.HELIPAY_ENTRUSTED_FILE_URL = helipayEntrustedFileUrl;
+    }
+
 }

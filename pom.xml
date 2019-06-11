@@ -183,7 +183,61 @@
 			<artifactId>okhttp</artifactId>
 			<version>3.14.0</version>
 		</dependency>
+		<!-- 合利宝委托支付使用的包 -->
+		<dependency>
+			<groupId>commons-collections</groupId>
+			<artifactId>commons-collections</artifactId>
+			<version>3.2.2</version>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-test</artifactId>
+			<version>RELEASE</version>
+		</dependency>
 
+		<!-- 快钱支付架包 -->
+		<dependency>
+			<groupId>com.99bill.pay</groupId>
+			<artifactId>bcprov-jdk15</artifactId>
+			<version>1.0.0</version>
+		</dependency>
+		<dependency>
+			<groupId>com.99bill.pay</groupId>
+			<artifactId>if-crypto-metadata</artifactId>
+			<version>4.3.20</version>
+		</dependency>
+		<dependency>
+			<groupId>com.99bill.pay</groupId>
+			<artifactId>if-crypto-sdk</artifactId>
+			<version>1.0.0</version>
+		</dependency>
+		<dependency>
+			<groupId>com.99bill.pay</groupId>
+			<artifactId>jibx-run</artifactId>
+			<version>1.0.0</version>
+		</dependency>
+		<dependency>
+			<groupId>com.99bill.pay</groupId>
+			<artifactId>commons-collections</artifactId>
+			<version>1.0.0</version>
+		</dependency>
+		<dependency>
+			<groupId>com.99bill.pay</groupId>
+			<artifactId>commons-beanutils</artifactId>
+			<version>1.0.0</version>
+		</dependency>
+		<!-- huichao的生成微信二维码-S -->
+		<dependency>
+			<groupId>com.google.zxing</groupId>
+			<artifactId>core</artifactId>
+			<version>3.3.3</version>
+		</dependency>
+		<dependency>
+			<groupId>com.google.zxing</groupId>
+			<artifactId>javase</artifactId>
+			<version>3.3.3</version>
+		</dependency>
+		<!-- huichao的生成微信二维码-E -->
 
 	</dependencies>
 	<profiles>
@@ -194,7 +248,7 @@
 				<profiles.active>dev</profiles.active>
 			</properties>
 			<activation>
-				<activeByDefault>true</activeByDefault>
+				<activeByDefault>false</activeByDefault>
 			</activation>
 		</profile>
 		<profile>
@@ -204,7 +258,7 @@
 				<profiles.active>test</profiles.active>
 			</properties>
 			<activation>
-				<activeByDefault>false</activeByDefault>
+				<activeByDefault>true</activeByDefault>
 			</activation>
 		</profile>
 		<profile>

@@ -58,4 +58,14 @@ public interface UserBankService extends BaseService<UserBank,Long> {
      * 根据易宝短验进行绑卡
      */
     ResultMessage bindYeepaySms(String validateCode, Long uid, String bindInfo);
+
+    /**获取快钱绑卡短验
+     *
+     */
+    ResultMessage sendKuaiqianSms(Long uid, String cardNo, String cardPhone,Bank bank);
+
+    /**
+     * 根据快钱短验进行绑卡
+     */
+    ResultMessage bindKuaiqianSms(String validateCode, Long uid, String bindInfo);
 }

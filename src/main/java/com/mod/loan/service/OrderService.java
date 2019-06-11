@@ -69,4 +69,6 @@ public interface OrderService extends BaseService<Order,Long> {
      * @return
      */
     int setRepaySuccStatusByCurrStatus(Integer status);
+
+    void updatePayCallbackInfo(Order order, OrderPay orderPay);
 }

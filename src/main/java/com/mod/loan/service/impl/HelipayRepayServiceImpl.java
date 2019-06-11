@@ -265,7 +265,7 @@ public class HelipayRepayServiceImpl implements HelipayRepayService {
             requestVo.setP9_phone(dto.getPhone());
             requestVo.setSignatureType("MD5WITHRSA");
             response = getHeliPayResponse(dto.getMerchant(), requestVo, null);
-            logger.info("helipay bindPaySmsCode:{}", requestVo);
+            logger.info("helipay bindPaySmsCode:{}", JSON.toJSONString(requestVo));
             BindPayValidateCodeResponseVo responseVo = JSONObject.parseObject(response, BindPayValidateCodeResponseVo.class);
             if ("0000".equals(responseVo.getRt2_retCode())) {
                 redisMapper.set(RedisConst.repay_text + dto.getRepayNo(), dto.getOrderId(), 300);

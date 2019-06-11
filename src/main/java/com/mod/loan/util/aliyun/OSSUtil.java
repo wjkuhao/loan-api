@@ -1,6 +1,7 @@
 package com.mod.loan.util.aliyun;
 
 import com.aliyun.oss.OSSClient;
+import com.aliyun.oss.model.OSSObject;
 import com.mod.loan.config.Constant;
 import com.mod.loan.controller.UploadController;
 import com.mod.loan.util.Base64ToMultipartFileUtil;
@@ -9,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.InputStream;
 import java.util.UUID;
 
 public class OSSUtil {
@@ -53,14 +55,29 @@ public class OSSUtil {
 		return filepath;
 	}
 
-    public static String uploadAuthImage(String base64, String fileType){
-        MultipartFile livingPhotoFile = Base64ToMultipartFileUtil.base64ToMultipart(base64);
-        return OSSUtil.uploadBase64(livingPhotoFile, fileType);
-    }
+	public static String uploadAuthImage(String base64, String fileType){
+		MultipartFile livingPhotoFile = Base64ToMultipartFileUtil.base64ToMultipart(base64);
+		return OSSUtil.uploadBase64(livingPhotoFile, fileType);
+	}
+
+	/**
+	 * 获取用户身份证正反面图片资料
+	 */
+	public static InputStream getCertImage(String filePath) {
+		try {
+			OSSClient ossClient = new OSSClient(endPointUrl(Constant.ENVIROMENT), Constant.OSS_ACCESSKEY_ID,
+					Constant.OSS_ACCESS_KEY_SECRET);
+			OSSObject ossObject = ossClient.getObject(Constant.OSS_STATIC_BUCKET_NAME, filePath);
+			return ossObject.getObjectContent();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
 
 	/**
 	 * 根据环境切换上传地址
-	 * 
+	 *
 	 * @param env
 	 * @return
 	 */

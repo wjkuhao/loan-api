@@ -203,6 +203,9 @@ public class BankController {
         case 4:
             message = userBankService.sendYeepaySms(uid, cardNo, cardPhone, bank);
             break;
+		case 6:
+			message = userBankService.sendKuaiqianSms(uid, cardNo, cardPhone, bank);
+			break;
 		default:
 			log.error("绑卡异常,该商户未开通相关绑卡渠道,merchant={},bindType={}", merchant.getMerchantAlias(), bindType);
 			message = new ResultMessage(ResponseEnum.M4000);
@@ -265,6 +268,9 @@ public class BankController {
         case 4:
             message = userBankService.bindYeepaySms(validateCode, uid, bindInfo);
             break;
+		case 6:
+			message = userBankService.bindKuaiqianSms(validateCode, uid, bindInfo);
+			break;
 		default:
 			log.error("绑卡异常,该商户未开通相关绑卡渠道,merchant={},bindType={}", merchant.getMerchantAlias(), bindType);
 			message = new ResultMessage(ResponseEnum.M4000);

@@ -9,6 +9,7 @@ public interface RedisConst {
 	String USER_PHONE_CODE = "user_phone_code:";
 	String USER_GRAPH_CODE = "user_graph_code:";
 	String USER_LOGIN = "user_login:";
+	String ORDER_LOCK = "order_lock:";
 
 	String app_notice = "app_notice:";
 	String app_banner = "app_banner:";

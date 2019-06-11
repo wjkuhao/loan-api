@@ -247,6 +247,7 @@ public class OrderRepayServiceImpl extends BaseServiceImpl<OrderRepay, String> i
         orderRepay.setUpdateTime(new Date());
 
         //更新order
+        order.setRepayTime(new Date());
         order.setRealRepayTime(new Date());
         order.setHadRepay(orderRepay.getRepayMoney());
         order.setStatus(orderService.setRepaySuccStatusByCurrStatus(order.getStatus()));

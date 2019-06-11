@@ -62,9 +62,9 @@ public class FuyouRepayController {
 		return  new ResultMessage(ResponseEnum.M2000,object );
 	}
 
-		/**
-         * 富友支付还款
-         */
+	/**
+	 * 富友支付还款
+	 */
 	@LoginRequired(check = true)
 	@RequestMapping(value = "order_repay_fuyou")
 	public ResultMessage order_repay_fuyou( @RequestParam(required = true) Long orderId,@RequestParam(required = true)String cardNo,

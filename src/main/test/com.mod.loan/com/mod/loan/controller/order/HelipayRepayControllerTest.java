@@ -17,7 +17,7 @@ public class HelipayRepayControllerTest {
      * 合利宝还款接口测试
      */
     public static void repay_text() {
-        String uid = "7952288";
+        String uid = "7951902";
         // 支付流水号
         String repayNo = StringUtil.getOrderNumber("r");
         //还款金额不能小于0.11
@@ -25,9 +25,9 @@ public class HelipayRepayControllerTest {
         BindPayValidateCodeVo requestVo = new BindPayValidateCodeVo();
         requestVo.setP1_bizType("QuickPayBindPayValidateCode");
         //tb_merchant.hlb_id
-        requestVo.setP2_customerNumber("C1800626358");
+        requestVo.setP2_customerNumber("C1800473156");
         //tb_user_bank.foreign_id
-        requestVo.setP3_bindId("bfab99218d0c40b2939dd0c0e66c2a0a");
+        requestVo.setP3_bindId("33bf84ac966c4e34bf9798695ef5ad12");
         requestVo.setP4_userId(uid);
         requestVo.setP5_orderId(repayNo);
         requestVo.setP6_timestamp(new DateTime().toString(TimeUtils.dateformat5));
@@ -36,7 +36,7 @@ public class HelipayRepayControllerTest {
         requestVo.setP9_phone("18557530599");
         requestVo.setSignatureType("MD5WITHRSA");
         try {
-            String pfxPath = "/data/conf/dawang.pfx";
+            String pfxPath = "/data/conf/mx.pfx";
             Map handleMap = MessageHandle.getReqestMap(requestVo, pfxPath, "wusl1q2a#@");
             String response = HttpClientService.getHttpResp(handleMap, "http://pay.trx.helipay.com/trx/quickPayApi/interface.action");
             System.out.println(response);
