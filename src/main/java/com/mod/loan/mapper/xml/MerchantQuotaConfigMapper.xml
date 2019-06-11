@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mod.loan.mapper.MerchantQuotaConfigMapper">
+  <resultMap id="BaseResultMap" type="com.mod.loan.model.MerchantQuotaConfig">
+
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="merchant" jdbcType="VARCHAR" property="merchant" />
+    <result column="quota_name" jdbcType="VARCHAR" property="quotaName" />
+    <result column="quota_value" jdbcType="VARCHAR" property="quotaValue" />
+    <result column="comparator" jdbcType="VARCHAR" property="comparator" />
+    <result column="quota_type" jdbcType="TINYINT" property="quotaType" />
+    <result column="preset_value" jdbcType="VARCHAR" property="presetValue" />
+    <result column="status" jdbcType="TINYINT" property="quotaType" />
+    <result column="create_time" jdbcType="TINYINT" property="createTime" />
+    <result column="update_time" jdbcType="VARCHAR" property="updateTime" />
+  </resultMap>
+
+  <select id="selectByMerchant" resultMap="BaseResultMap">
+    select quota_name,quota_value,comparator,quota_type,preset_value
+    from tb_merchant_quota_config
+    where merchant = #{merchant} and status=1
+  </select>
+
+</mapper>

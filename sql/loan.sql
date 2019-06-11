@@ -1106,6 +1106,7 @@ CREATE TABLE `tb_order_risk_info`  (
   `update_time` char(19) DEFAULT NULL COMMENT '更新时间',
   PRIMARY KEY (`id`) USING BTREE,
   INDEX `idx_risk_id`(`risk_id`) USING BTREE,
+  INDEX `idx_phone`(`user_phone`) USING BTREE,
   INDEX `idx_order_id`(`order_id`) USING BTREE
 ) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '用户风控信息' ROW_FORMAT = Dynamic;
 
