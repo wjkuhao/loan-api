@@ -1122,6 +1122,7 @@ CREATE TABLE `tb_order_risk_info`  (
   `update_time` char(19) DEFAULT NULL COMMENT '更新时间',
   PRIMARY KEY (`id`) USING BTREE,
   INDEX `idx_risk_id`(`risk_id`) USING BTREE,
+  INDEX `idx_phone`(`user_phone`) USING BTREE,
   INDEX `idx_order_id`(`order_id`) USING BTREE
 ) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '用户风控信息' ROW_FORMAT = Dynamic;
 
@@ -1326,7 +1327,7 @@ CREATE TABLE `tb_merchant_quota_config`  (
   `quota_name` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '额度名称',
   `quota_value` int(11) NOT NULL COMMENT '提升额度，可以为负数',
   `comparator` varchar(11) DEFAULT NULL COMMENT '字段比较符: eq/gt/lt/gte/lte/range/in/exists',
-  `preset_value` varchar(128) DEFAULT NULL COMMENT '预设值: 后台配置',
+  `preset_value` varchar(128) DEFAULT NULL COMMENT '预设值',
   `merchant` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '商户别名',
   `quota_type` tinyint(4) NULL  COMMENT '1-天机分，2-展期次数',
   `status` tinyint(4) NULL DEFAULT 1 COMMENT '1-启用, 0-停用',

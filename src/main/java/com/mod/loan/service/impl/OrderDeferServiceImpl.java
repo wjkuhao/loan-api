@@ -167,4 +167,9 @@ public class OrderDeferServiceImpl extends BaseServiceImpl<OrderDefer, Integer> 
     public List<OrderDefer> selectOrderDefer() {
        return orderDeferMapper.selectOrderDefer();
     }
+
+    @Override
+    public Integer deferSuccessCount(Long uid) {
+        return orderDeferMapper.deferSuccessCount(uid);
+    }
 }

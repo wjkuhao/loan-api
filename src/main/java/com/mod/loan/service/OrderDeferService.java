@@ -39,10 +39,18 @@ public interface OrderDeferService extends BaseService<OrderDefer, Integer> {
 
     OrderDefer selectByPayNo(String payNo);
 
-   /**
-    * 用户详情中展期订单数据查询
-    * */
-   JSONObject userDeferDetail(Long uid);
+    /**
+     * 用户详情中展期订单数据查询
+     * */
+    JSONObject userDeferDetail(Long uid);
 
+    /**
+     * 获取最近2分钟展期订单支付详情
+     * */
     List<OrderDefer> selectOrderDefer();
+
+    /**
+     * 该用户在该商户下展期成功次数
+     * */
+    Integer deferSuccessCount(Long uid);
 }

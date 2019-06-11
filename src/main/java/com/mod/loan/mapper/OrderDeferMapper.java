@@ -23,4 +23,6 @@ public interface OrderDeferMapper extends MyBaseMapper<OrderDefer> {
     OrderDefer selectDeferByUid(@Param("uid") Long uid);
 
     List<OrderDefer> selectOrderDefer();
+
+    Integer deferSuccessCount(@Param("uid") Long uid);
 }
