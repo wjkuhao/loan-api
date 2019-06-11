@@ -215,6 +215,18 @@
 			<artifactId>commons-beanutils</artifactId>
 			<version>1.0.0</version>
 		</dependency>
+		<!-- huichao的生成微信二维码-S -->
+		<dependency>
+			<groupId>com.google.zxing</groupId>
+			<artifactId>core</artifactId>
+			<version>3.3.3</version>
+		</dependency>
+		<dependency>
+			<groupId>com.google.zxing</groupId>
+			<artifactId>javase</artifactId>
+			<version>3.3.3</version>
+		</dependency>
+		<!-- huichao的生成微信二维码-E -->
 
 	</dependencies>
 	<profiles>
