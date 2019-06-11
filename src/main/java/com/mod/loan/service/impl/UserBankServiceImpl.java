@@ -21,6 +21,11 @@ import com.mod.loan.util.HttpUtils;
 import com.mod.loan.util.MD5;
 import com.mod.loan.util.StringUtil;
 import com.mod.loan.util.TimeUtils;
+import com.mod.loan.service.MerchantService;
+import com.mod.loan.service.UserBankService;
+import com.mod.loan.service.UserService;
+import com.mod.loan.service.YeepayService;
+import com.mod.loan.util.*;
 import com.mod.loan.util.fuyou.util.XMapUtil;
 import com.mod.loan.util.fuyou.vo.FuyouBindVo;
 import com.mod.loan.util.fuyou.vo.FuyouSmsVo;
@@ -33,6 +38,10 @@ import com.mod.loan.util.heli.vo.response.AgreementSendValidateCodeResponseVo;
 import com.mod.loan.util.heli.vo.response.BindCardResponseVo;
 import com.mod.loan.util.helientrusted.vo.MerchantUserUploadResVo;
 import com.mod.loan.util.huiju.CreateLinkStringByGet;
+import com.mod.loan.util.kuaiqian.KuaiqianPost;
+import com.mod.loan.util.kuaiqian.mgw.entity.TransInfo;
+import com.mod.loan.util.kuaiqian.mgw.util.ParseUtil;
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang.StringUtils;
 import org.dom4j.Document;
 import org.dom4j.DocumentHelper;
@@ -81,13 +90,14 @@ public class UserBankServiceImpl extends BaseServiceImpl<UserBank, Long> impleme
     String huiju_bind_smg_url;
     @Value("${huiju.bind.commit.url:}")
     String huiju_bind_commit_url;
-
     @Value("${yeepay.bind.smg.url:}")
     String yeepay_bind_smg_url;
     @Value("${yeepay.bind.commit.url:}")
     String yeepay_bind_commit_url;
-    @Value("${yeepay.app_key:}")
-    String yeepay_app_key;
+    @Value("${kuaiqian.bind.smg.url:}")
+    String kuaiqian_bind_smg_url;
+    @Value("${kuaiqian.bind.commit.url:}")
+    String kuaiqian_bind_commit_url;
 
     @Override
     public UserBank selectUserCurrentBankCard(Long uid) {
@@ -550,9 +560,16 @@ public class UserBankServiceImpl extends BaseServiceImpl<UserBank, Long> impleme
             return new ResultMessage(ResponseEnum.M4000, "用户信息不存在");
         }
 
-        Merchant merchant = merchantService.findMerchantByAlias(user.getMerchant());
-        String err = yeepayService.authBindCardConfirm(merchant.getYeepay_repay_appkey(), merchant.getYeepay_repay_private_key(), validateCodeVo.getP4_orderId(), validateCode);
-        if (err != null) {
+		Merchant merchant = merchantService.findMerchantByAlias(user.getMerchant());
+        String err;
+        try {
+            err = yeepayService.authBindCardConfirm(DesUtil.decryption(merchant.getYeepay_repay_appkey()), DesUtil.decryption(merchant.getYeepay_repay_private_key()), validateCodeVo.getP4_orderId(), validateCode);
+        } catch (Exception e) {
+            log.error("易宝绑卡确认异常uid={}, error={}", uid, e);
+            err="bindYeepaySms Exception";
+        }
+
+        if (err!=null){
             return new ResultMessage(ResponseEnum.M4000, err);
         }
 
@@ -571,4 +588,142 @@ public class UserBankServiceImpl extends BaseServiceImpl<UserBank, Long> impleme
         return new ResultMessage(ResponseEnum.M2000);
     }
 
+    @Override
+    public ResultMessage sendKuaiqianSms(Long uid, String cardNo, String cardPhone, Bank bank) {
+        ResultMessage message = null;
+        StringBuffer sb = new StringBuffer();
+        HashMap respMap = null;
+        try {
+            User user = userService.selectByPrimaryKey(uid);
+            Merchant merchant = merchantService.findMerchantByAlias(RequestThread.getClientAlias());
+            TransInfo transInfo = new TransInfo();
+            //设置手机动态鉴权节点
+            transInfo.setRecordeText_1("indAuthContent");
+            transInfo.setRecordeText_2("ErrorMsgContent");
+            //版本号
+            String version = "1.0";
+            //商户编号
+            String merchantId = merchant.getKqMerchantId();
+            //终端编号
+            String terminalId = merchant.getKqTerminalId();
+            //外部跟踪编号
+            String externalRefNumber = StringUtil.getOrderNumber("c");
+            //卡号
+            String pan = cardNo;
+            //手机号码
+            String phoneNO = cardPhone;
+            //客户号
+            String customerId = phoneNO +  "_" + String.valueOf(uid);
+            //持卡人户名
+            String cardHolderName = user.getUserName();
+            //证件号码
+            String cardHolderId = user.getUserCertNo();
+            sb.append("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>")
+                    .append("<MasMessage xmlns=\"http://www.99bill.com/mas_cnp_merchant_interface\">")
+                    .append("<version>").append(version).append("</version>")
+                    .append("<indAuthContent>")
+                    .append("<merchantId>").append(merchantId).append("</merchantId>")
+                    .append("<terminalId>").append(terminalId).append("</terminalId>")
+                    .append("<customerId>").append(customerId).append("</customerId>")
+                    .append("<externalRefNumber>").append(externalRefNumber).append("</externalRefNumber>")
+                    .append("<pan>").append(pan).append("</pan>")
+                    .append("<cardHolderName>").append(cardHolderName).append("</cardHolderName>")
+                    .append("<idType>").append(0).append("</idType>")
+                    .append("<cardHolderId>").append(cardHolderId).append("</cardHolderId>")
+                    .append("<phoneNO>").append(phoneNO).append("</phoneNO>")
+                    .append("<bindType>").append(0).append("</bindType>")
+                    .append("</indAuthContent>")
+                    .append("</MasMessage>");
+            respMap = KuaiqianPost.sendPost(merchant.getKqCertPath(), merchant.getKqCertPwd(), merchantId, kuaiqian_bind_smg_url, sb.toString(), transInfo);
+            if("00".equals(MapUtils.getString(respMap, "responseCode"))) {
+                //请求参数格式转成map
+                ParseUtil parseUtil = new ParseUtil();
+                HashMap reqMap = ParseUtil.parseXML(sb.toString(), transInfo);
+                reqMap.put("cardCode", bank.getCode());
+                reqMap.put("cardName", bank.getBankName());
+                reqMap.put("token", MapUtils.getString(respMap, "token"));
+                redisMapper.set(RedisConst.user_bank_bind + user.getId(), reqMap, Constant.SMS_EXPIRATION_TIME);
+                return new ResultMessage(ResponseEnum.M2000);
+            } else {
+                log.error("快钱鉴权绑卡短信发送失败，请求参数为={},响应参数为={}", sb.toString(), JSON.toJSON(respMap));
+                return new ResultMessage(ResponseEnum.M4000.getCode(), MapUtils.getString(respMap, "responseTextMessage"));
+            }
+        } catch (Exception e) {
+            log.error("快钱鉴权绑卡短信发送异常", e);
+            log.error("快钱鉴权绑卡短信发送，请求参数为={},响应参数为={}", sb.toString(), JSON.toJSON(respMap));
+            message = new ResultMessage(ResponseEnum.M4000);
+        }
+        return message;
+    }
+
+    @Override
+    public ResultMessage bindKuaiqianSms(String validateCode, Long uid, String bindInfo) {
+        ResultMessage message = null;
+        StringBuffer sb = new StringBuffer();
+        HashMap respMap = null;
+        try {
+            Map reqMap = JSON.parseObject(bindInfo, Map.class);
+            if (MapUtils.isEmpty(reqMap)) {
+                return new ResultMessage(ResponseEnum.M4000.getCode(), "验证码失效,请重新获取");
+            }
+            Merchant merchant = merchantService.findMerchantByAlias(RequestThread.getClientAlias());
+            //设置手机动态鉴权节点
+            TransInfo transInfo= new TransInfo();
+            transInfo.setRecordeText_1("indAuthDynVerifyContent");
+            transInfo.setRecordeText_2("ErrorMsgContent");
+            //版本号
+            String version = "1.0";
+            //商户编号
+            String merchantId = merchant.getKqMerchantId();
+            //终端编号
+            String terminalId = merchant.getKqTerminalId();
+            //外部跟踪编号
+            String externalRefNumber = MapUtils.getString(reqMap, "externalRefNumber");
+            //卡号
+            String pan = MapUtils.getString(reqMap, "pan");
+            //手机号码
+            String phoneNO = MapUtils.getString(reqMap, "phoneNO");
+            //客户号
+            String customerId = phoneNO +  "_" + String.valueOf(uid);
+            //鉴权返回token
+            String token = MapUtils.getString(reqMap, "token");
+            sb.append("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>")
+                    .append("<MasMessage xmlns=\"http://www.99bill.com/mas_cnp_merchant_interface\">")
+                    .append("<version>").append(version).append("</version>")
+                    .append("<indAuthDynVerifyContent>")
+                    .append("<merchantId>").append(merchantId).append("</merchantId>")
+                    .append("<terminalId>").append(terminalId).append("</terminalId>")
+                    .append("<customerId>").append(customerId).append("</customerId>")
+                    .append("<externalRefNumber>").append(externalRefNumber).append("</externalRefNumber>")
+                    .append("<pan>").append(pan).append("</pan>")
+                    .append("<validCode>").append(validateCode).append("</validCode>")
+                    .append("<token>").append(token).append("</token>")
+                    .append("<phoneNO>").append(phoneNO).append("</phoneNO>")
+                    .append("</indAuthDynVerifyContent>")
+                    .append("</MasMessage>");
+            respMap = KuaiqianPost.sendPost(merchant.getKqCertPath(), merchant.getKqCertPwd(), merchantId, kuaiqian_bind_commit_url, sb.toString(), transInfo);
+            if("00".equals(MapUtils.getString(respMap, "responseCode"))) {
+                UserBank userBank = new UserBank();
+                userBank.setCardCode(MapUtils.getString(reqMap, "cardCode"));
+                userBank.setCardName(MapUtils.getString(reqMap, "cardName"));
+                userBank.setCardNo(MapUtils.getString(reqMap, "pan"));
+                userBank.setCardPhone(MapUtils.getString(reqMap, "phoneNO"));
+                userBank.setCardStatus(1);
+                userBank.setCreateTime(new Date());
+                userBank.setUid(uid);
+                userBank.setForeignId(MapUtils.getString(respMap, "payToken"));
+                userBank.setBindType(MerchantEnum.kuaiqian.getCode());
+                userService.insertUserBank(uid, userBank);
+                redisMapper.remove(RedisConst.user_bank_bind + uid);
+                return new ResultMessage(ResponseEnum.M2000);
+            } else {
+                log.error("快钱绑卡失败,params={},result={}", sb.toString(), JSON.toJSON(respMap));
+                return new ResultMessage(ResponseEnum.M4000.getCode(), MapUtils.getString(respMap, "responseTextMessage"));
+            }
+        } catch (Exception e) {
+            log.error("快钱绑卡异常", e);
+            message = new ResultMessage(ResponseEnum.M4000);
+        }
+        return message;
+    }
 }

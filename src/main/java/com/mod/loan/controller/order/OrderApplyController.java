@@ -121,13 +121,6 @@ public class OrderApplyController {
         User user = userService.selectByPrimaryKey(uid);
         Blacklist blacklist = blacklistService.getByPhone(user.getUserPhone());
         if (null != blacklist) {
-            // 校验灰名单锁定天数
-            if (1 == blacklist.getType()) {
-                DateTime d1 = new DateTime(new Date());
-                DateTime d2 = new DateTime(blacklist.getInvalidTime());
-                Integer remainDays = Days.daysBetween(d1, d2).getDays() + 1;
-                return new ResultMessage(ResponseEnum.M4000.getCode(), "暂时无法下单，请于" + remainDays + "天后再尝试");
-            }
             // 黑名单
             if (2 == blacklist.getType()) {
                 return new ResultMessage(ResponseEnum.M4000.getCode(), "您不符合下单条件");
@@ -160,26 +153,30 @@ public class OrderApplyController {
             // 整个系统没有查到进行的单子
             // 再检查一下是否最近风控拒绝了
             Order orderIng = orderService.findUserLatestOrder(uid);
-            // 审核拒绝的订单7天内无法再下单
-            if (orderIng.getStatus() == 51 || orderIng.getStatus() == 52) {
-                DateTime applyTime = new DateTime(orderIng.getCreateTime()).plusDays(7);
-                DateTime nowTime = new DateTime();
-                Integer remainDays = Days.daysBetween(nowTime.withMillisOfDay(0), applyTime.withMillisOfDay(0)).getDays();
-                if (0 < remainDays && remainDays <= 7) {
-                    return new ResultMessage(ResponseEnum.M4000.getCode(), "请" + remainDays + "天后重试提单");
+            if (null != orderIng) {
+                // 审核拒绝的订单7天内无法再下单
+                if (orderIng.getStatus() == 51 || orderIng.getStatus() == 52) {
+                    DateTime applyTime = new DateTime(orderIng.getCreateTime()).plusDays(7);
+                    DateTime nowTime = new DateTime();
+                    Integer remainDays = Days.daysBetween(nowTime.withMillisOfDay(0), applyTime.withMillisOfDay(0)).getDays();
+                    if (0 < remainDays && remainDays <= 7) {
+                        return new ResultMessage(ResponseEnum.M4000.getCode(), "请" + remainDays + "天后重试提单");
+                    }
                 }
             }
         }
 
         // 检查是否存在多头借贷
-        String manyHeadQueyUrl = String.format(Constant.MANY_HEAD_QUERY_URL, "", certNo);
-        String result = okHttpReader.get(manyHeadQueyUrl, null, null);
+        String manyHeadQueryUrl = String.format(Constant.MANY_HEAD_QUERY_URL, "", certNo);
+        String result = okHttpReader.get(manyHeadQueryUrl, null, null);
         if (null != result && result.length() > 0) {
             JSONObject manyHeadJson = JSON.parseObject(result);
-            boolean isManyHead = manyHeadJson.getJSONObject("data").getBoolean("isManyHead");
-            if (isManyHead) {
-                logger.info("存在多头借贷，无法提单， certNo={}", certNo);
-                return new ResultMessage(ResponseEnum.M4000.getCode(), "您不符合下单条件");
+            if ("2000".equals(manyHeadJson.getString("status"))) {
+                boolean isManyHead = manyHeadJson.getJSONObject("data").getBoolean("isManyHead");
+                if (isManyHead) {
+                    logger.info("存在多头借贷，无法提单， certNo={}", certNo);
+                    return new ResultMessage(ResponseEnum.M4000.getCode(), "您不符合下单条件");
+                }
             }
         }
 
@@ -224,6 +221,14 @@ public class OrderApplyController {
         orderPhone.setPhoneModel(phoneModel + "|" + phoneMemory);
         orderPhone.setPhoneType(phoneType);
 
+        //灰名单客户直接进入人审
+        if (blacklist != null && 1 == blacklist.getType()) {
+            order.setAuditTime(new Date());
+            order.setStatus(OrderEnum.WAIT_AUDIT.getCode());
+            orderService.addOrder(order, orderPhone);
+            return new ResultMessage(ResponseEnum.M2000);
+        }
+
         // 老客户不走风控，直接进入放款列表
         Integer borrowType = orderService.countPaySuccessByUid(uid);
         if (borrowType != null && borrowType > 0) {
@@ -241,6 +246,20 @@ public class OrderApplyController {
         rabbitTemplate.convertAndSend(RabbitConst.queue_risk_order_notify, jsonObject);
 
         return new ResultMessage(ResponseEnum.M2000);
+    }
+
+    @LoginRequired
+    @RequestMapping("/auto_apply_order")
+    public ResultMessage autoApplyOrder() {
+        String merchantAlias = RequestThread.getClientAlias();
+        MerchantConfig merchantConfig = merchantConfigService.selectByMerchant(merchantAlias);
+        int status = 1;
+        if (null != merchantConfig && null != merchantConfig.getAutoApplyOrder()) {
+            status = merchantConfig.getAutoApplyOrder();
+        }
+        JSONObject data = new JSONObject();
+        data.put("status", status);
+        return new ResultMessage(ResponseEnum.M2000, data);
     }
 
 }

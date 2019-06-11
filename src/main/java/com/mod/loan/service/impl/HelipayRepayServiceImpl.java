@@ -66,8 +66,7 @@ public class HelipayRepayServiceImpl implements HelipayRepayService {
     private RedisMapper redisMapper;
     @Autowired
     private OrderDeferService deferService;
-    @Autowired
-    ReportRecycleRepayStatService reportRecycleRepayStatService;
+
 
     /**
      * 合利宝支付,短信验证码发送业务处理方法
@@ -215,7 +214,6 @@ public class HelipayRepayServiceImpl implements HelipayRepayService {
             orderRepay1.setUpdateTime(new Date());
             orderRepay1.setRepayStatus(3);
             orderRepayService.updateOrderRepayInfo(orderRepay1, order1);
-            reportRecycleRepayStatService.sendRecycleToMQ(order.getRecycleDate(), order.getFollowUserId());
         } else {
             logger.error("异步通知异常：rt2_retCode={},rt9_orderStatus={},rt5_orderId={}", rt2_retCode, rt9_orderStatus, rt5_orderId);
         }

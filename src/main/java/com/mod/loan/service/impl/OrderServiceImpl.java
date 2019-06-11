@@ -138,4 +138,10 @@ public class OrderServiceImpl  extends BaseServiceImpl<Order,Long> implements Or
 		}
 	}
 
+	@Override
+	public void updatePayCallbackInfo(Order order, OrderPay orderPay) {
+		orderMapper.updateByPrimaryKeySelective(order);
+		orderPayMapper.updateByPrimaryKeySelective(orderPay);
+	}
+
 }

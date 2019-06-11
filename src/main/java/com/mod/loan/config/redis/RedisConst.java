@@ -9,6 +9,7 @@ public interface RedisConst {
 	String USER_PHONE_CODE = "user_phone_code:";
 	String USER_GRAPH_CODE = "user_graph_code:";
 	String USER_LOGIN = "user_login:";
+	String ORDER_LOCK = "order_lock:";
 
 	String app_notice = "app_notice:";
 	String app_banner = "app_banner:";
@@ -37,4 +38,8 @@ public interface RedisConst {
 
 	String lock_user_product_order = "lock_user_product_order:";
 	String lock_user_product_order_pay = "lock_user_product_order_pay:";
+    /**
+     * 点击PV、UV统计时判断是否同一个当天点击过
+     */
+    String PV_UV_Total = "PVTotal:";
 }

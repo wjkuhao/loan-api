@@ -47,8 +47,7 @@ public class FuyouRepayController {
 	UserBankService userBankService;
 	@Autowired
 	MerchantService merchantService;
-	@Autowired
-	ReportRecycleRepayStatService reportRecycleRepayStatService;
+
 	/**
 	 * 查询商户支持的支付通道
 	 */
@@ -63,9 +62,9 @@ public class FuyouRepayController {
 		return  new ResultMessage(ResponseEnum.M2000,object );
 	}
 
-		/**
-         * 富友支付还款
-         */
+	/**
+	 * 富友支付还款
+	 */
 	@LoginRequired(check = true)
 	@RequestMapping(value = "order_repay_fuyou")
 	public ResultMessage order_repay_fuyou( @RequestParam(required = true) Long orderId,@RequestParam(required = true)String cardNo,
@@ -224,8 +223,6 @@ public class FuyouRepayController {
 		orderRepay1.setUpdateTime(new Date());
 		orderRepay1.setRepayStatus(3);
 		orderRepayService.updateOrderRepayInfo(orderRepay1, order1);
-		reportRecycleRepayStatService.sendRecycleToMQ(order.getRecycleDate(), order.getFollowUserId());
-		return;
 	}
 
 }

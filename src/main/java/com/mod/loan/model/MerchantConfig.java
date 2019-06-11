@@ -35,7 +35,16 @@ public class MerchantConfig {
     private String rejectKeyword;
 
     @Column(name = "`ident_invalid_day`")
-    private String identInvalidDay;
+    private Integer identInvalidDay;
+
+    @Column(name = "auto_apply_order")
+    private Integer autoApplyOrder;
+
+    @Column(name = "service_phone")
+    private String servicePhone;
+
+    @Column(name = "default_origin_status")
+    private Integer defaultOriginStatus;
 
     public String getOverdueBlacklistDay() {
         return overdueBlacklistDay;
@@ -53,11 +62,11 @@ public class MerchantConfig {
         this.rejectKeyword = rejectKeyword;
     }
 
-    public String getIdentInvalidDay() {
+    public Integer getIdentInvalidDay() {
         return identInvalidDay;
     }
 
-    public void setIdentInvalidDay(String identInvalidDay) {
+    public void setIdentInvalidDay(Integer identInvalidDay) {
         this.identInvalidDay = identInvalidDay;
     }
 
@@ -115,5 +124,29 @@ public class MerchantConfig {
 
     public void setUpdateTime(String updateTime) {
         this.updateTime = updateTime;
+    }
+
+    public Integer getAutoApplyOrder() {
+        return autoApplyOrder;
+    }
+
+    public void setAutoApplyOrder(Integer autoApplyOrder) {
+        this.autoApplyOrder = autoApplyOrder;
+    }
+
+    public String getServicePhone() {
+        return servicePhone;
+    }
+
+    public void setServicePhone(String servicePhone) {
+        this.servicePhone = servicePhone;
+    }
+
+    public Integer getDefaultOriginStatus() {
+        return defaultOriginStatus;
+    }
+
+    public void setDefaultOriginStatus(Integer defaultOriginStatus) {
+        this.defaultOriginStatus = defaultOriginStatus;
     }
 }

@@ -18,6 +18,9 @@ public class Constant {
     public static String HUIJU_PAY_URL;
     public static String HUIJU_NOTIFY_URL;
 
+    public static String KUAIQIAN_PAY_URL;
+    public static String KUAIQIAN_PAY_QUERY_URL;
+
     public static String OSS_STATIC_BUCKET_NAME;
     public static String OSS_ACCESSKEY_ID;
     public static String OSS_ACCESS_KEY_SECRET;
@@ -98,6 +101,14 @@ public class Constant {
     @Value("${huiju.sms.url:}")
     public void setHuijuSmsUrl(String huijuSmsUrl) {
         HUIJU_SMS_URL = huijuSmsUrl;
+    }
+
+    @Value("${kuaiqian.pay.url:}")
+    public void setKuaiqianPayUrl(String kuaiqianPayUrl) {KUAIQIAN_PAY_URL = kuaiqianPayUrl;}
+
+    @Value("${kuaiqian.pay.query.url:}")
+    public void setKuaiqianPayQueryUrl(String kuaiqianPayQueryUrl) {
+        KUAIQIAN_PAY_QUERY_URL = kuaiqianPayQueryUrl;
     }
 
     @Value("${oss.static.bucket.name:}")
