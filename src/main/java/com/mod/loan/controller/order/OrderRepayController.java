@@ -4,7 +4,6 @@ import com.mod.loan.common.annotation.LoginRequired;
 import com.mod.loan.common.enums.ResponseEnum;
 import com.mod.loan.common.model.ResultMessage;
 import com.mod.loan.model.OrderRepay;
-import com.mod.loan.service.OrderChangjieRepayService;
 import com.mod.loan.service.OrderHuichaoRepayService;
 import com.mod.loan.service.OrderRepayService;
 import org.slf4j.Logger;
@@ -25,59 +24,11 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("orderRepay")
 public class OrderRepayController {
     private static Logger logger = LoggerFactory.getLogger(OrderRepayController.class);
-
-    @Autowired
-    OrderChangjieRepayService orderChangjieRepayService;
+	
     @Autowired
     OrderHuichaoRepayService orderHuichaoRepayService;
     @Autowired
     OrderRepayService orderRepayService;
-
-    /**
-     * 畅捷代扣还款
-     *
-     * @param orderId 订单id
-     * @return
-     */
-    @LoginRequired
-    @RequestMapping(value = "changjieRepay")
-    public ResultMessage changjieRepay(@RequestParam("orderId") Long orderId) {
-        logger.info("#[畅捷代扣还款]-[开始]-request={}", orderId);
-        if (null == orderId) {
-            return new ResultMessage(ResponseEnum.M5000);
-        }
-        try {
-            orderChangjieRepayService.changjieRepay(orderId);
-            logger.info("#[畅捷代扣还款]-[结束]");
-            return new ResultMessage(ResponseEnum.M2000);
-        } catch (Exception e) {
-            logger.error("#[畅捷代扣还款]-[异常]-e={}", e);
-            return new ResultMessage(ResponseEnum.M4000);
-        }
-    }
-
-    /**
-     * 畅捷代扣还款结果查询
-     *
-     * @param repayNo 还款流水号
-     * @return
-     */
-    @LoginRequired
-    @RequestMapping(value = "changjieRepay4Query")
-    public ResultMessage changjieRepay4Query(@RequestParam("repayNo") String repayNo) {
-        logger.info("#[畅捷代扣还款结果查询]-[开始]-request={}", repayNo);
-        if (StringUtils.isEmpty(repayNo)) {
-            return new ResultMessage(ResponseEnum.M5000);
-        }
-        try {
-            orderChangjieRepayService.changjieRepay4Query(repayNo);
-            logger.info("#[畅捷代扣还款结果查询]-[结束]");
-            return new ResultMessage(ResponseEnum.M2000);
-        } catch (Exception e) {
-            logger.error("#[畅捷代扣还款结果查询]-[异常]-e={}", e);
-            return new ResultMessage(ResponseEnum.M4000);
-        }
-    }
 
     /**
      * 汇潮支付宝还款
