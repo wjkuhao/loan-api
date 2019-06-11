@@ -65,7 +65,7 @@ public class KuaiqianServiceImpl implements KuaiqianService {
 
     @Override
     public ResultMessage orderRepayKuaiqian(Long orderId) {
-        Long uid = 1L;//RequestThread.getUid();
+        Long uid = RequestThread.getUid();
         if (orderId == null) {
             logger.info("订单异常，uid={},订单号={}", uid, orderId);
             return new ResultMessage(ResponseEnum.M4000.getCode(), "订单不存在");

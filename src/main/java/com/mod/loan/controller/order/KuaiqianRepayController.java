@@ -74,11 +74,4 @@ public class KuaiqianRepayController {
         kuaiqianService.kuaiqianOrderPayNotice(request, response);
         logger.info("#[快钱代付异步通知]-[结束]");
     }
-
-    @RequestMapping(value = "order_repay_kuaiqian1")
-    public ResultMessage orderRepayKuaiqian1() {
-        ResultMessage resultMessage = kuaiqianService.orderRepayKuaiqian(1L);
-        logger.info("#[快钱支付还款]-[结束]-result={}", JSONObject.toJSON(resultMessage));
-        return resultMessage;
-    }
 }
