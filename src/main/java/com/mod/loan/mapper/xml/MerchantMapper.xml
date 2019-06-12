@@ -26,6 +26,8 @@
     <result column="huiju_md5_key" jdbcType="VARCHAR" property="huiju_md5_key" />
     <result column="bind_type" jdbcType="TINYINT" property="bindType" />
     <result column="hlb_merchant_sign" jdbcType="TINYINT" property="hlbMerchantSign" />
+    <result column="hlb_entrusted_sign_key" jdbcType="VARCHAR" property="hlbEntrustedSignKey" />
+    <result column="hlb_entrusted_private_key" jdbcType="VARCHAR" property="hlbEntrustedPrivateKey" />
   </resultMap>
 
   <select id="findByHuijuId" resultMap="BaseResultMap">

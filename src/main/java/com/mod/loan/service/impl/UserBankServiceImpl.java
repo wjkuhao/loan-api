@@ -16,6 +16,11 @@ import com.mod.loan.model.Bank;
 import com.mod.loan.model.Merchant;
 import com.mod.loan.model.User;
 import com.mod.loan.model.UserBank;
+import com.mod.loan.service.*;
+import com.mod.loan.util.HttpUtils;
+import com.mod.loan.util.MD5;
+import com.mod.loan.util.StringUtil;
+import com.mod.loan.util.TimeUtils;
 import com.mod.loan.service.MerchantService;
 import com.mod.loan.service.UserBankService;
 import com.mod.loan.service.UserService;
@@ -31,6 +36,7 @@ import com.mod.loan.util.heli.vo.request.AgreementBindCardValidateCodeVo;
 import com.mod.loan.util.heli.vo.request.BindCardVo;
 import com.mod.loan.util.heli.vo.response.AgreementSendValidateCodeResponseVo;
 import com.mod.loan.util.heli.vo.response.BindCardResponseVo;
+import com.mod.loan.util.helientrusted.vo.MerchantUserUploadResVo;
 import com.mod.loan.util.huiju.CreateLinkStringByGet;
 import com.mod.loan.util.kuaiqian.KuaiqianPost;
 import com.mod.loan.util.kuaiqian.mgw.entity.TransInfo;
@@ -65,6 +71,8 @@ public class UserBankServiceImpl extends BaseServiceImpl<UserBank, Long> impleme
     private RedisMapper redisMapper;
     @Autowired
     YeepayService yeepayService;
+    @Autowired
+    private HelipayEntrustedService helipayEntrustedService;
 
     @Value("${helipay.path:}")
     String helipay_path;
@@ -122,8 +130,11 @@ public class UserBankServiceImpl extends BaseServiceImpl<UserBank, Long> impleme
             requestVo.setP14_cvv2("");
             requestVo.setSignatureType("MD5WITHRSA");
             String pfxPath = helipay_path + merchant.getMerchantAlias() + ".pfx";
+            log.error("pfxPath:{}", pfxPath);
             Map handleMap = MessageHandle.getReqestMap(requestVo, pfxPath, helipay_pfx_pwd);
+            log.error("sign map:{}", handleMap);
             response = HttpClientService.getHttpResp(handleMap, helipay_url);
+            log.error("response:{}", response);
             AgreementSendValidateCodeResponseVo responseVo = JSONObject.parseObject(response,
                     AgreementSendValidateCodeResponseVo.class);
             if ("0000".equals(responseVo.getRt2_retCode())) {
@@ -143,9 +154,11 @@ public class UserBankServiceImpl extends BaseServiceImpl<UserBank, Long> impleme
         return message;
     }
 
+    /**
+     * 合利宝用户快捷支付绑卡
+     */
     @Override
     public ResultMessage bindByHeliSms(String validateCode, Long uid, String bindInfo) {
-        ResultMessage message = null;
         AgreementBindCardValidateCodeVo validateCodeVo = JSON.parseObject(bindInfo,
                 AgreementBindCardValidateCodeVo.class);
         if (validateCodeVo == null) {
@@ -176,19 +189,21 @@ public class UserBankServiceImpl extends BaseServiceImpl<UserBank, Long> impleme
             response = HttpClientService.getHttpResp(handleMap, helipay_url);
             BindCardResponseVo responseVo = JSONObject.parseObject(response, BindCardResponseVo.class);
             if ("0000".equals(responseVo.getRt2_retCode())) {
-                UserBank userBank = new UserBank();
-                userBank.setCardCode(validateCodeVo.getBankCode());
-                userBank.setCardName(validateCodeVo.getBankName());
-                userBank.setCardNo(validateCodeVo.getP6_cardNo());
-                userBank.setCardPhone(validateCodeVo.getP7_phone());
-                userBank.setCardStatus(1);
-                userBank.setCreateTime(new Date());
-                userBank.setForeignId(responseVo.getRt10_bindId());
-                userBank.setUid(uid);
-                userBank.setBindType(MerchantEnum.helibao.getCode());
-                userService.insertUserBank(uid, userBank);
-                redisMapper.remove(RedisConst.user_bank_bind + uid);
-                return new ResultMessage(ResponseEnum.M2000);
+                //保存银行卡信息
+                saveUserBank(validateCodeVo, uid, responseVo.getRt10_bindId());
+                //委托代付发送商户用户注册mq消息
+                if (StringUtils.isNotEmpty(merchant.getHlbEntrustedSignKey())
+                        && StringUtils.isNotEmpty(merchant.getHlbEntrustedPrivateKey())) {
+                    MerchantUserUploadResVo resVo = helipayEntrustedService.bindUserCard(uid, merchant.getMerchantAlias());
+                    if (resVo != null && "0000".equals(resVo.getRt2_retCode())) {
+                        redisMapper.remove(RedisConst.user_bank_bind + uid);
+                        return new ResultMessage(ResponseEnum.M2000);
+                    }
+                    return new ResultMessage(ResponseEnum.M4000, resVo.getRt3_retMsg());
+                } else {
+                    redisMapper.remove(RedisConst.user_bank_bind + uid);
+                    return new ResultMessage(ResponseEnum.M2000);
+                }
             } else if ("00000000".equals(responseVo.getRt2_retCode())) {
                 return new ResultMessage(ResponseEnum.M2000);
             } else {
@@ -197,9 +212,25 @@ public class UserBankServiceImpl extends BaseServiceImpl<UserBank, Long> impleme
             }
         } catch (Exception e) {
             log.error("合利宝绑卡异常", e);
-            message = new ResultMessage(ResponseEnum.M4000);
+            return new ResultMessage(ResponseEnum.M4000);
         }
-        return message;
+    }
+
+    /**
+     * 保存银行卡信息
+     */
+    private void saveUserBank(AgreementBindCardValidateCodeVo validateCodeVo, Long uid, String bindId) {
+        UserBank userBank = new UserBank();
+        userBank.setCardCode(validateCodeVo.getBankCode());
+        userBank.setCardName(validateCodeVo.getBankName());
+        userBank.setCardNo(validateCodeVo.getP6_cardNo());
+        userBank.setCardPhone(validateCodeVo.getP7_phone());
+        userBank.setCardStatus(1);
+        userBank.setCreateTime(new Date());
+        userBank.setForeignId(bindId);
+        userBank.setUid(uid);
+        userBank.setBindType(MerchantEnum.helibao.getCode());
+        userService.insertUserBank(uid, userBank);
     }
 
     @Override

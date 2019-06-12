@@ -1,10 +1,9 @@
 package com.mod.loan.model;
 
-import java.util.Date;
-
 import javax.persistence.Column;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import java.util.Date;
 
 @Table(name = "tb_user_bank")
 public class UserBank {
@@ -66,7 +65,10 @@ public class UserBank {
 
     @Column(name = "bind_type")
     private Integer bindType;
-    
+
+    @Column(name = "hlb_entrusted_cuid")
+    private String hlbEntrustedCuid;
+
     /**
      * @return id
      */
@@ -239,13 +241,13 @@ public class UserBank {
         this.foreignId = foreignId == null ? null : foreignId.trim();
     }
 
-	public String getRemark() {
-		return remark;
-	}
+    public String getRemark() {
+        return remark;
+    }
 
-	public void setRemark(String remark) {
-		this.remark = remark;
-	}
+    public void setRemark(String remark) {
+        this.remark = remark;
+    }
 
     public Integer getBindType() {
         return bindType;
@@ -253,5 +255,13 @@ public class UserBank {
 
     public void setBindType(Integer bindType) {
         this.bindType = bindType;
+    }
+
+    public String getHlbEntrustedCuid() {
+        return hlbEntrustedCuid;
+    }
+
+    public void setHlbEntrustedCuid(String hlbEntrustedCuid) {
+        this.hlbEntrustedCuid = hlbEntrustedCuid;
     }
 }

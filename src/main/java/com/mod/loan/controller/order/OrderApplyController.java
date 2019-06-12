@@ -64,6 +64,8 @@ public class OrderApplyController {
     private MerchantConfigService merchantConfigService;
     @Autowired
     private OkHttpReader okHttpReader;
+    @Autowired
+    MerchantQuotaConfigService merchantQuotaConfigService;
 
     /**
      * h5 借款确认 获取费用明细
@@ -90,6 +92,10 @@ public class OrderApplyController {
         map.put("productDay", merchantRate.getProductDay());
         map.put("totalFee", totalFee);
         map.put("actualMoney", actualMoney);
+
+        BigDecimal maxQuota = merchantQuotaConfigService.computeQuota(RequestThread.getClientAlias(), uid, merchantRate.getProductMoney());
+        map.put("totalRate", merchantRate.getTotalRate());
+        map.put("productMoneyRange", merchantRate.getProductMoney().intValue()+ "~" + maxQuota.intValue());
 
         map.put("cardName", userBank.getCardName());
         map.put("cardNo", StringUtil.bankTailNo(userBank.getCardNo()));
@@ -262,4 +268,21 @@ public class OrderApplyController {
         return new ResultMessage(ResponseEnum.M2000, data);
     }
 
+    @LoginRequired
+    @RequestMapping("/compute_quota")
+    public ResultMessage compute_quota(String productMoney, String totalRate) {
+        String merchantAlias = RequestThread.getClientAlias();
+        Long uid = RequestThread.getUid();
+
+        BigDecimal lastQuota = merchantQuotaConfigService.computeQuota(merchantAlias, uid, new BigDecimal(productMoney));
+
+        BigDecimal totalFee = MoneyUtil.totalFee(lastQuota, new BigDecimal(totalRate));// 综合费用
+        BigDecimal actualMoney = MoneyUtil.actualMoney(lastQuota, totalFee);// 实际到账
+
+        JSONObject data = new JSONObject();
+        data.put("productMoney", lastQuota);
+        data.put("totalFee", totalFee);
+        data.put("actualMoney", actualMoney);
+        return new ResultMessage(ResponseEnum.M2000, data);
+    }
 }

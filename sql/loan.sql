@@ -458,7 +458,7 @@ CREATE TABLE `tb_merchant`  (
   `merchant_zfb` varchar(40) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '商户支付宝',
   `merchant_status` tinyint(4) NOT NULL COMMENT '商户状态',
   `merchant_market` text CHARACTER SET utf8 COLLATE utf8_general_ci NULL COMMENT '贷款超市',
-  `merchant_channel` varchar(200) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '商户已开通的支付平台',
+  `merchant_channel` varchar(1024) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '商户已开通的支付平台',
   `bind_type` tinyint(4) NOT NULL DEFAULT 1 COMMENT '绑卡类型：1，合利宝；2，富友；3，汇聚',
   `lianlian_id` varchar(64) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '连连编号------(弃用)',
   `private_key` text CHARACTER SET utf8 COLLATE utf8_general_ci NULL COMMENT '连连私钥------(弃用)',
@@ -479,6 +479,8 @@ CREATE TABLE `tb_merchant`  (
   `yeepay_loan_appkey` varchar(128) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '易宝放款appkey',
   `yeepay_loan_private_key` varchar(3072) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '易宝放款私钥',
   `hlb_merchant_sign` varchar(128) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '合利宝商户端签名sign',
+  `hlb_entrusted_sign_key` varchar(64) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '合利宝委托代付签名signKey',
+  `hlb_entrusted_private_key` varchar(1024) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '合利宝委托代付私钥',
   `kq_terminal_id` varchar(32) DEFAULT NULL COMMENT '快钱终端号',
   `kq_merchant_id` varchar(32) DEFAULT NULL COMMENT '快钱商户号',
   `kq_cert_pwd` varchar(32) DEFAULT NULL COMMENT '快钱证书密码',
@@ -487,6 +489,10 @@ CREATE TABLE `tb_merchant`  (
   `cj_partnerId` varchar(32) DEFAULT NULL COMMENT '畅捷商户号',
   `cj_public_key` varchar(1024) DEFAULT NULL COMMENT '畅捷公钥',
   `cj_merchant_private_key` varchar(1024) DEFAULT NULL COMMENT '商户私钥',
+  `huichao_merid` varchar(30) DEFAULT NULL COMMENT '汇潮的商户id',
+  `huichao_public_key` varchar(500) DEFAULT NULL COMMENT '汇潮自己的公钥',
+  `huichao_merchant_repay_private_key` varchar(1000) DEFAULT NULL COMMENT '汇潮商户的微信、支付宝、代扣的私钥',
+  `huichao_merchant_pay_private_key` varchar(1000) DEFAULT NULL COMMENT '汇潮商户的代付的私钥',
   `create_time` datetime(0) NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`merchant_alias`) USING BTREE
 ) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
@@ -1009,6 +1015,7 @@ CREATE TABLE `tb_user_bank`  (
   `remark` text CHARACTER SET utf8 COLLATE utf8_general_ci NULL,
   `card_code_helipay` varchar(10) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '合利宝银行代码code',
   `bind_type` tinyint(4) NOT NULL DEFAULT 1 COMMENT '绑卡类型:1：合利宝；2：富友；3：汇聚; 4：易宝',
+  `hlb_entrusted_cuid` varchar(20) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '合利宝委托代付(合利宝分配用户号)',
   PRIMARY KEY (`id`) USING BTREE,
   INDEX `idx_uid`(`uid`) USING BTREE
 ) ENGINE = InnoDB  CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
@@ -1114,6 +1121,7 @@ CREATE TABLE `tb_order_risk_info`  (
   `update_time` char(19) DEFAULT NULL COMMENT '更新时间',
   PRIMARY KEY (`id`) USING BTREE,
   INDEX `idx_risk_id`(`risk_id`) USING BTREE,
+  INDEX `idx_phone`(`user_phone`) USING BTREE,
   INDEX `idx_order_id`(`order_id`) USING BTREE
 ) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '用户风控信息' ROW_FORMAT = Dynamic;
 
@@ -1318,7 +1326,7 @@ CREATE TABLE `tb_merchant_quota_config`  (
   `quota_name` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '额度名称',
   `quota_value` int(11) NOT NULL COMMENT '提升额度，可以为负数',
   `comparator` varchar(11) DEFAULT NULL COMMENT '字段比较符: eq/gt/lt/gte/lte/range/in/exists',
-  `preset_value` varchar(128) DEFAULT NULL COMMENT '预设值: 后台配置',
+  `preset_value` varchar(128) DEFAULT NULL COMMENT '预设值',
   `merchant` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '商户别名',
   `quota_type` tinyint(4) NULL  COMMENT '1-天机分，2-展期次数',
   `status` tinyint(4) NULL DEFAULT 1 COMMENT '1-启用, 0-停用',

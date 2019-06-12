@@ -17,8 +17,9 @@
     <result column="foreign_id" jdbcType="VARCHAR" property="foreignId" />
     <result column="remark" jdbcType="VARCHAR" property="remark" />
     <result column="bind_type" jdbcType="TINYINT" property="bindType" />
+    <result column="hlb_entrusted_cuid" jdbcType="VARCHAR" property="hlbEntrustedCuid" />
   </resultMap>
-  
+
   <select id="selectUserCurrentBankCard"  resultMap="BaseResultMap">
   select * from tb_user_bank where uid=#{uid} and card_status=1
   </select>
