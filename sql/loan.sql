@@ -483,7 +483,6 @@ CREATE TABLE `tb_merchant`  (
   `kq_merchant_id` varchar(32) DEFAULT NULL COMMENT '快钱商户号',
   `kq_cert_pwd` varchar(32) DEFAULT NULL COMMENT '快钱证书密码',
   `kq_cert_path` varchar(64) DEFAULT NULL COMMENT '快钱证书路径',
-  `kq_cer_pfx_path` varchar(64) DEFAULT NULL COMMENT '快钱公钥路径',
   `kq_merchant_code` varchar(32) DEFAULT NULL COMMENT '快钱商户会员号',
   `cj_partnerId` varchar(32) DEFAULT NULL COMMENT '畅捷商户号',
   `cj_public_key` varchar(1024) DEFAULT NULL COMMENT '畅捷公钥',
