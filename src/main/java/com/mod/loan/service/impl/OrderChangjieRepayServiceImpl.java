@@ -55,6 +55,8 @@ public class OrderChangjieRepayServiceImpl extends BaseServiceImpl<OrderRepay, S
     ChangjieRepayService changjieRepayService;
     @Autowired
     OrderRepayService orderRepayService;
+    @Autowired
+    OrderService orderService;
 
     @Override
     public String bindBankCard4RepaySendMsg(Long orderId) {
@@ -195,7 +197,7 @@ public class OrderChangjieRepayServiceImpl extends BaseServiceImpl<OrderRepay, S
             JSONObject jsonObject = JSONObject.parseObject(result);
             //畅捷协议支付还款确认
             if (StringUtils.equals("S", jsonObject.getString("Status"))) {
-                //受理成功
+                //成功
                 orderRepay.setRepayStatus(OrderRepayStatusEnum.REPAY_SUCCESS.getCode());
                 orderRepay.setRemark("畅捷还款成功");
             } else if (StringUtils.equals("F", jsonObject.getString("Status"))) {
@@ -208,6 +210,13 @@ public class OrderChangjieRepayServiceImpl extends BaseServiceImpl<OrderRepay, S
                 orderRepay.setRepayStatus(OrderRepayStatusEnum.ACCEPT_SUCCESS.getCode());
             }
             orderRepayMapper.insertSelective(orderRepay);
+            if (StringUtils.equals("S", jsonObject.getString("Status"))) {
+                //成功
+                order.setRealRepayTime(new Date());
+                order.setHadRepay(orderRepay.getRepayMoney());
+                order.setStatus(orderService.setRepaySuccStatusByCurrStatus(order.getStatus()));
+                orderMapper.updateByPrimaryKeySelective(order);
+            }
             logger.info("#[畅捷订单协议支付还款确认]-[结束]");
             return seriesNo;
         }
