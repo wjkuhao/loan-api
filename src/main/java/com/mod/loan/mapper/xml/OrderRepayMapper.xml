@@ -6,7 +6,7 @@
       WARNING - @mbg.generated
     -->
     <id column="repay_no" jdbcType="VARCHAR" property="repayNo" />
-    <result column="uid" jdbcType="BIGINT" property="uid" />
+    <result column="uid" jdbcType="BIGINT" property="uid"/>
     <result column="order_id" jdbcType="BIGINT" property="orderId" />
     <result column="repay_type" jdbcType="TINYINT" property="repayType" />
     <result column="repay_status" jdbcType="INTEGER" property="repayStatus" />
@@ -30,5 +30,24 @@
       select repay_no from tb_order_repay where order_id = #{order_id} order by repay_no desc limit 1;
   </select>
 
+    <!-- 畅捷代扣还款订单-定时任务 -->
+    <select id="changjieRepayQuery4Task" resultMap="BaseResultMap">
+    SELECT
+    tory.repay_no,
+    tory.uid,
+    tory.order_id
+    FROM
+    tb_order_repay tory
+    INNER JOIN tb_order tor ON tory.order_id = tor.id
+    INNER JOIN tb_merchant tmt ON tor.merchant = tmt.merchant_alias
+    WHERE
+    tory.repay_status = 1
+    AND tor.`status` >= 31 AND tor.`status` &lt; 41
+    AND tmt.bind_type = 5
+    AND tory.create_time &lt;= date_format(
+    date_sub(now(), INTERVAL 10 MINUTE),
+    '%Y-%m-%d %H:%i:%s'
+    )
+  </select>
 
 </mapper>

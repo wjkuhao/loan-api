@@ -11,10 +11,7 @@ import com.mod.loan.config.redis.RedisMapper;
 import com.mod.loan.mapper.BankMapper;
 import com.mod.loan.mapper.UserIdentMapper;
 import com.mod.loan.model.*;
-import com.mod.loan.service.MerchantService;
-import com.mod.loan.service.OrderService;
-import com.mod.loan.service.UserBankService;
-import com.mod.loan.service.UserService;
+import com.mod.loan.service.*;
 import com.mod.loan.util.CheckUtils;
 import com.mod.loan.util.GetBankUtil;
 import com.mod.loan.util.StringReplaceUtil;
@@ -66,6 +63,8 @@ public class BankController {
 	UserService userService;
 	@Autowired
 	RedisMapper redisMapper;
+	@Autowired
+	UserChangjieBankService userChangjieBankService;
 
 	@RequestMapping(value = "bank_user")
 	@LoginRequired(check = true)
@@ -203,6 +202,9 @@ public class BankController {
         case 4:
             message = userBankService.sendYeepaySms(uid, cardNo, cardPhone, bank);
             break;
+			case 5:
+				message = userChangjieBankService.changjieBindBankCard4SendMsg(uid, cardNo, cardPhone, bank);
+				break;
 		case 6:
 			message = userBankService.sendKuaiqianSms(uid, cardNo, cardPhone, bank);
 			break;
@@ -268,6 +270,9 @@ public class BankController {
         case 4:
             message = userBankService.bindYeepaySms(validateCode, uid, bindInfo);
             break;
+			case 5:
+				message = userChangjieBankService.changjieBindBankCard4Confirm(validateCode, uid, bindInfo);
+				break;
 		case 6:
 			message = userBankService.bindKuaiqianSms(validateCode, uid, bindInfo);
 			break;

@@ -50,18 +50,20 @@ public class OrderHuichaoRepayServiceImpl implements OrderHuichaoRepayService {
     public String huichaoRepay4AliAppH5(Long orderId) {
         logger.info("#[汇潮订单支付宝还款]-[开始]-orderId={}", orderId);
         if (null == orderId) {
-            throw new RuntimeException("参数为空");
+            logger.info("参数为空");
+            return null;
         }
         //幂等
         if (orderRepayMapper.countRepaySuccess(orderId) >= 1) {
             logger.info("orderId={}已存在还款中的记录", orderId);
-            throw new RuntimeException("已存在还款中的记录");
+            return null;
         }
         //获取订单信息
         Order order = orderMapper.selectByPrimaryKey(orderId);
         logger.info("#[获取订单信息]-order={}", JSONObject.toJSON(order));
         if (null == order) {
-            throw new RuntimeException("获取订单信息为空");
+            logger.info("获取订单信息为空");
+            return null;
         }
         //幂等--还款中30～40
         if (order.getStatus() >= OrderEnum.REPAYING.getCode() && order.getStatus() < OrderEnum.NORMAL_REPAY.getCode()) {
@@ -70,7 +72,7 @@ public class OrderHuichaoRepayServiceImpl implements OrderHuichaoRepayService {
                 Merchant merchant = merchantService.findMerchantByAlias(order.getMerchant());
                 if (null == merchant || StringUtils.isBlank(merchant.getHuichaoMerid()) || StringUtils.isBlank(merchant.getHuichaoMerchantRepayPrivateKey())) {
                     logger.info("#[该商户信息异常]-merchant={}", JSONObject.toJSON(merchant));
-                    throw new RuntimeException("该商户信息异常");
+                    return null;
                 }
                 //获取用户信息
                 //唯一流水号
@@ -86,14 +88,14 @@ public class OrderHuichaoRepayServiceImpl implements OrderHuichaoRepayService {
                 //去调汇潮支付宝还款
                 String result = null;
                 try {
-                    result = huichaoRepayService.aliAppH5Repay(aliAppH5RepayRequest);
+                    result = huichaoRepayService.aliAppH5RepayUrl(aliAppH5RepayRequest);
                 } catch (Exception e) {
                     logger.error("#[去调汇潮支付宝还款]-[异常]-e={}", e);
-                    throw new RuntimeException("去调汇潮支付宝还款异常");
+                    return null;
                 }
                 if (null == result) {
                     logger.info("#[去调汇潮支付宝还款]-[返回结果为空]");
-                    throw new RuntimeException("去调汇潮支付宝还款返回结果为空");
+                    return null;
                 }
                 //落还款记录表
                 OrderRepay orderRepay = new OrderRepay();
@@ -113,7 +115,7 @@ public class OrderHuichaoRepayServiceImpl implements OrderHuichaoRepayService {
                 return result;
             } catch (Exception e) {
                 logger.error("#[汇潮订单支付宝还款]-[异常]-e={}", e);
-                throw new RuntimeException("汇潮订单支付宝还款异常");
+                return null;
             }
         }
         return null;
@@ -191,18 +193,20 @@ public class OrderHuichaoRepayServiceImpl implements OrderHuichaoRepayService {
     public String huichaoRepay4WxScan(Long orderId) {
         logger.info("#[汇潮订单微信扫码支付]-[开始]-orderId={}", orderId);
         if (null == orderId) {
-            throw new RuntimeException("参数为空");
+            logger.info("参数为空");
+            return null;
         }
         //幂等
         if (orderRepayMapper.countRepaySuccess(orderId) >= 1) {
-            logger.info("orderId={}已存在还款中的记录", orderId);
-            throw new RuntimeException("已存在还款中的记录");
+            logger.info("已存在还款中的记录");
+            return null;
         }
         //获取订单信息
         Order order = orderMapper.selectByPrimaryKey(orderId);
         logger.info("#[获取订单信息]-order={}", JSONObject.toJSON(order));
         if (null == order) {
-            throw new RuntimeException("获取订单信息为空");
+            logger.info("获取订单信息为空");
+            return null;
         }
         //幂等--还款中30～40
         if (order.getStatus() >= OrderEnum.REPAYING.getCode() && order.getStatus() < OrderEnum.NORMAL_REPAY.getCode()) {
@@ -211,7 +215,7 @@ public class OrderHuichaoRepayServiceImpl implements OrderHuichaoRepayService {
                 Merchant merchant = merchantService.findMerchantByAlias(order.getMerchant());
                 if (null == merchant || StringUtils.isBlank(merchant.getHuichaoMerid()) || StringUtils.isBlank(merchant.getHuichaoMerchantRepayPrivateKey())) {
                     logger.info("#[该商户信息异常]-merchant={}", JSONObject.toJSON(merchant));
-                    throw new RuntimeException("该商户信息异常");
+                    return null;
                 }
                 //获取用户信息
                 //唯一流水号
@@ -230,11 +234,11 @@ public class OrderHuichaoRepayServiceImpl implements OrderHuichaoRepayService {
                     result = huichaoRepayService.wxScanRepay(aliAppH5RepayRequest);
                 } catch (Exception e) {
                     logger.error("#[去调汇潮微信扫码支付]-[异常]-e={}", e);
-                    throw new RuntimeException("去调汇潮微信扫码支付异常");
+                    return null;
                 }
                 if (null == result) {
                     logger.info("#[去调汇潮微信扫码支付]-[返回结果为空]");
-                    throw new RuntimeException("去调汇潮微信扫码支付返回结果为空");
+                    return null;
                 }
                 //落还款记录表
                 OrderRepay orderRepay = new OrderRepay();
@@ -254,7 +258,7 @@ public class OrderHuichaoRepayServiceImpl implements OrderHuichaoRepayService {
                 return result;
             } catch (Exception e) {
                 logger.error("#[汇潮订单微信扫码支付]-[异常]-e={}", e);
-                throw new RuntimeException("汇潮订单微信扫码支付异常");
+                return null;
             }
         }
         return null;

@@ -194,7 +194,6 @@ public class Merchant {
     public void setYeepay_repay_private_key(String yeepay_repay_private_key) {
         this.yeepay_repay_private_key = yeepay_repay_private_key;
     }
-
     /**
      * 获取商户别名与app别名一致
      *
