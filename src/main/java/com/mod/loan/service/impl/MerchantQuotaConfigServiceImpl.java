@@ -60,8 +60,8 @@ public class MerchantQuotaConfigServiceImpl extends BaseServiceImpl<MerchantQuot
 
                 if ("range".equals(comparator)) {
                     String[] presetValues = quotaConfig.getPresetValue().split("-");
-                    if (actualValue.compareTo(presetValues[0]) >= 0
-                            && actualValue.compareTo(presetValues[1]) < 0) {
+                    if (Double.valueOf(actualValue).compareTo(Double.valueOf(presetValues[0])) >= 0
+                            && Double.valueOf(actualValue).compareTo(Double.valueOf(presetValues[1])) < 0) {
                         quotaValue = quotaConfig.getQuotaValue();
                         break;
                     }
