@@ -8,7 +8,7 @@ import java.util.Date;
 @Table(name = "tb_merchant")
 public class Merchant {
 
-	/**
+    /**
      * 商户别名与app别名一致
      */
     @Id
@@ -26,7 +26,7 @@ public class Merchant {
      */
     @Column(name = "merchant_app")
     private String merchantApp;
-    
+
     /**
      * 商户ios别名
      */
@@ -49,21 +49,21 @@ public class Merchant {
 
     @Column(name = "create_time")
     private Date createTime;
-    
+
     @Column(name = "hlb_id")
     private String hlb_id;
-    
+
     @Column(name = "hlb_rsa_private_key")
     private String hlb_rsa_private_key;
-    
-    @Column(name = "hlb_rsa_public_key")
-    private String hlb_rsa_public_key;
-    
-    @Column(name = "hlb_md5_key")
-    private String hlb_md5_key;
-    
-    @Column(name = "hlb_des_key")
-    private String hlb_des_key;
+
+    @Column(name = "hlb_merchant_sign")
+    private String hlbMerchantSign;
+
+    @Column(name = "hlb_entrusted_sign_key")
+    private String hlbEntrustedSignKey;
+
+    @Column(name = "hlb_entrusted_private_key")
+    private String hlbEntrustedPrivateKey;
 
     @Column(name = "merchant_market")
     private String merchantMarket;
@@ -100,9 +100,6 @@ public class Merchant {
 
     @Column(name = "yeepay_loan_private_key")
     private String yeepay_loan_private_key;
-
-    @Column(name = "hlb_merchant_sign")
-    private String hlbMerchantSign;
 
     @Column(name = "kq_merchant_id")
     private String kqMerchantId;
@@ -158,12 +155,6 @@ public class Merchant {
     @Column(name = "huichao_merchant_pay_private_key")
     private String huichaoMerchantPayPrivateKey;
 
-    @Column(name = "hlb_entrusted_sign_key")
-    private String hlbEntrustedSignKey;
-
-    @Column(name = "hlb_entrusted_private_key")
-    private String hlbEntrustedPrivateKey;
-
     public String getYeepay_loan_appkey() {
         return yeepay_loan_appkey;
     }
@@ -203,6 +194,7 @@ public class Merchant {
     public void setYeepay_repay_private_key(String yeepay_repay_private_key) {
         this.yeepay_repay_private_key = yeepay_repay_private_key;
     }
+
     /**
      * 获取商户别名与app别名一致
      *
@@ -289,61 +281,37 @@ public class Merchant {
         this.createTime = createTime;
     }
 
-	public String getMerchantApp() {
-		return merchantApp;
-	}
+    public String getMerchantApp() {
+        return merchantApp;
+    }
 
-	public void setMerchantApp(String merchantApp) {
-		this.merchantApp = merchantApp;
-	}
+    public void setMerchantApp(String merchantApp) {
+        this.merchantApp = merchantApp;
+    }
 
-	public String getHlb_id() {
-		return hlb_id;
-	}
+    public String getHlb_id() {
+        return hlb_id;
+    }
 
-	public void setHlb_id(String hlb_id) {
-		this.hlb_id = hlb_id;
-	}
+    public void setHlb_id(String hlb_id) {
+        this.hlb_id = hlb_id;
+    }
 
-	public String getHlb_rsa_private_key() {
-		return hlb_rsa_private_key;
-	}
+    public String getHlb_rsa_private_key() {
+        return hlb_rsa_private_key;
+    }
 
-	public void setHlb_rsa_private_key(String hlb_rsa_private_key) {
-		this.hlb_rsa_private_key = hlb_rsa_private_key;
-	}
+    public void setHlb_rsa_private_key(String hlb_rsa_private_key) {
+        this.hlb_rsa_private_key = hlb_rsa_private_key;
+    }
 
-	public String getHlb_rsa_public_key() {
-		return hlb_rsa_public_key;
-	}
+    public String getMerchantAppIos() {
+        return merchantAppIos;
+    }
 
-	public void setHlb_rsa_public_key(String hlb_rsa_public_key) {
-		this.hlb_rsa_public_key = hlb_rsa_public_key;
-	}
-
-	public String getHlb_md5_key() {
-		return hlb_md5_key;
-	}
-
-	public void setHlb_md5_key(String hlb_md5_key) {
-		this.hlb_md5_key = hlb_md5_key;
-	}
-
-	public String getHlb_des_key() {
-		return hlb_des_key;
-	}
-
-	public void setHlb_des_key(String hlb_des_key) {
-		this.hlb_des_key = hlb_des_key;
-	}
-
-	public String getMerchantAppIos() {
-		return merchantAppIos;
-	}
-
-	public void setMerchantAppIos(String merchantAppIos) {
-		this.merchantAppIos = merchantAppIos;
-	}
+    public void setMerchantAppIos(String merchantAppIos) {
+        this.merchantAppIos = merchantAppIos;
+    }
 
     public String getMerchantMarket() {
         return merchantMarket;
