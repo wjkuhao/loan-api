@@ -42,7 +42,7 @@
     SELECT
     CASE
     WHEN NOT EXISTS ( SELECT 1 FROM tb_order WHERE uid=#{uid} ) THEN 1
-    WHEN EXISTS ( SELECT 1 FROM tb_order WHERE uid=#{uid} AND STATUS IN ( 41, 42 ) ) THEN 3 ELSE 2
+    WHEN EXISTS ( SELECT 1 FROM tb_order WHERE uid=#{uid} AND STATUS IN ( 41, 42, 43 ) ) THEN 3 ELSE 2
     END AS user_type
   </select>
   <select id="countPaySuccessByUid" resultType="int">
