@@ -4,7 +4,6 @@ import com.mod.loan.common.mapper.BaseServiceImpl;
 import com.mod.loan.mapper.OrderRiskInfoMapper;
 import com.mod.loan.model.OrderRiskInfo;
 import com.mod.loan.service.OrderRiskInfoService;
-import org.apache.ibatis.annotations.Param;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -19,12 +18,12 @@ public class OrderRiskInfoServiceImpl extends BaseServiceImpl<OrderRiskInfo, Lon
     }
 
     @Override
-    public OrderRiskInfo getLastOneByOrderId(@Param("orderId") Long orderId) {
+    public OrderRiskInfo getLastOneByOrderId(Long orderId) {
         return orderRiskInfoMapper.getLastOneByOrderId(orderId);
     }
 
     @Override
-    public OrderRiskInfo getLastOneByPhone(@Param("userPhone") String userPhone) {
+    public OrderRiskInfo getLastOneByPhone(String userPhone) {
         return orderRiskInfoMapper.getLastOneByPhone(userPhone);
     }
 }
