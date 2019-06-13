@@ -100,13 +100,7 @@ public class OrderChangjieRepayServiceImpl extends BaseServiceImpl<OrderRepay, S
             bindBankCard4RepaySendMsgRequest.setPrivateKey(merchant.getCjMerchantPrivateKey());
             bindBankCard4RepaySendMsgRequest.setPublicKey(merchant.getCjPublicKey());
             //去调畅捷协议支付还款发送验证码
-            String result = null;
-            try {
-                result = changjieRepayService.bindBankCard4RepaySendMsg(bindBankCard4RepaySendMsgRequest);
-            } catch (Exception e) {
-                logger.error("#[去调畅捷协议支付还款发送验证码]-[异常]-e={}", e);
-                return null;
-            }
+            String result = changjieRepayService.bindBankCard4RepaySendMsg(bindBankCard4RepaySendMsgRequest);
             if (null == result) {
                 logger.info("#[去调畅捷协议支付还款发送验证码]-[返回结果为空]");
                 return null;
@@ -169,13 +163,7 @@ public class OrderChangjieRepayServiceImpl extends BaseServiceImpl<OrderRepay, S
             bindBankCard4RepayConfirmRequest.setPrivateKey(merchant.getCjMerchantPrivateKey());
             bindBankCard4RepayConfirmRequest.setPublicKey(merchant.getCjPublicKey());
             //去调畅捷协议支付还款确认
-            String result = null;
-            try {
-                result = changjieRepayService.bindBankCard4RepayConfirm(bindBankCard4RepayConfirmRequest);
-            } catch (Exception e) {
-                logger.error("#[去调畅捷协议支付还款确认]-[异常]-e={}", e);
-                return null;
-            }
+            String result = changjieRepayService.bindBankCard4RepayConfirm(bindBankCard4RepayConfirmRequest);
             if (null == result) {
                 logger.info("#[去调畅捷协议支付还款确认]-[返回结果为空]");
                 return null;
@@ -200,22 +188,24 @@ public class OrderChangjieRepayServiceImpl extends BaseServiceImpl<OrderRepay, S
                 //成功
                 orderRepay.setRepayStatus(OrderRepayStatusEnum.REPAY_SUCCESS.getCode());
                 orderRepay.setRemark("畅捷还款成功");
-            } else if (StringUtils.equals("F", jsonObject.getString("Status"))) {
-                //失败
-                orderRepay.setRemark(jsonObject.getString("AppRetMsg"));
-                orderRepay.setRepayStatus(OrderRepayStatusEnum.ACCEPT_FAILED.getCode());
-            } else {
-                //处理中
-                orderRepay.setRemark("畅捷还款处理中");
-                orderRepay.setRepayStatus(OrderRepayStatusEnum.ACCEPT_SUCCESS.getCode());
-            }
-            orderRepayMapper.insertSelective(orderRepay);
-            if (StringUtils.equals("S", jsonObject.getString("Status"))) {
-                //成功
+                orderRepayMapper.insertSelective(orderRepay);
+
                 order.setRealRepayTime(new Date());
                 order.setHadRepay(orderRepay.getRepayMoney());
                 order.setStatus(orderService.setRepaySuccStatusByCurrStatus(order.getStatus()));
                 orderMapper.updateByPrimaryKeySelective(order);
+            } else if (StringUtils.equals("F", jsonObject.getString("Status"))) {
+                //失败
+                orderRepay.setRemark(jsonObject.getString("AppRetMsg"));
+                orderRepay.setRepayStatus(OrderRepayStatusEnum.ACCEPT_FAILED.getCode());
+                orderRepayMapper.insertSelective(orderRepay);
+                return null;
+            } else {
+                //处理中
+                orderRepay.setRemark("畅捷还款处理中");
+                orderRepay.setRepayStatus(OrderRepayStatusEnum.ACCEPT_SUCCESS.getCode());
+                orderRepayMapper.insertSelective(orderRepay);
+                return "DOING";
             }
             logger.info("#[畅捷订单协议支付还款确认]-[结束]");
             return seriesNo;

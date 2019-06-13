@@ -73,7 +73,10 @@ public class OrderRepayController {
         String result = orderChangjieRepayService.bindBankCard4RepayConfirm(request.getSeriesNo(), request.getSmsCode());
         if (null == result) {
             logger.error("#[畅捷协议支付还款确认]-[异常]");
-            return new ResultMessage(ResponseEnum.M4000);
+            return new ResultMessage(ResponseEnum.M4000, "还款失败");
+        } else if ("DOING".equals(result)) {
+            logger.error("#[畅捷协议支付还款确认]-[还款处理中]");
+            return new ResultMessage(ResponseEnum.M4000, "还款处理中");
         }
         logger.info("#[畅捷协议支付还款确认]-[结束]");
         return new ResultMessage(ResponseEnum.M2000, result);
