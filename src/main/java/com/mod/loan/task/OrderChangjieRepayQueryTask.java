@@ -29,23 +29,19 @@ public class OrderChangjieRepayQueryTask {
      */
     //@Scheduled(cron = "0 0/10 * * * ?")
     public void changjieRepayQuery() {
-        try {
-            logger.info("#[畅捷代扣还款结果查询定时任务]-[开始]");
-            //获取畅捷代扣还款订单列表
-            List<OrderRepay> orderRepayList = orderChangjieRepayService.changjieRepayQuery4Task();
-            orderRepayList.stream().forEach(orderRepay -> {
-                //不影响其他
-                try {
-                    //去调畅捷代扣还款结果查询
-                    orderChangjieRepayService.bindBankCard4RepayQuery(orderRepay.getRepayNo());
-                } catch (Exception e) {
-                    logger.error("#[去调畅捷代扣还款结果查询]-[异常]-e={}", e);
-                }
-            });
-            logger.info("#[畅捷代扣还款结果查询定时任务]-[结束]");
-        } catch (Exception e) {
-            logger.error("#[畅捷代扣还款结果查询定时任务]-[异常]-e={}", e);
-        }
+        logger.info("#[畅捷代扣还款结果查询定时任务]-[开始]");
+        //获取畅捷代扣还款订单列表
+        List<OrderRepay> orderRepayList = orderChangjieRepayService.changjieRepayQuery4Task();
+        orderRepayList.stream().forEach(orderRepay -> {
+            //不影响其他
+            try {
+                //去调畅捷代扣还款结果查询
+                orderChangjieRepayService.bindBankCard4RepayQuery(orderRepay.getRepayNo());
+            } catch (Exception e) {
+                logger.error("#[去调畅捷代扣还款结果查询]-[异常]-e={}", e);
+            }
+        });
+        logger.info("#[畅捷代扣还款结果查询定时任务]-[结束]");
     }
 
 }
