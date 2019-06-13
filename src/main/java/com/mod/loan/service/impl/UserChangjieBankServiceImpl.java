@@ -67,13 +67,7 @@ public class UserChangjieBankServiceImpl extends BaseServiceImpl<UserBank, Long>
         bindBankCard4SendMsgRequest.setPrivateKey(merchant.getCjMerchantPrivateKey());
         bindBankCard4SendMsgRequest.setPublicKey(merchant.getCjPublicKey());
         //调畅捷鉴权绑卡发送验证码请求
-        String result = null;
-        try {
-            result = changjieRepayService.bindBankCard4SendMsg(bindBankCard4SendMsgRequest);
-        } catch (Exception e) {
-            log.error("#[调畅捷鉴权绑卡发送验证码请求]-[异常]-e={}", e);
-            return new ResultMessage(ResponseEnum.M4000.getCode(), "调畅捷鉴权绑卡发送验证码请求异常");
-        }
+        String result = changjieRepayService.bindBankCard4SendMsg(bindBankCard4SendMsgRequest);
         if (null == result) {
             return new ResultMessage(ResponseEnum.M4000.getCode(), "调畅捷鉴权绑卡发送验证码请求返回为空");
         }
@@ -121,13 +115,7 @@ public class UserChangjieBankServiceImpl extends BaseServiceImpl<UserBank, Long>
         bindBankCard4ConfirmRequest.setPrivateKey(merchant.getCjMerchantPrivateKey());
         bindBankCard4ConfirmRequest.setPublicKey(merchant.getCjPublicKey());
         //调畅捷鉴权绑卡确认请求
-        String result = null;
-        try {
-            result = changjieRepayService.bindBankCard4Confirm(bindBankCard4ConfirmRequest);
-        } catch (Exception e) {
-            log.error("#[调畅捷鉴权绑卡确认请求]-[异常]-e={}", e);
-            return new ResultMessage(ResponseEnum.M4000.getCode(), "调畅捷鉴权绑卡确认请求异常");
-        }
+        String result = changjieRepayService.bindBankCard4Confirm(bindBankCard4ConfirmRequest);
         if (null == result) {
             return new ResultMessage(ResponseEnum.M4000.getCode(), "调畅捷鉴权绑卡确认请求返回为空");
         }

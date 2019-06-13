@@ -27,7 +27,7 @@ public interface OrderChangjieRepayService extends BaseService<OrderRepay, Strin
      *
      * @param repayNo 还款流水号
      */
-    void bindBankCard4RepayQuery(String repayNo);
+    String bindBankCard4RepayQuery(String repayNo);
 
     /**
      * 畅捷代扣还款订单--定时任务

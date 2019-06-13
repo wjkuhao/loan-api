@@ -92,7 +92,11 @@ public class OrderRepayController {
         if (StringUtils.isEmpty(repayNo)) {
             return new ResultMessage(ResponseEnum.M5000);
         }
-        orderChangjieRepayService.bindBankCard4RepayQuery(repayNo);
+        String result = orderChangjieRepayService.bindBankCard4RepayQuery(repayNo);
+        if (null == result) {
+            logger.error("#[畅捷协议支付还款结果查询]-[异常]");
+            return new ResultMessage(ResponseEnum.M4000);
+        }
         logger.info("#[畅捷协议支付还款结果查询]-[结束]");
         return new ResultMessage(ResponseEnum.M2000);
     }
@@ -132,7 +136,11 @@ public class OrderRepayController {
         if (StringUtils.isEmpty(repayNo)) {
             return new ResultMessage(ResponseEnum.M5000);
         }
-        orderHuichaoRepayService.huichaoRepay4AliAppH5OrWxScanQuery(repayNo);
+        String result = orderHuichaoRepayService.huichaoRepay4AliAppH5OrWxScanQuery(repayNo);
+        if (null == result) {
+            logger.error("#[汇潮支付宝还款]-[异常]");
+            return new ResultMessage(ResponseEnum.M4000);
+        }
         logger.info("#[汇潮支付宝还款/微信扫码支付结果查询]-[结束]");
         return new ResultMessage(ResponseEnum.M2000);
     }

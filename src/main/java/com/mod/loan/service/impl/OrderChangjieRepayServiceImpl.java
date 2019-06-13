@@ -224,32 +224,36 @@ public class OrderChangjieRepayServiceImpl extends BaseServiceImpl<OrderRepay, S
     }
 
     @Override
-    public void bindBankCard4RepayQuery(String repayNo) {
+    public String bindBankCard4RepayQuery(String repayNo) {
         logger.info("#[畅捷订单协议支付还款结果查询]-[开始]-repayNo={}", repayNo);
         if (StringUtils.isEmpty(repayNo)) {
-            throw new RuntimeException("参数为空");
+            logger.info("参数为空");
+            return null;
         }
         //根据还款流水号查询还款流水信息
         OrderRepay orderRepay = orderRepayMapper.selectByPrimaryKey(repayNo);
         logger.info("#[根据还款流水号查询还款流水信息]-orderRepay={}", JSONObject.toJSON(orderRepay));
         if (null == orderRepay) {
-            throw new RuntimeException("根据还款流水号查询还款流水信息为空");
+            logger.info("根据还款流水号查询还款流水信息为空");
+            return null;
         }
         //根据订单id查询订单信息
         Order order = orderMapper.selectByPrimaryKey(orderRepay.getOrderId());
         logger.info("#[根据订单id查询订单信息]-order={}", JSONObject.toJSON(order));
         if (null == order) {
-            throw new RuntimeException("根据订单id查询订单信息为空");
+            logger.info("根据订单id查询订单信息为空");
+            return null;
         }
         //幂等
         if (OrderEnum.NORMAL_REPAY.getCode().equals(order.getStatus()) || OrderEnum.OVERDUE_REPAY.getCode().equals(order.getStatus()) || OrderEnum.DEFER_REPAY.getCode().equals(order.getStatus())) {
-            throw new RuntimeException("该笔订单状态已还款");
+            logger.info("该笔订单状态已还款");
+            return null;
         }
         //获取商户信息
         Merchant merchant = merchantService.findMerchantByAlias(RequestThread.getClientAlias());
         if (null == merchant || StringUtils.isEmpty(merchant.getCjPartnerId()) || StringUtils.isEmpty(merchant.getCjPublicKey()) || StringUtils.isEmpty(merchant.getCjMerchantPrivateKey())) {
             logger.info("#[该商户信息异常]-merchant={}", JSONObject.toJSON(merchant));
-            throw new RuntimeException("该商户信息异常");
+            return null;
         }
         //每次请求唯一流水号
         String seriesNo = StringUtil.getOrderNumber("r");
@@ -260,15 +264,10 @@ public class OrderChangjieRepayServiceImpl extends BaseServiceImpl<OrderRepay, S
         transCode4QueryRequest.setPrivateKey(merchant.getCjMerchantPrivateKey());
         transCode4QueryRequest.setPublicKey(merchant.getCjPublicKey());
         //去调畅捷协议支付还款结果查询
-        String result = null;
-        try {
-            result = changjieRepayService.bindBankCard4RepayQuery(transCode4QueryRequest);
-        } catch (Exception e) {
-            logger.error("#[去调畅捷协议支付还款结果查询]-[异常]-e={}", e);
-            throw new RuntimeException("去调畅捷协议支付还款结果查询异常");
-        }
+        String result = changjieRepayService.bindBankCard4RepayQuery(transCode4QueryRequest);
         if (null == result) {
-            throw new RuntimeException("去调畅捷协议支付还款结果查询返回为空");
+            logger.info("去调畅捷协议支付还款结果查询返回为空");
+            return null;
         }
         //解析返回结果
         JSONObject jsonObject = JSONObject.parseObject(result);
@@ -281,6 +280,7 @@ public class OrderChangjieRepayServiceImpl extends BaseServiceImpl<OrderRepay, S
             orderRepayService.repayFailed(orderRepay, jsonObject.getString("AppRetMsg"));
         }
         logger.info("#[畅捷订单协议支付还款结果查询]-[结束]");
+        return repayNo;
     }
 
     @Override

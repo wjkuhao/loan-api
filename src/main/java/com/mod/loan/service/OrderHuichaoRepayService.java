@@ -18,7 +18,7 @@ public interface OrderHuichaoRepayService {
      *
      * @param repayNo 还款流水号
      */
-    void huichaoRepay4AliAppH5OrWxScanQuery(String repayNo);
+    String huichaoRepay4AliAppH5OrWxScanQuery(String repayNo);
 
     /**
      * 汇潮微信扫码支付
