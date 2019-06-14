@@ -1,6 +1,7 @@
 package com.mod.loan.service.impl;
 
 import com.alibaba.fastjson.JSONObject;
+import com.mod.loan.common.enums.MerchantEnum;
 import com.mod.loan.common.mapper.BaseServiceImpl;
 import com.mod.loan.config.Constant;
 import com.mod.loan.config.redis.RedisConst;
@@ -119,7 +120,25 @@ public class UserServiceImpl  extends BaseServiceImpl< User,Long> implements Use
 
 		//2.把之前的老卡无效
 		userBankMapper.updateUserOldCardInvaild(uid);
-		
+		//根据卡号和bingType查询我的绑卡记录
+		if (MerchantEnum.CHANGJIE.getCode().equals(userBank.getBindType())) {
+			UserBank ub = new UserBank();
+			ub.setUid(uid);
+			ub.setCardNo(userBank.getCardNo());
+			ub.setBindType(MerchantEnum.CHANGJIE.getCode());
+			UserBank userBankType = userBankMapper.selectOne(ub);
+			if (null != userBankType) {
+				//更新
+				userBankType.setCardCode(userBank.getCardCode());
+				userBankType.setCardName(userBank.getCardName());
+				userBankType.setCardPhone(userBank.getCardPhone());
+				userBankType.setCardStatus(1);
+				userBankType.setUpdateTime(new Date());
+				userBankMapper.updateByPrimaryKeySelective(userBankType);
+				return true;
+			}
+		}
+
 		userBankMapper.insertSelective(userBank);
 		return true;
 	}

@@ -3,6 +3,7 @@ package com.mod.loan.service.impl;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.mod.loan.common.enums.ChangjieBindBankCardStatusEnum;
+import com.mod.loan.common.enums.ChangjiePayOrRepayOrQueryReturnCodeEnum;
 import com.mod.loan.common.enums.MerchantEnum;
 import com.mod.loan.common.enums.ResponseEnum;
 import com.mod.loan.common.mapper.BaseServiceImpl;
@@ -16,6 +17,7 @@ import com.mod.loan.model.User;
 import com.mod.loan.model.UserBank;
 import com.mod.loan.model.request.BindBankCard4ConfirmRequest;
 import com.mod.loan.model.request.BindBankCard4SendMsgRequest;
+import com.mod.loan.model.request.BindBankCard4UnbindRequest;
 import com.mod.loan.service.ChangjieRepayService;
 import com.mod.loan.service.MerchantService;
 import com.mod.loan.service.UserChangjieBankService;
@@ -69,13 +71,32 @@ public class UserChangjieBankServiceImpl extends BaseServiceImpl<UserBank, Long>
         //调畅捷鉴权绑卡发送验证码请求
         String result = changjieRepayService.bindBankCard4SendMsg(bindBankCard4SendMsgRequest);
         if (null == result) {
-            return new ResultMessage(ResponseEnum.M4000.getCode(), "调畅捷鉴权绑卡发送验证码请求返回为空");
+            return new ResultMessage(ResponseEnum.M4000.getCode(), "调鉴权绑卡发送验证码请求返回为空");
         }
         //解析返回结果
         JSONObject jsonObject = JSONObject.parseObject(result);
         //绑卡失败
         if (ChangjieBindBankCardStatusEnum.F.getCode().equals(jsonObject.getString("Status"))) {
-            return new ResultMessage(ResponseEnum.M4000.getCode(), "调畅捷鉴权绑卡发送验证码失败");
+            //已绑定
+            if (ChangjiePayOrRepayOrQueryReturnCodeEnum.FAIL_QT300008.getCode().equals(jsonObject.getString("AppRetcode"))) {
+                //解绑
+                BindBankCard4UnbindRequest bindBankCard4UnbindRequest = new BindBankCard4UnbindRequest();
+                bindBankCard4UnbindRequest.setCardBegin(cardNo.substring(0, 6));
+                bindBankCard4UnbindRequest.setCardEnd(StringUtil.bankTailNo(cardNo));
+                bindBankCard4UnbindRequest.setRequestSeriesNo(StringUtil.getOrderNumber("c"));
+                bindBankCard4UnbindRequest.setPartnerId(merchant.getCjPartnerId());
+                bindBankCard4UnbindRequest.setPrivateKey(merchant.getCjMerchantPrivateKey());
+                bindBankCard4UnbindRequest.setPublicKey(merchant.getCjPublicKey());
+                String res = changjieRepayService.bindBankCard4Unbind(bindBankCard4UnbindRequest);
+                if (null == res) {
+                    return new ResultMessage(ResponseEnum.M4000.getCode(), "调鉴权解绑失败");
+                }
+                JSONObject resObject = JSONObject.parseObject(res);
+                if (!ChangjieBindBankCardStatusEnum.S.getCode().equals(resObject.getString("Status"))) {
+                    return new ResultMessage(ResponseEnum.M4000.getCode(), "调鉴权解绑失败");
+                }
+            }
+            return new ResultMessage(ResponseEnum.M4000.getCode(), "调鉴权绑卡发送验证码失败,请重新获取验证码");
         }
         //缓存绑卡数据
         AgreementBindCardValidateCodeVo requestVo = new AgreementBindCardValidateCodeVo();
@@ -117,13 +138,13 @@ public class UserChangjieBankServiceImpl extends BaseServiceImpl<UserBank, Long>
         //调畅捷鉴权绑卡确认请求
         String result = changjieRepayService.bindBankCard4Confirm(bindBankCard4ConfirmRequest);
         if (null == result) {
-            return new ResultMessage(ResponseEnum.M4000.getCode(), "调畅捷鉴权绑卡确认请求返回为空");
+            return new ResultMessage(ResponseEnum.M4000.getCode(), "调鉴权绑卡确认请求返回为空");
         }
         //解析返回结果
         JSONObject jsonObject = JSONObject.parseObject(result);
         //绑卡失败
         if (ChangjieBindBankCardStatusEnum.F.getCode().equals(jsonObject.getString("Status"))) {
-            return new ResultMessage(ResponseEnum.M4000.getCode(), "调畅捷鉴权绑卡确认失败");
+            return new ResultMessage(ResponseEnum.M4000.getCode(), "调鉴权绑卡确认失败");
         }
         //落库
         UserBank userBank = new UserBank();

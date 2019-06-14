@@ -46,6 +46,7 @@ public enum ChangjiePayOrRepayOrQueryReturnCodeEnum {
     SUCCESS_QT000000("QT000000", "交易成功"),
     SUCCESS_QT000001("QT000001", "交易受理成功"),
     SUCCESS_QT100000("QT100000", "交易处理中"),
+    FAIL_QT300008("QT300008", "此卡已绑定请勿重复绑卡"),
     /******************** PlatformRetCode-S ********************/
     SUCCESS_0000("0000", "成功（仅代表请求已成功被系统受理）"),
     DOING_2000("2000", "处理中"),
