@@ -170,7 +170,7 @@ public class OrderApplyController {
         }
 
         // 检查是否存在多头借贷
-        if(dataCenterService.checkMultiLoan(user.getUserPhone())){
+        if(dataCenterService.checkMultiLoan(null, certNo)){
             logger.info("存在多头借贷，无法提单， certNo={}", certNo);
             return new ResultMessage(ResponseEnum.M4000.getCode(), "您不符合下单条件");
         }

@@ -44,15 +44,13 @@ public class Constant {
 
     /**
      * 合利宝委托代付
-     * */
+     */
     public static String HELIPAY_ENTRUSTED_URL;
     public static String HELIPAY_ENTRUSTED_FILE_URL;
 
     /**
      * 查询是否存在多头借贷的接口
      */
-    public static String MANY_HEAD_QUERY_URL;
-
     public static String MULTI_LOAN_QUERY_URL;
 
     @Value("${environment:}")
@@ -106,7 +104,9 @@ public class Constant {
     }
 
     @Value("${kuaiqian.pay.url:}")
-    public void setKuaiqianPayUrl(String kuaiqianPayUrl) {KUAIQIAN_PAY_URL = kuaiqianPayUrl;}
+    public void setKuaiqianPayUrl(String kuaiqianPayUrl) {
+        KUAIQIAN_PAY_URL = kuaiqianPayUrl;
+    }
 
     @Value("${kuaiqian.pay.query.url:}")
     public void setKuaiqianPayQueryUrl(String kuaiqianPayQueryUrl) {
@@ -163,11 +163,6 @@ public class Constant {
         Constant.OSS_ENDPOINT_IN_URL = ossEndpointInUrl;
     }
 
-    @Value("${many.head.query.url:}")
-    public void setManyHeadQueryUrl(String manyHeadQueryUrl) {
-        Constant.MANY_HEAD_QUERY_URL = manyHeadQueryUrl;
-    }
-
     @Value("${helipay.entrusted.url:}")
     public void setHelipayEntrustedUrl(String helipayEntrustedUrl) {
         Constant.HELIPAY_ENTRUSTED_URL = helipayEntrustedUrl;
@@ -179,6 +174,8 @@ public class Constant {
     }
 
     @Value("${multi.loan.query.url:}")
-    public void setMultiLoanQueryUrl(String multiLoanQueryUrl) { MULTI_LOAN_QUERY_URL = multiLoanQueryUrl; }
+    public void setMultiLoanQueryUrl(String multiLoanQueryUrl) {
+        MULTI_LOAN_QUERY_URL = multiLoanQueryUrl;
+    }
 
 }

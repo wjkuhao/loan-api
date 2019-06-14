@@ -2,6 +2,6 @@ package com.mod.loan.service;
 
 public interface DataCenterService {
 
-	boolean checkMultiLoan(String phone);
+	boolean checkMultiLoan(String phone, String certNo);
 
 }

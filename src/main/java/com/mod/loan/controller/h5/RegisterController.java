@@ -212,7 +212,7 @@ public class RegisterController {
             }
 
             // 检查是否存在多头借贷
-            if(dataCenterService.checkMultiLoan(phone)){
+            if(dataCenterService.checkMultiLoan(phone, null)){
                 logger.info("存在多头借贷，无法注册， phone={}", phone);
                 return new ResultMessage(ResponseEnum.M4000.getCode(), "审核不通过");
             }

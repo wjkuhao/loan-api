@@ -21,10 +21,11 @@ public class DataCenterServiceImpl implements DataCenterService {
 		this.okHttpReader = okHttpReader;
 	}
 
-	public boolean checkMultiLoan(String phone){
+	public boolean checkMultiLoan(String phone, String certNo){
 		try {
 			JSONObject reqJson = new JSONObject();
             reqJson.put("phone", phone);
+            reqJson.put("idCard", certNo);
 
 			String result = okHttpReader.postJson(Constant.MULTI_LOAN_QUERY_URL, reqJson.toJSONString(), null);
 
