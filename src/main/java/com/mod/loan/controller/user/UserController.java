@@ -16,10 +16,7 @@ import com.mod.loan.model.AppFeedback;
 import com.mod.loan.model.MerchantConfig;
 import com.mod.loan.model.User;
 import com.mod.loan.model.UserDevice;
-import com.mod.loan.service.MerchantConfigService;
-import com.mod.loan.service.OrderService;
-import com.mod.loan.service.UserDeductionService;
-import com.mod.loan.service.UserService;
+import com.mod.loan.service.*;
 import com.mod.loan.util.CheckUtils;
 import com.mod.loan.util.RandomUtils;
 import com.mod.loan.util.StringReplaceUtil;
@@ -67,15 +64,14 @@ public class UserController {
     private UserMapper userMapper;
     @Autowired
     private AppFeedbackMapper feedbackMapper;
-
     @Autowired
     UserDeductionService userDeductionService;
-
     @Autowired
     private OrderService orderService;
-
     @Autowired
     private MerchantConfigService merchantConfigService;
+    @Autowired
+    private SmsService smsService;
 
     /**
      * 用户额度与借款周期配置
@@ -122,7 +118,7 @@ public class UserController {
 
     @RequestMapping(value = "mobile_code")
     @Api
-    public ResultMessage mobile_code(String phone, String graph_code, String sms_type) {
+    public ResultMessage mobile_code(String phone, String graph_code, String sms_type, String origin) {
         if (!CheckUtils.isMobiPhoneNum(phone)) {
             return new ResultMessage(ResponseEnum.M4000.getCode(), "手机号码错误");
         }
@@ -145,8 +141,8 @@ public class UserController {
         String randomNum = RandomUtils.generateRandomNum(4);
         // 发送验证码，5分钟内有效
         redisMapper.set(RedisConst.USER_PHONE_CODE + phone, randomNum, 300);
-        rabbitTemplate.convertAndSend(RabbitConst.queue_sms,
-                new SmsMessage(RequestThread.getClientAlias(), enumSmsType.getKey(), phone, randomNum + "|5分钟"));
+
+        smsService.send(RequestThread.getClientAlias(), enumSmsType.getKey(), phone, randomNum + "|5分钟", origin);
         redisMapper.remove(RedisConst.USER_GRAPH_CODE + phone);
         return new ResultMessage(ResponseEnum.M2000);
     }
@@ -170,8 +166,8 @@ public class UserController {
         String randomNum = RandomUtils.generateRandomNum(4);
         // 发送验证码，5分钟内有效
         redisMapper.set(RedisConst.USER_PHONE_CODE + phone, randomNum, 300);
-        rabbitTemplate.convertAndSend(RabbitConst.queue_sms,
-                new SmsMessage(RequestThread.getClientAlias(), enumSmsType.getKey(), phone, randomNum + "|5分钟"));
+
+        smsService.send(RequestThread.getClientAlias(), enumSmsType.getKey(), phone, randomNum + "|5分钟", null);
         redisMapper.remove(RedisConst.USER_GRAPH_CODE + phone);
         return new ResultMessage(ResponseEnum.M2000);
     }

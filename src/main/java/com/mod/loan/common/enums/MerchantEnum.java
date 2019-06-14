@@ -5,42 +5,32 @@ public enum MerchantEnum {
         fuyou(2, "富友"),
         huiju(3, "汇聚"),
         yeepay(4, "易宝"),
-        changjie(5, "畅捷"),
+    CHANGJIE(5, "畅捷"),
         kuaiqian(6, "快钱");
 
-        private Integer code;
-        private String desc;
+    private Integer code;
+    private String desc;
 
     MerchantEnum(Integer code, String desc) {
             this.code = code;
             this.desc = desc;
-        }
+    }
 
-        public static String getDesc(Integer code) {
-            for (MerchantEnum status : MerchantEnum.values()) {
-                if (status.getCode().equals(code)) {
-                    return status.getDesc();
-                }
+    public static String getDesc(Integer code) {
+        for (MerchantEnum status : MerchantEnum.values()) {
+            if (status.getCode().equals(code)) {
+                return status.getDesc();
             }
-            return null;
         }
+        return null;
+    }
 
-        public Integer getCode() {
-            return code;
-        }
+    public Integer getCode() {
+        return code;
+    }
 
-        public void setCode(Integer code) {
-            this.code = code;
-        }
-
-        public String getDesc() {
-            return desc;
-        }
-
-        public void setDesc(String desc) {
-            this.desc = desc;
-        }
-
-
+    public String getDesc() {
+        return desc;
+    }
 
 }

@@ -532,8 +532,16 @@ public class UserBankServiceImpl extends BaseServiceImpl<UserBank, Long> impleme
 
         Merchant merchant = merchantService.findMerchantByAlias(user.getMerchant());
         String seriesNo = StringUtil.getOrderNumber("c");
-        String err = yeepayService.authBindCardRequest(merchant.getYeepay_repay_appkey(), merchant.getYeepay_repay_private_key(),
-                seriesNo, String.valueOf(uid), cardNo, user.getUserCertNo(), user.getUserName(), cardPhone);
+        String err;
+        try {
+            err = yeepayService.authBindCardRequest(DesUtil.decryption(merchant.getYeepay_repay_appkey()),
+                    DesUtil.decryption(merchant.getYeepay_repay_private_key()),
+                    seriesNo, String.valueOf(uid), cardNo, user.getUserCertNo(), user.getUserName(), cardPhone);
+        } catch (Exception e) {
+            log.error("易宝绑卡发送短信异常uid={}, error={}", uid, e);
+            err="sendYeepaySms Exception";
+        }
+
         if (StringUtils.isNotEmpty(err)) {
             return new ResultMessage(ResponseEnum.M4000.getCode(), err);
         }
@@ -563,7 +571,8 @@ public class UserBankServiceImpl extends BaseServiceImpl<UserBank, Long> impleme
 		Merchant merchant = merchantService.findMerchantByAlias(user.getMerchant());
         String err;
         try {
-            err = yeepayService.authBindCardConfirm(DesUtil.decryption(merchant.getYeepay_repay_appkey()), DesUtil.decryption(merchant.getYeepay_repay_private_key()), validateCodeVo.getP4_orderId(), validateCode);
+            err = yeepayService.authBindCardConfirm(DesUtil.decryption(merchant.getYeepay_repay_appkey()),
+                    DesUtil.decryption(merchant.getYeepay_repay_private_key()), validateCodeVo.getP4_orderId(), validateCode);
         } catch (Exception e) {
             log.error("易宝绑卡确认异常uid={}, error={}", uid, e);
             err="bindYeepaySms Exception";

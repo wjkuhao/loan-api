@@ -40,6 +40,17 @@ public class MerchantOrigin {
     @Column(name = "check_blacklist")
     private Integer checkBlacklist;
 
+    @Column(name = "sms_merchant")
+    private String smsMerchant;
+
+    public String getSmsMerchant() {
+        return smsMerchant;
+    }
+
+    public void setSmsMerchant(String smsMerchant) {
+        this.smsMerchant = smsMerchant;
+    }
+
     public String getMxRiskToken() {
         return mxRiskToken;
     }

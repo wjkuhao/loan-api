@@ -583,6 +583,7 @@ CREATE TABLE `tb_merchant_origin`  (
   `check_repay` tinyint(1) NOT NULL DEFAULT 0 COMMENT '是否检查存在还款订单 0-不检查；1-检查',
   `check_overdue` tinyint(1) NOT NULL DEFAULT 0 COMMENT '是否检查存在逾期订单 0-不检查；1-检查',
   `check_blacklist` tinyint(1) NOT NULL DEFAULT 0 COMMENT '是否检查存在于黑名单 0-不检查；1-检查',
+  `sms_merchant` varchar(20) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '所属商户短信签名，用于马甲包',
   PRIMARY KEY (`id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '商户渠道' ROW_FORMAT = Dynamic;
 

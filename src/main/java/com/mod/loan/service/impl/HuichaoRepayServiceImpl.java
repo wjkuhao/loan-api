@@ -44,10 +44,11 @@ public class HuichaoRepayServiceImpl implements HuichaoRepayService {
     String repayQueryUrl;
 
     @Override
-    public String aliAppH5Repay(AliAppH5RepayRequest request) throws Exception {
+    public String aliAppH5RepayUrl(AliAppH5RepayRequest request) {
         if (null == request || null == request.getAmount() || request.getAmount().compareTo(BigDecimal.ZERO) <= 0 || StringUtils.isEmpty(request.getRequestSeriesNo())
                 || StringUtils.isEmpty(request.getPartnerId()) || StringUtils.isEmpty(request.getPublicKey()) || StringUtils.isEmpty(request.getPrivateKey4Repay())) {
-            throw new Exception("参数为空");
+            logger.info("参数为空");
+            return null;
         }
         //组装请求参数
         Map<String, String> paraMap = new HashMap<String, String>();
@@ -72,10 +73,11 @@ public class HuichaoRepayServiceImpl implements HuichaoRepayService {
     }
 
     @Override
-    public String aliAppH5OrWxScanRepayQuery(AliAppH5RepayQueryRequest request) throws Exception {
+    public String aliAppH5OrWxScanRepayQuery(AliAppH5RepayQueryRequest request) {
         if (null == request || StringUtils.isEmpty(request.getSeriesNo())
                 || StringUtils.isEmpty(request.getPartnerId()) || StringUtils.isEmpty(request.getPublicKey()) || StringUtils.isEmpty(request.getPrivateKey4Repay())) {
-            throw new Exception("参数为空");
+            logger.info("参数为空");
+            return null;
         }
         //拼装参数
         Map<String, String> param = new HashMap<String, String>();
@@ -96,10 +98,11 @@ public class HuichaoRepayServiceImpl implements HuichaoRepayService {
     }
 
     @Override
-    public String wxScanRepay(AliAppH5RepayRequest request) throws Exception {
+    public String wxScanRepay(AliAppH5RepayRequest request) {
         if (null == request || null == request.getAmount() || request.getAmount().compareTo(BigDecimal.ZERO) <= 0 || StringUtils.isEmpty(request.getRequestSeriesNo())
                 || StringUtils.isEmpty(request.getPartnerId()) || StringUtils.isEmpty(request.getPublicKey()) || StringUtils.isEmpty(request.getPrivateKey4Repay())) {
-            throw new Exception("参数为空");
+            logger.info("参数为空");
+            return null;
         }
         //组装请求参数
         Map<String, String> paraMap = new HashMap<String, String>();

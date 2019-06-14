@@ -15,7 +15,7 @@ public interface HuichaoRepayService {
      * @param request
      * @return
      */
-    String aliAppH5Repay(AliAppH5RepayRequest request) throws Exception;
+    String aliAppH5RepayUrl(AliAppH5RepayRequest request);
 
     /**
      * app端支付宝还款/微信扫码支付结果查询
@@ -23,7 +23,7 @@ public interface HuichaoRepayService {
      * @param request
      * @return
      */
-    String aliAppH5OrWxScanRepayQuery(AliAppH5RepayQueryRequest request) throws Exception;
+    String aliAppH5OrWxScanRepayQuery(AliAppH5RepayQueryRequest request);
 
     /**
      * 微信扫码支付
@@ -31,5 +31,5 @@ public interface HuichaoRepayService {
      * @param request
      * @return
      */
-    String wxScanRepay(AliAppH5RepayRequest request) throws Exception;
+    String wxScanRepay(AliAppH5RepayRequest request);
 }

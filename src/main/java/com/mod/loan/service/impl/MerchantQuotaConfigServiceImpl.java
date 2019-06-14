@@ -60,8 +60,8 @@ public class MerchantQuotaConfigServiceImpl extends BaseServiceImpl<MerchantQuot
 
                 if ("range".equals(comparator)) {
                     String[] presetValues = quotaConfig.getPresetValue().split("-");
-                    if (actualValue.compareTo(presetValues[0]) >= 0
-                            && actualValue.compareTo(presetValues[1]) < 0) {
+                    if (Double.valueOf(actualValue).compareTo(Double.valueOf(presetValues[0])) >= 0
+                            && Double.valueOf(actualValue).compareTo(Double.valueOf(presetValues[1])) < 0) {
                         quotaValue = quotaConfig.getQuotaValue();
                         break;
                     }
@@ -90,7 +90,7 @@ public class MerchantQuotaConfigServiceImpl extends BaseServiceImpl<MerchantQuot
 
             //加载提额配置
             List<MerchantQuotaConfig> merchantQuotaConfigs = selectByMerchant(merchant);
-            if (merchantQuotaConfigs==null){
+            if (merchantQuotaConfigs==null || merchantQuotaConfigs.isEmpty()){
                 return lastQuota;
             }
 
@@ -132,6 +132,10 @@ public class MerchantQuotaConfigServiceImpl extends BaseServiceImpl<MerchantQuot
         try {
             User user = userService.selectByPrimaryKey(uid);
             OrderRiskInfo orderRiskInfo = orderRiskInfoService.getLastOneByPhone(user.getUserPhone());
+            if (orderRiskInfo==null) {
+                return 0;
+            }
+
             String riskModelScore = orderRiskInfo.getRiskModelScore();
             JSONObject riskModelScoreJson = JSON.parseObject(riskModelScore);
             String tianjiScore = riskModelScoreJson.getString("天机-小额模型分");

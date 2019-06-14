@@ -1,4 +1,4 @@
-package com.mod.loan.controller.huichao;
+package com.mod.loan.controller.order;
 
 import com.mod.loan.common.annotation.LoginRequired;
 import com.mod.loan.common.enums.ResponseEnum;
@@ -12,7 +12,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -42,20 +41,19 @@ public class HuichaoRepayController {
      * @return
      */
     @LoginRequired
-    @RequestMapping(value = "aliAppH5Repay")
-    public ResultMessage aliAppH5Repay(@RequestBody AliAppH5RepayRequest request) {
+    @RequestMapping(value = "aliAppH5RepayUrl")
+    public ResultMessage aliAppH5RepayUrl(AliAppH5RepayRequest request) {
         logger.info("#[app端支付宝还款]-[开始]-request={}", request);
         if (null == request || null == request.getAmount() || request.getAmount().compareTo(BigDecimal.ZERO) <= 0) {
             return new ResultMessage(ResponseEnum.M5000);
         }
-        try {
-            String sd = huichaoRepayService.aliAppH5Repay(request);
-            logger.info("#[app端支付宝还款]-[结束]-sd={}", sd);
-            return new ResultMessage(ResponseEnum.M2000, sd);
-        } catch (Exception e) {
-            logger.error("#[app端支付宝还款]-[异常]-e={}", e);
+        String aliAppH5RepayUrl = huichaoRepayService.aliAppH5RepayUrl(request);
+        if (null == aliAppH5RepayUrl) {
+            logger.error("#[app端支付宝还款]-[异常]");
             return new ResultMessage(ResponseEnum.M4000);
         }
+        logger.info("#[app端支付宝还款]-[结束]-aliAppH5RepayUrl={}", aliAppH5RepayUrl);
+        return new ResultMessage(ResponseEnum.M2000, aliAppH5RepayUrl);
     }
 
     /**
@@ -69,19 +67,18 @@ public class HuichaoRepayController {
      */
     @LoginRequired
     @RequestMapping(value = "aliAppH5OrWxScanRepayQuery")
-    public ResultMessage aliAppH5OrWxScanRepayQuery(@RequestBody AliAppH5RepayQueryRequest request) {
+    public ResultMessage aliAppH5OrWxScanRepayQuery(AliAppH5RepayQueryRequest request) {
         logger.info("#[app端支付宝还款/微信扫码支付结果查询]-[开始]-request={}", request);
         if (null == request || StringUtils.isEmpty(request.getSeriesNo())) {
             return new ResultMessage(ResponseEnum.M5000);
         }
-        try {
-            String sd = huichaoRepayService.aliAppH5OrWxScanRepayQuery(request);
-            logger.info("#[app端支付宝还款/微信扫码支付结果查询]-[结束]-sd={}", sd);
-            return new ResultMessage(ResponseEnum.M2000, sd);
-        } catch (Exception e) {
-            logger.error("#[app端支付宝还款/微信扫码支付结果查询]-[异常]-e={}", e);
+        String result = huichaoRepayService.aliAppH5OrWxScanRepayQuery(request);
+        if (null == result) {
+            logger.error("#[app端支付宝还款/微信扫码支付结果查询]-[异常]");
             return new ResultMessage(ResponseEnum.M4000);
         }
+        logger.info("#[app端支付宝还款/微信扫码支付结果查询]-[结束]-result={}", result);
+        return new ResultMessage(ResponseEnum.M2000, result);
     }
 
     /**
@@ -94,12 +91,8 @@ public class HuichaoRepayController {
     @RequestMapping(value = "aliAppH5OrWxScan_repay_callback")
     public String aliAppH5OrWxScanRepayCallback(HttpServletRequest request, HttpServletResponse response) {
         logger.info("#[app端支付宝还款/微信扫码支付异步回调-]-[开始]");
-        try {
-            huichaoRepayCallBackService.aliAppH5OrWxScanRepayCallback(request);
-            logger.info("#[app端支付宝还款/微信扫码支付异步回调-]-[结束]-request={}", request);
-        } catch (Exception e) {
-            logger.error("#[app端支付宝还款/微信扫码支付异步回调-]-[异常]-e={}", e);
-        }
+        huichaoRepayCallBackService.aliAppH5OrWxScanRepayCallback(request);
+        logger.info("#[app端支付宝还款/微信扫码支付异步回调-]-[结束]");
         return "success";
     }
 
@@ -111,19 +104,18 @@ public class HuichaoRepayController {
      */
     @LoginRequired
     @RequestMapping(value = "wxScanRepay")
-    public ResultMessage wxScanRepay(@RequestBody AliAppH5RepayRequest request) {
+    public ResultMessage wxScanRepay(AliAppH5RepayRequest request) {
         logger.info("#[微信扫码支付]-[开始]-request={}", request);
         if (null == request || null == request.getAmount() || request.getAmount().compareTo(BigDecimal.ZERO) <= 0) {
             return new ResultMessage(ResponseEnum.M5000);
         }
-        try {
-            String sd = huichaoRepayService.wxScanRepay(request);
-            logger.info("#[微信扫码支付]-[结束]-sd={}", sd);
-            return new ResultMessage(ResponseEnum.M2000, sd);
-        } catch (Exception e) {
-            logger.error("#[微信扫码支付]-[异常]-e={}", e);
+        String result = huichaoRepayService.wxScanRepay(request);
+        if (null == result) {
+            logger.error("#[app端支付宝还款/微信扫码支付结果查询]-[异常]");
             return new ResultMessage(ResponseEnum.M4000);
         }
+        logger.info("#[微信扫码支付]-[结束]-result={}", result);
+        return new ResultMessage(ResponseEnum.M2000, result);
     }
 
 }

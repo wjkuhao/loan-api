@@ -14,5 +14,5 @@ public interface HuichaoRepayCallBackService {
      * @param request
      * @return
      */
-    void aliAppH5OrWxScanRepayCallback(HttpServletRequest request) throws Exception;
+    void aliAppH5OrWxScanRepayCallback(HttpServletRequest request);
 }

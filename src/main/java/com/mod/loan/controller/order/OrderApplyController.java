@@ -191,21 +191,19 @@ public class OrderApplyController {
         if (null == merchantRate) {
             return new ResultMessage(ResponseEnum.M4000.getCode(), "未查到规则");
         }
-        if (merchantRate.getProductMoney().compareTo(productMoney) != 0 || merchantRate.getProductDay() != productDay) {
-            return new ResultMessage(ResponseEnum.M4000.getCode(), "规则不匹配");
-        }
-        BigDecimal totalFee = MoneyUtil.totalFee(merchantRate.getProductMoney(), merchantRate.getTotalRate());// 综合费用
-        BigDecimal interestFee = MoneyUtil.interestFee(merchantRate.getProductMoney(), merchantRate.getProductDay(),
+
+        BigDecimal totalFee = MoneyUtil.totalFee(productMoney, merchantRate.getTotalRate());// 综合费用
+        BigDecimal interestFee = MoneyUtil.interestFee(productMoney, merchantRate.getProductDay(),
                 merchantRate.getProductRate());// 利息
-        BigDecimal actualMoney = MoneyUtil.actualMoney(merchantRate.getProductMoney(), totalFee);// 实际到账
-        BigDecimal shouldRepay = MoneyUtil.shouldrepay(merchantRate.getProductMoney(), interestFee, new BigDecimal(0),
+        BigDecimal actualMoney = MoneyUtil.actualMoney(productMoney, totalFee);// 实际到账
+        BigDecimal shouldRepay = MoneyUtil.shouldrepay(productMoney, interestFee, new BigDecimal(0),
                 new BigDecimal(0));// 应还金额
         // 判断客群
         Integer userType = orderService.judgeUserTypeByUid(uid);
         order.setOrderNo(StringUtil.getOrderNumber("b"));
         order.setUid(uid);
         order.setBorrowDay(merchantRate.getProductDay());
-        order.setBorrowMoney(merchantRate.getProductMoney());
+        order.setBorrowMoney(productMoney);
         order.setActualMoney(actualMoney);
         order.setTotalRate(merchantRate.getTotalRate());
         order.setTotalFee(totalFee);
@@ -271,16 +269,11 @@ public class OrderApplyController {
     @LoginRequired
     @RequestMapping("/compute_quota")
     public ResultMessage compute_quota(String productMoney, String totalRate) {
-        String merchantAlias = RequestThread.getClientAlias();
-        Long uid = RequestThread.getUid();
-
-        BigDecimal lastQuota = merchantQuotaConfigService.computeQuota(merchantAlias, uid, new BigDecimal(productMoney));
-
-        BigDecimal totalFee = MoneyUtil.totalFee(lastQuota, new BigDecimal(totalRate));// 综合费用
-        BigDecimal actualMoney = MoneyUtil.actualMoney(lastQuota, totalFee);// 实际到账
+        BigDecimal totalFee = MoneyUtil.totalFee(new BigDecimal(productMoney), new BigDecimal(totalRate));// 综合费用
+        BigDecimal actualMoney = MoneyUtil.actualMoney(new BigDecimal(productMoney), totalFee);// 实际到账
 
         JSONObject data = new JSONObject();
-        data.put("productMoney", lastQuota);
+        data.put("productMoney", productMoney);
         data.put("totalFee", totalFee);
         data.put("actualMoney", actualMoney);
         return new ResultMessage(ResponseEnum.M2000, data);

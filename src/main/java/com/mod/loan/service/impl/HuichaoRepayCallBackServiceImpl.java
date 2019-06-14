@@ -37,7 +37,7 @@ public class HuichaoRepayCallBackServiceImpl implements HuichaoRepayCallBackServ
     UserService userService;
 
     @Override
-    public void aliAppH5OrWxScanRepayCallback(HttpServletRequest request) throws Exception {
+    public void aliAppH5OrWxScanRepayCallback(HttpServletRequest request) {
         //订单号
         String merchantOutOrderNo = request.getParameter("merchantOutOrderNo");
         //商户号
