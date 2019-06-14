@@ -53,6 +53,8 @@ public class Constant {
      */
     public static String MANY_HEAD_QUERY_URL;
 
+    public static String MULTI_LOAN_QUERY_URL;
+
     @Value("${environment:}")
     public void setENVIROMENT(String environment) {
         Constant.ENVIROMENT = environment;
@@ -175,5 +177,8 @@ public class Constant {
     public void setHelipayEntrustedFileUrl(String helipayEntrustedFileUrl) {
         Constant.HELIPAY_ENTRUSTED_FILE_URL = helipayEntrustedFileUrl;
     }
+
+    @Value("${multi.loan.query.url:}")
+    public void setMultiLoanQueryUrl(String multiLoanQueryUrl) { MULTI_LOAN_QUERY_URL = multiLoanQueryUrl; }
 
 }

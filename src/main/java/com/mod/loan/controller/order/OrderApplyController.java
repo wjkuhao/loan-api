@@ -1,13 +1,11 @@
 package com.mod.loan.controller.order;
 
-import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.mod.loan.common.annotation.LoginRequired;
 import com.mod.loan.common.enums.OrderEnum;
 import com.mod.loan.common.enums.ResponseEnum;
 import com.mod.loan.common.model.RequestThread;
 import com.mod.loan.common.model.ResultMessage;
-import com.mod.loan.config.Constant;
 import com.mod.loan.config.rabbitmq.RabbitConst;
 import com.mod.loan.config.redis.RedisConst;
 import com.mod.loan.config.redis.RedisMapper;
@@ -63,10 +61,9 @@ public class OrderApplyController {
     @Autowired
     private MerchantConfigService merchantConfigService;
     @Autowired
-    private OkHttpReader okHttpReader;
-    @Autowired
     MerchantQuotaConfigService merchantQuotaConfigService;
-
+    @Autowired
+    DataCenterService dataCenterService;
     /**
      * h5 借款确认 获取费用明细
      */
@@ -173,17 +170,9 @@ public class OrderApplyController {
         }
 
         // 检查是否存在多头借贷
-        String manyHeadQueryUrl = String.format(Constant.MANY_HEAD_QUERY_URL, "", certNo);
-        String result = okHttpReader.get(manyHeadQueryUrl, null, null);
-        if (null != result && result.length() > 0) {
-            JSONObject manyHeadJson = JSON.parseObject(result);
-            if ("2000".equals(manyHeadJson.getString("status"))) {
-                boolean isManyHead = manyHeadJson.getJSONObject("data").getBoolean("isManyHead");
-                if (isManyHead) {
-                    logger.info("存在多头借贷，无法提单， certNo={}", certNo);
-                    return new ResultMessage(ResponseEnum.M4000.getCode(), "您不符合下单条件");
-                }
-            }
+        if(dataCenterService.checkMultiLoan(user.getUserPhone())){
+            logger.info("存在多头借贷，无法提单， certNo={}", certNo);
+            return new ResultMessage(ResponseEnum.M4000.getCode(), "您不符合下单条件");
         }
 
         Order order = new Order();

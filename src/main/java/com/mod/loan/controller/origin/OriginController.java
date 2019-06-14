@@ -34,7 +34,10 @@ public class OriginController {
                 id = Base64ToMultipartFileUtil.decodeOrigin(id);
             } else if ("huijie".equals(merchant)) {
                 id = DesUtil.decryption(id, null);
-            } else {
+            } else if ("mx".equals(merchant)){
+                // mx没有加密
+            }
+            else {
                 id = DesUtil.decryption(id, null);
             }
 

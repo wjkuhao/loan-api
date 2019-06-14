@@ -69,7 +69,7 @@ public class RegisterController {
     @Autowired
     private UserRegisterCodeStatService userRegisterCodeStatService;
     @Autowired
-    private OkHttpReader okHttpReader;
+    private DataCenterService dataCenterService;
 
     @RequestMapping(value = "graph_code")
     public ResultMessage graph_code() throws IOException {
@@ -212,17 +212,9 @@ public class RegisterController {
             }
 
             // 检查是否存在多头借贷
-            String manyHeadQueryUrl = String.format(Constant.MANY_HEAD_QUERY_URL, phone, "");
-            String result = okHttpReader.get(manyHeadQueryUrl, null, null);
-            if (null != result && result.length() > 0) {
-                JSONObject manyHeadJson = JSON.parseObject(result);
-                if ("2000".equals(manyHeadJson.getString("status"))) {
-                    boolean isManyHead = manyHeadJson.getJSONObject("data").getBoolean("isManyHead");
-                    if (isManyHead) {
-                        logger.info("存在多头借贷，无法注册， phone={}", phone);
-                        return new ResultMessage(ResponseEnum.M4000.getCode(), "审核不通过");
-                    }
-                }
+            if(dataCenterService.checkMultiLoan(phone)){
+                logger.info("存在多头借贷，无法注册， phone={}", phone);
+                return new ResultMessage(ResponseEnum.M4000.getCode(), "审核不通过");
             }
         }
 
@@ -238,5 +230,11 @@ public class RegisterController {
         redisMapper.remove(RedisConst.USER_PHONE_CODE + phone);
         userDeductionService.addUser(uid, origin_id, alias, phone);
         return new ResultMessage(ResponseEnum.M2000);
+    }
+
+    @RequestMapping(value = "test")
+    public ResultMessage test(){
+        dataCenterService.checkMultiLoan("18072878602");
+        return new ResultMessage(ResponseEnum.M4000.getCode(), "审核不通过");
     }
 }
