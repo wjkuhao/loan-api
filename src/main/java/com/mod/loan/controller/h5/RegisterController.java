@@ -232,9 +232,4 @@ public class RegisterController {
         return new ResultMessage(ResponseEnum.M2000);
     }
 
-    @RequestMapping(value = "test")
-    public ResultMessage test(){
-        dataCenterService.checkMultiLoan("18072878602");
-        return new ResultMessage(ResponseEnum.M4000.getCode(), "审核不通过");
-    }
 }
