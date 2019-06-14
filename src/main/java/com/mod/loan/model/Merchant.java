@@ -113,6 +113,9 @@ public class Merchant {
     @Column(name = "kq_cert_pwd")
     private String kqCertPwd;
 
+    @Column(name = "kq_merchant_code")
+    private String kqMerchantCode;
+
     /**
      * 畅捷的商户id
      */
@@ -430,6 +433,14 @@ public class Merchant {
 
     public void setKqCertPwd(String kqCertPwd) {
         this.kqCertPwd = kqCertPwd;
+    }
+
+    public String getKqMerchantCode() {
+        return kqMerchantCode;
+    }
+
+    public void setKqMerchantCode(String kqMerchantCode) {
+        this.kqMerchantCode = kqMerchantCode;
     }
 
     public String getCjPartnerId() {
