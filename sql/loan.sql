@@ -507,6 +507,7 @@ CREATE TABLE `tb_merchant_config`  (
   `auto_apply_order` tinyint(1) DEFAULT 1 COMMENT '自动提单:0-关闭 1-自动提单',
   `service_phone` varchar(20) DEFAULT NULl COMMENT '客服电话',
   `default_origin_status` tinyint(1) DEFAULT 1 COMMENT '默认渠道号(61)注册:0-拒绝 1-允许',
+  `max_overdue_fee_rate` tinyint(1) DEFAULT 100 COMMENT '最大逾期费费率率,数值类型,例:30表示逾期费率为百分之三十(借款金额*最大逾期费率=最大逾期费)',
   `create_time` CHAR(19) DEFAULT NULL COMMENT '插入时间',
   `update_time` CHAR(19) DEFAULT NULL COMMENT '更新时间',
   PRIMARY KEY (`id`) USING BTREE,

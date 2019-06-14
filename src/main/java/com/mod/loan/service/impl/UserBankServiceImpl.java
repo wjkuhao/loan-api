@@ -130,11 +130,11 @@ public class UserBankServiceImpl extends BaseServiceImpl<UserBank, Long> impleme
             requestVo.setP14_cvv2("");
             requestVo.setSignatureType("MD5WITHRSA");
             String pfxPath = helipay_path + merchant.getMerchantAlias() + ".pfx";
-            log.error("pfxPath:{}", pfxPath);
+            log.info("pfxPath:{}", pfxPath);
             Map handleMap = MessageHandle.getReqestMap(requestVo, pfxPath, helipay_pfx_pwd);
-            log.error("sign map:{}", handleMap);
+            log.info("sign map:{}", handleMap);
             response = HttpClientService.getHttpResp(handleMap, helipay_url);
-            log.error("response:{}", response);
+            log.info("response:{}", response);
             AgreementSendValidateCodeResponseVo responseVo = JSONObject.parseObject(response,
                     AgreementSendValidateCodeResponseVo.class);
             if ("0000".equals(responseVo.getRt2_retCode())) {
