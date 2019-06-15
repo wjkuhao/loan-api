@@ -28,7 +28,12 @@ public class DataCenterServiceImpl implements DataCenterService {
             reqJson.put("idCard", certNo);
 
 			String result = okHttpReader.postJson(Constant.MULTI_LOAN_QUERY_URL, reqJson.toJSONString(), null);
-
+			
+			// 请求异常
+			if ("".equals(result)) {
+				return false;
+			}
+			//
 			JSONObject respObject = JSONObject.parseObject(result);
 			String status = respObject.getString("status");
 			if ("200".equals(status)){
