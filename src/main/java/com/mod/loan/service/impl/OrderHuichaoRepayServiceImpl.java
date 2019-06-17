@@ -3,7 +3,6 @@ package com.mod.loan.service.impl;
 import com.alibaba.fastjson.JSONObject;
 import com.mod.loan.common.enums.OrderEnum;
 import com.mod.loan.common.enums.OrderRepayStatusEnum;
-import com.mod.loan.common.model.RequestThread;
 import com.mod.loan.config.Constant;
 import com.mod.loan.mapper.OrderMapper;
 import com.mod.loan.mapper.OrderRepayMapper;
@@ -142,7 +141,7 @@ public class OrderHuichaoRepayServiceImpl implements OrderHuichaoRepayService {
             return null;
         }
         //获取商户信息
-        Merchant merchant = merchantService.findMerchantByAlias(RequestThread.getClientAlias());
+        Merchant merchant = merchantService.findMerchantByAlias(order.getMerchant());
         if (null == merchant || StringUtils.isBlank(merchant.getHuichaoMerid()) || StringUtils.isBlank(merchant.getHuichaoMerchantRepayPrivateKey())) {
             logger.info("#[该商户信息异常]-merchant={}", JSONObject.toJSON(merchant));
             return null;
