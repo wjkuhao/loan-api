@@ -28,8 +28,6 @@ public class ConfigController {
 	private AppService appService;
 	@Autowired
 	private MerchantService merchantService;
-	@Autowired
-	private UserService userService;
 
 	/**
 	 * 启动页，首页图片弹窗
@@ -68,24 +66,7 @@ public class ConfigController {
 	@RequestMapping(value = "check_version")
 	@Api
 	public ResultMessage check_version(String phone) {
-		//只有注册后才能下载
-        AppVersion newVersion = appService.findNewVersion(RequestThread.getClientAlias(), RequestThread.getClientType());
-
-        if ("haitun".equals(RequestThread.getClientAlias())){
-            User user = userService.selectUserByPhone(phone, RequestThread.getClientAlias());
-            if (user!=null) {
-                String versionUrl = newVersion.getVersionUrl();
-                int index = versionUrl.lastIndexOf("."); //去掉.后面的格式，前段拼接，防止链接被盗用
-                newVersion.setVersionUrl(versionUrl.substring(0,index));
-                return new ResultMessage(ResponseEnum.M2000, newVersion);
-            }
-            else {
-                return new ResultMessage(ResponseEnum.M4002);
-            }
-		}
-		else {
-            return new ResultMessage(ResponseEnum.M2000, newVersion);
-		}
+		return new ResultMessage(ResponseEnum.M2000, appService.findNewVersion(RequestThread.getClientAlias(), RequestThread.getClientType()));
 	}
 
 	@RequestMapping(value = "mechant_info")
