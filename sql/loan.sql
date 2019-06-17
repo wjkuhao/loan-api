@@ -271,7 +271,7 @@ CREATE TABLE `tb_blacklist`  (
   `create_time` datetime(0) NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   `update_time` datetime(0) NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP(0),
   PRIMARY KEY (`id`) USING BTREE,
-  UNIQUE INDEX `idx_uid`(`uid`) USING BTREE,
+  INDEX `idx_uid`(`uid`) USING BTREE,
   INDEX `idx_tel`(`tel`) USING BTREE
 ) ENGINE = InnoDB  CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '商户自建黑名单' ROW_FORMAT = Dynamic;
 
