@@ -29,4 +29,9 @@
   <select id="selectFuyouBankCard"  resultMap="BaseResultMap">
   select * from tb_user_bank where uid=#{uid} and bind_type=2 order by create_time desc limit 1
   </select>
+
+  <select id="selectUserMerchantBankCard"  resultMap="BaseResultMap">
+  select * from tb_user_bank where uid=#{uid} and bind_type=#{bindType} order by create_time desc limit 1
+  </select>
+
 </mapper>

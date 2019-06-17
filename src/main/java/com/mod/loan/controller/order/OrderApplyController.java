@@ -64,6 +64,9 @@ public class OrderApplyController {
     MerchantQuotaConfigService merchantQuotaConfigService;
     @Autowired
     DataCenterService dataCenterService;
+    @Autowired
+    MerchantService merchantService;
+
     /**
      * h5 借款确认 获取费用明细
      */
@@ -266,5 +269,18 @@ public class OrderApplyController {
         data.put("totalFee", totalFee);
         data.put("actualMoney", actualMoney);
         return new ResultMessage(ResponseEnum.M2000, data);
+    }
+
+    @LoginRequired
+    @RequestMapping("/check_pay")
+    public ResultMessage check_pay() {
+        Long uid = RequestThread.getUid();
+
+        Merchant merchant = merchantService.findMerchantByAlias(RequestThread.getClientAlias());
+        UserBank userBank = userBankService.selectUserMerchantBankCard(uid, merchant.getBindType());
+        if (null == userBank) {
+            return new ResultMessage(ResponseEnum.M4000.getCode(), "支付通道异常，请重新绑卡");
+        }
+        return new ResultMessage(ResponseEnum.M2000);
     }
 }
