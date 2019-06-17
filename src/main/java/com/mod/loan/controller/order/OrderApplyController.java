@@ -89,10 +89,10 @@ public class OrderApplyController {
         map.put("totalFee", totalFee);
         map.put("actualMoney", actualMoney);
 
-        BigDecimal maxQuota = merchantQuotaConfigService.computeQuota(RequestThread.getClientAlias(), uid, merchantRate.getProductMoney());
-        map.put("totalRate", merchantRate.getTotalRate());
-        map.put("productMoneyRange", merchantRate.getProductMoney().intValue()+ "~" + maxQuota.intValue());
-        map.put("productMoney", maxQuota);
+      //  BigDecimal maxQuota = merchantQuotaConfigService.computeQuota(RequestThread.getClientAlias(), uid, merchantRate.getProductMoney());
+      //  map.put("totalRate", merchantRate.getTotalRate());
+      //  map.put("productMoneyRange", merchantRate.getProductMoney().intValue()+ "~" + maxQuota.intValue());
+        map.put("productMoney", merchantRate.getProductMoney());
 
         map.put("cardName", userBank.getCardName());
         map.put("cardNo", StringUtil.bankTailNo(userBank.getCardNo()));
@@ -147,33 +147,33 @@ public class OrderApplyController {
             return new ResultMessage(ResponseEnum.M4000.getCode(), "您不符合下单条件");
         }
 
-        // 是否在整个系统有正在进行的订单(查询所有商户)
-//        String certNo = user.getUserCertNo();
-//        if (orderService.checkUnfinishOrderByCertNo(certNo)) {
-//            logger.info("存在进行中的订单，无法提单， certNo={}", certNo);
-//            return new ResultMessage(ResponseEnum.M4000.getCode(), "您不符合下单条件");
-//        } else {
-//            // 整个系统没有查到进行的单子
-//            // 再检查一下是否最近风控拒绝了
-//            Order orderIng = orderService.findUserLatestOrder(uid);
-//            if (null != orderIng) {
-//                // 审核拒绝的订单7天内无法再下单
-//                if (orderIng.getStatus() == 51 || orderIng.getStatus() == 52) {
-//                    DateTime applyTime = new DateTime(orderIng.getCreateTime()).plusDays(7);
-//                    DateTime nowTime = new DateTime();
-//                    Integer remainDays = Days.daysBetween(nowTime.withMillisOfDay(0), applyTime.withMillisOfDay(0)).getDays();
-//                    if (0 < remainDays && remainDays <= 7) {
-//                        return new ResultMessage(ResponseEnum.M4000.getCode(), "请" + remainDays + "天后重试提单");
-//                    }
-//                }
-//            }
-//        }
+//         是否在整个系统有正在进行的订单(查询所有商户)
+        String certNo = user.getUserCertNo();
+        if (orderService.checkUnfinishOrderByCertNo(certNo)) {
+            logger.info("存在进行中的订单，无法提单， certNo={}", certNo);
+            return new ResultMessage(ResponseEnum.M4000.getCode(), "您不符合下单条件");
+        } else {
+            // 整个系统没有查到进行的单子
+            // 再检查一下是否最近风控拒绝了
+            Order orderIng = orderService.findUserLatestOrder(uid);
+            if (null != orderIng) {
+                // 审核拒绝的订单7天内无法再下单
+                if (orderIng.getStatus() == 51 || orderIng.getStatus() == 52) {
+                    DateTime applyTime = new DateTime(orderIng.getCreateTime()).plusDays(7);
+                    DateTime nowTime = new DateTime();
+                    Integer remainDays = Days.daysBetween(nowTime.withMillisOfDay(0), applyTime.withMillisOfDay(0)).getDays();
+                    if (0 < remainDays && remainDays <= 7) {
+                        return new ResultMessage(ResponseEnum.M4000.getCode(), "请" + remainDays + "天后重试提单");
+                    }
+                }
+            }
+        }
 
         // 检查是否存在多头借贷
-//        if(dataCenterService.checkMultiLoan(null, certNo)){
-//            logger.info("存在多头借贷，无法提单， certNo={}", certNo);
-//            return new ResultMessage(ResponseEnum.M4000.getCode(), "您不符合下单条件");
-//        }
+        if(dataCenterService.checkMultiLoan(null, certNo)){
+            logger.info("存在多头借贷，无法提单， certNo={}", certNo);
+            return new ResultMessage(ResponseEnum.M4000.getCode(), "您不符合下单条件");
+        }
 
         Order order = new Order();
         MerchantRate merchantRate = merchantRateService.selectByPrimaryKey(productId);
