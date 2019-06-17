@@ -262,4 +262,9 @@ public class OrderRepayServiceImpl extends BaseServiceImpl<OrderRepay, String> i
         orderRepay.setUpdateTime(new Date());
         updateOrderRepayInfo(orderRepay, null);
     }
+
+    @Override
+    public List<OrderRepay> huichaoRepay4AliAppH5OrWxScanQuery() {
+        return orderRepayMapper.huichaoRepay4AliAppH5OrWxScanQuery();
+    }
 }
