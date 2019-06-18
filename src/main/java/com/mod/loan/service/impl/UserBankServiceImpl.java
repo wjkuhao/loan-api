@@ -735,4 +735,9 @@ public class UserBankServiceImpl extends BaseServiceImpl<UserBank, Long> impleme
         }
         return message;
     }
+
+    @Override
+    public UserBank selectUserMerchantBankCard(Long uid, Integer bindType) {
+        return userBankMapper.selectUserMerchantBankCard(uid, bindType);
+    }
 }

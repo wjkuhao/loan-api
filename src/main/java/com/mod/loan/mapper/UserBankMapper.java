@@ -28,4 +28,5 @@ public interface UserBankMapper extends MyBaseMapper<UserBank> {
 	UserBank selectFuyouBankCard(Long uid);
 
 
+	UserBank selectUserMerchantBankCard(@Param("uid")Long uid, @Param("bindType")Integer bindType);
 }

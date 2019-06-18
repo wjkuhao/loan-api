@@ -68,4 +68,8 @@ public interface UserBankService extends BaseService<UserBank,Long> {
      * 根据快钱短验进行绑卡
      */
     ResultMessage bindKuaiqianSms(String validateCode, Long uid, String bindInfo);
+
+
+    UserBank selectUserMerchantBankCard(Long uid, Integer bindType);
+
 }
