@@ -52,6 +52,7 @@ public class Constant {
      * 查询是否存在多头借贷的接口
      */
     public static String MULTI_LOAN_QUERY_URL;
+    public static String MULTI_LOAN_DEL_URL;
 
     @Value("${environment:}")
     public void setENVIROMENT(String environment) {
@@ -178,4 +179,8 @@ public class Constant {
         MULTI_LOAN_QUERY_URL = multiLoanQueryUrl;
     }
 
+    @Value("${multi.loan.del.url:}")
+    public void setMultiLoanDelUrl(String multiLoanDelUrl) {
+        MULTI_LOAN_DEL_URL = multiLoanDelUrl;
+    }
 }

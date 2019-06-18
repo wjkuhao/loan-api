@@ -8,6 +8,7 @@ import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -26,6 +27,7 @@ public class DataCenterServiceImpl implements DataCenterService {
 			JSONObject reqJson = new JSONObject();
             reqJson.put("phone", phone);
             reqJson.put("idCard", certNo);
+
 
 			String result = okHttpReader.postJson(Constant.MULTI_LOAN_QUERY_URL, reqJson.toJSONString(), null);
 			
@@ -50,4 +52,22 @@ public class DataCenterServiceImpl implements DataCenterService {
 		return false;
 	}
 
+	@Async
+	public void delMultiLoanOrder(String merchant, Long orderId){
+		try {
+			JSONObject reqJson = new JSONObject();
+			reqJson.put("merchant", merchant);
+			reqJson.put("orderId", orderId);
+
+			String result = okHttpReader.postJson(Constant.MULTI_LOAN_DEL_URL, reqJson.toJSONString(), null);
+
+			JSONObject respObject = JSONObject.parseObject(result);
+			String status = respObject.getString("status");
+			if (!"200".equals(status)){
+				logger.error("delMultiLoanOrder err={}", respObject.getString("msg"));
+			}
+		}catch (Exception e){
+			logger.error("delMultiLoanOrder Exception merchant={} orderId={}, err={}", merchant, orderId, e);
+		}
+	}
 }

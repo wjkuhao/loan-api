@@ -50,6 +50,8 @@ public class OrderRepayServiceImpl extends BaseServiceImpl<OrderRepay, String> i
     YeepayService yeepayService;
     @Autowired
     OrderService orderService;
+    @Autowired
+    DataCenterService dataCenterService;
 
     @Value("${helipay.url:}")
     private String helipay_url;
@@ -252,6 +254,8 @@ public class OrderRepayServiceImpl extends BaseServiceImpl<OrderRepay, String> i
         order.setStatus(orderService.setRepaySuccStatusByCurrStatus(order.getStatus()));
 
         updateOrderRepayInfo(orderRepay, order);
+
+        dataCenterService.delMultiLoanOrder(order.getMerchant(), order.getId());
     }
 
     @Override
@@ -267,4 +271,5 @@ public class OrderRepayServiceImpl extends BaseServiceImpl<OrderRepay, String> i
     public List<OrderRepay> huichaoRepay4AliAppH5OrWxScanQuery() {
         return orderRepayMapper.huichaoRepay4AliAppH5OrWxScanQuery();
     }
+
 }
