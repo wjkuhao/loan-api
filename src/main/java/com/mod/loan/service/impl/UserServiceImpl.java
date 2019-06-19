@@ -106,7 +106,7 @@ public class UserServiceImpl  extends BaseServiceImpl< User,Long> implements Use
 	@Override
 	public boolean insertUserBank(Long uid,UserBank userBank) {
 		// TODO Auto-generated method stub
-		UserBank bank = userBankMapper.selectUserCurrentBankCard(uid);
+		UserBank bank = userBankMapper.selectUserMerchantBankCard(uid, userBank.getBindType());
 		if (bank!=null&&bank.getCardNo().equals(userBank.getCardNo())) {
 			log.error("绑卡已绑定，用户={}",uid);
 			return false;
