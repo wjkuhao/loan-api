@@ -231,7 +231,7 @@ public class OrderChangjieRepayServiceImpl extends BaseServiceImpl<OrderRepay, S
                 if (null == orderRepay) {
                     repay.setRemark("畅捷还款处理中");
                     repay.setRepayStatus(OrderRepayStatusEnum.ACCEPT_SUCCESS.getCode());
-                    orderRepayMapper.insertSelective(orderRepay);
+                    orderRepayMapper.insertSelective(repay);
                 } else {
                     orderRepay.setRemark("畅捷还款处理中");
                     orderRepay.setRepayStatus(OrderRepayStatusEnum.ACCEPT_SUCCESS.getCode());
