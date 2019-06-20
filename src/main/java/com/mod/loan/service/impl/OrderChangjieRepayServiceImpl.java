@@ -135,6 +135,13 @@ public class OrderChangjieRepayServiceImpl extends BaseServiceImpl<OrderRepay, S
             logger.info("orderId={}已存在还款中的记录", orderId);
             return null;
         }
+        //根据还款流水查询还款流水记录
+        OrderRepay orderRepay = orderRepayService.selectByPrimaryKey(seriesNo);
+        logger.info("#[根据还款流水查询还款流水记录]-orderRepay={}", JSONObject.toJSON(orderRepay));
+        if (null != orderRepay && OrderRepayStatusEnum.REPAY_SUCCESS.getCode().equals(orderRepay.getRepayStatus())) {
+            logger.info("该笔还款流水已成功");
+            return null;
+        }
         //获取订单信息
         Order order = orderMapper.selectByPrimaryKey(orderId);
         logger.info("#[获取订单信息]-order={}", JSONObject.toJSON(order));
@@ -167,27 +174,42 @@ public class OrderChangjieRepayServiceImpl extends BaseServiceImpl<OrderRepay, S
                 logger.info("#[去调畅捷协议支付还款确认]-[返回结果为空]");
                 return null;
             }
-            //落还款记录表
-            OrderRepay orderRepay = new OrderRepay();
-            orderRepay.setRepayNo(seriesNo);
-            orderRepay.setUid(order.getUid());
-            orderRepay.setOrderId(order.getId());
-            //1-银行卡
-            orderRepay.setRepayType(1);
-            String amount = "dev".equals(Constant.ENVIROMENT) ? "0.01" : order.getShouldRepay().setScale(2, BigDecimal.ROUND_HALF_UP).toString();
-            orderRepay.setRepayMoney(new BigDecimal(amount));
-            orderRepay.setBank(userBank.getCardName());
-            orderRepay.setBankNo(userBank.getCardNo());
-            orderRepay.setCreateTime(new Date());
-            orderRepay.setUpdateTime(new Date());
+            OrderRepay repay = new OrderRepay();
+            if (null == orderRepay) {
+                //落还款记录表
+                repay.setRepayNo(seriesNo);
+                repay.setUid(order.getUid());
+                repay.setOrderId(order.getId());
+                //1-银行卡
+                repay.setRepayType(1);
+                String amount = "dev".equals(Constant.ENVIROMENT) ? "0.01" : order.getShouldRepay().setScale(2, BigDecimal.ROUND_HALF_UP).toString();
+                repay.setRepayMoney(new BigDecimal(amount));
+                repay.setBank(userBank.getCardName());
+                repay.setBankNo(userBank.getCardNo());
+                repay.setCreateTime(new Date());
+                repay.setUpdateTime(new Date());
+            } else {
+                //更新
+                String amount = "dev".equals(Constant.ENVIROMENT) ? "0.01" : order.getShouldRepay().setScale(2, BigDecimal.ROUND_HALF_UP).toString();
+                orderRepay.setRepayMoney(new BigDecimal(amount));
+                orderRepay.setBank(userBank.getCardName());
+                orderRepay.setBankNo(userBank.getCardNo());
+                orderRepay.setUpdateTime(new Date());
+            }
             //解析返回结果
             JSONObject jsonObject = JSONObject.parseObject(result);
             //畅捷协议支付还款确认
             if (StringUtils.equals("S", jsonObject.getString("Status"))) {
                 //成功
-                orderRepay.setRepayStatus(OrderRepayStatusEnum.REPAY_SUCCESS.getCode());
-                orderRepay.setRemark("畅捷还款成功");
-                orderRepayMapper.insertSelective(orderRepay);
+                if (null == orderRepay) {
+                    repay.setRepayStatus(OrderRepayStatusEnum.REPAY_SUCCESS.getCode());
+                    repay.setRemark("畅捷还款成功");
+                    orderRepayMapper.insertSelective(repay);
+                } else {
+                    orderRepay.setRepayStatus(OrderRepayStatusEnum.REPAY_SUCCESS.getCode());
+                    orderRepay.setRemark("畅捷还款成功");
+                    orderRepayMapper.updateByPrimaryKeySelective(orderRepay);
+                }
 
                 order.setRealRepayTime(new Date());
                 order.setHadRepay(orderRepay.getRepayMoney());
@@ -195,15 +217,27 @@ public class OrderChangjieRepayServiceImpl extends BaseServiceImpl<OrderRepay, S
                 orderMapper.updateByPrimaryKeySelective(order);
             } else if (StringUtils.equals("F", jsonObject.getString("Status"))) {
                 //失败
-                orderRepay.setRemark(jsonObject.getString("AppRetMsg"));
-                orderRepay.setRepayStatus(OrderRepayStatusEnum.ACCEPT_FAILED.getCode());
-                orderRepayMapper.insertSelective(orderRepay);
+                if (null == orderRepay) {
+                    repay.setRemark(jsonObject.getString("RetMsg"));
+                    repay.setRepayStatus(OrderRepayStatusEnum.REPAY_FAILED.getCode());
+                    orderRepayMapper.insertSelective(repay);
+                } else {
+                    orderRepay.setRepayStatus(OrderRepayStatusEnum.REPAY_FAILED.getCode());
+                    orderRepay.setRemark(jsonObject.getString("RetMsg"));
+                    orderRepayMapper.updateByPrimaryKeySelective(orderRepay);
+                }
                 return null;
             } else {
                 //处理中
-                orderRepay.setRemark("畅捷还款处理中");
-                orderRepay.setRepayStatus(OrderRepayStatusEnum.ACCEPT_SUCCESS.getCode());
-                orderRepayMapper.insertSelective(orderRepay);
+                if (null == orderRepay) {
+                    repay.setRemark("畅捷还款处理中");
+                    repay.setRepayStatus(OrderRepayStatusEnum.ACCEPT_SUCCESS.getCode());
+                    orderRepayMapper.insertSelective(orderRepay);
+                } else {
+                    orderRepay.setRemark("畅捷还款处理中");
+                    orderRepay.setRepayStatus(OrderRepayStatusEnum.ACCEPT_SUCCESS.getCode());
+                    orderRepayMapper.updateByPrimaryKeySelective(orderRepay);
+                }
                 return "DOING";
             }
             logger.info("#[畅捷订单协议支付还款确认]-[结束]");
