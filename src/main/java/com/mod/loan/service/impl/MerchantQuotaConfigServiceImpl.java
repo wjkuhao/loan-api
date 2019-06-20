@@ -3,6 +3,7 @@ package com.mod.loan.service.impl;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.mod.loan.common.mapper.BaseServiceImpl;
+import com.mod.loan.config.Constant;
 import com.mod.loan.config.redis.RedisMapper;
 import com.mod.loan.mapper.MerchantQuotaConfigMapper;
 import com.mod.loan.model.MerchantQuotaConfig;
@@ -115,8 +116,8 @@ public class MerchantQuotaConfigServiceImpl extends BaseServiceImpl<MerchantQuot
             if (lastQuota.compareTo(new BigDecimal(1000))<0){
                 lastQuota = new BigDecimal(1000);
             }
-            else if (lastQuota.compareTo(new BigDecimal(5000))>0){
-                lastQuota = new BigDecimal(5000);
+            else if (lastQuota.compareTo(new BigDecimal(Constant.MERCHANT_MAX_PRODUCT_MONEY))>0){
+                lastQuota = new BigDecimal(Constant.MERCHANT_MAX_PRODUCT_MONEY);
             }
         }catch (Exception e){
             logger.error("computeQuota err uid={}, error={}",uid, e);
