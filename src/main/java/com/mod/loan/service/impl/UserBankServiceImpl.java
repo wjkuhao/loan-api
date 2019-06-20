@@ -596,7 +596,7 @@ public class UserBankServiceImpl extends BaseServiceImpl<UserBank, Long> impleme
         HashMap respMap = null;
         try {
             User user = userService.selectByPrimaryKey(uid);
-            Merchant merchant = merchantService.findMerchantByAlias("farm");//RequestThread.getClientAlias());
+            Merchant merchant = merchantService.findMerchantByAlias(RequestThread.getClientAlias());
             TransInfo transInfo = new TransInfo();
             //设置手机动态鉴权节点
             transInfo.setRecordeText_1("indAuthContent");
@@ -669,7 +669,7 @@ public class UserBankServiceImpl extends BaseServiceImpl<UserBank, Long> impleme
             if (MapUtils.isEmpty(reqMap)) {
                 return new ResultMessage(ResponseEnum.M4000.getCode(), "验证码失效,请重新获取");
             }
-            Merchant merchant = merchantService.findMerchantByAlias("farm");//RequestThread.getClientAlias());
+            Merchant merchant = merchantService.findMerchantByAlias(RequestThread.getClientAlias());
             //设置手机动态鉴权节点
             TransInfo transInfo= new TransInfo();
             transInfo.setRecordeText_1("indAuthDynVerifyContent");
