@@ -175,6 +175,7 @@ public class OrderChangjieRepayServiceImpl extends BaseServiceImpl<OrderRepay, S
                 return null;
             }
             OrderRepay repay = new OrderRepay();
+            String amount = "dev".equals(Constant.ENVIROMENT) ? "0.01" : order.getShouldRepay().setScale(2, BigDecimal.ROUND_HALF_UP).toString();
             if (null == orderRepay) {
                 //落还款记录表
                 repay.setRepayNo(seriesNo);
@@ -182,7 +183,6 @@ public class OrderChangjieRepayServiceImpl extends BaseServiceImpl<OrderRepay, S
                 repay.setOrderId(order.getId());
                 //1-银行卡
                 repay.setRepayType(1);
-                String amount = "dev".equals(Constant.ENVIROMENT) ? "0.01" : order.getShouldRepay().setScale(2, BigDecimal.ROUND_HALF_UP).toString();
                 repay.setRepayMoney(new BigDecimal(amount));
                 repay.setBank(userBank.getCardName());
                 repay.setBankNo(userBank.getCardNo());
@@ -190,7 +190,6 @@ public class OrderChangjieRepayServiceImpl extends BaseServiceImpl<OrderRepay, S
                 repay.setUpdateTime(new Date());
             } else {
                 //更新
-                String amount = "dev".equals(Constant.ENVIROMENT) ? "0.01" : order.getShouldRepay().setScale(2, BigDecimal.ROUND_HALF_UP).toString();
                 orderRepay.setRepayMoney(new BigDecimal(amount));
                 orderRepay.setBank(userBank.getCardName());
                 orderRepay.setBankNo(userBank.getCardNo());
@@ -212,7 +211,7 @@ public class OrderChangjieRepayServiceImpl extends BaseServiceImpl<OrderRepay, S
                 }
 
                 order.setRealRepayTime(new Date());
-                order.setHadRepay(orderRepay.getRepayMoney());
+                order.setHadRepay(new BigDecimal(amount));
                 order.setStatus(orderService.setRepaySuccStatusByCurrStatus(order.getStatus()));
                 orderMapper.updateByPrimaryKeySelective(order);
             } else if (StringUtils.equals("F", jsonObject.getString("Status"))) {
