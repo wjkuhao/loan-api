@@ -54,6 +54,11 @@ public class Constant {
     public static String MULTI_LOAN_QUERY_URL;
     public static String MULTI_LOAN_DEL_URL;
 
+    /**
+     * 商户最大额度限制
+     */
+    public static Integer MERCHANT_MAX_PRODUCT_MONEY;
+
     @Value("${environment:}")
     public void setENVIROMENT(String environment) {
         Constant.ENVIROMENT = environment;
@@ -182,5 +187,13 @@ public class Constant {
     @Value("${multi.loan.del.url:}")
     public void setMultiLoanDelUrl(String multiLoanDelUrl) {
         MULTI_LOAN_DEL_URL = multiLoanDelUrl;
+    }
+
+    @Value("${merchant.max.product.money:5000}")
+    public void setMerchantMaxProductMoney(Integer merchantMaxProductMoney) {
+        if (merchantMaxProductMoney > 10000) {
+            merchantMaxProductMoney = 10000;
+        }
+        MERCHANT_MAX_PRODUCT_MONEY = merchantMaxProductMoney;
     }
 }

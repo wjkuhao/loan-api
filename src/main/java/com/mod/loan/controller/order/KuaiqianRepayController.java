@@ -30,7 +30,7 @@ public class KuaiqianRepayController {
     @LoginRequired(check = true)
     @RequestMapping(value = "order_repay_kuaiqian")
     public ResultMessage orderRepayKuaiqian(@RequestParam(required = true) Long orderId) {
-        logger.info("#[快钱支付还款]-[请求参数]-request={}|{}|{}", orderId);
+        logger.info("#[快钱支付还款]-[请求参数]-request={}", orderId);
         ResultMessage resultMessage = kuaiqianService.orderRepayKuaiqian(orderId);
         logger.info("#[快钱支付还款]-[结束]-result={}", JSONObject.toJSON(resultMessage));
         return resultMessage;
