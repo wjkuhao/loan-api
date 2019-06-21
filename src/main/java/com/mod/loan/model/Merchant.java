@@ -157,6 +157,46 @@ public class Merchant {
      */
     @Column(name = "huichao_merchant_pay_private_key")
     private String huichaoMerchantPayPrivateKey;
+    /**
+     * 金运通商户号
+     */
+    @Column(name = "jinyuntong_merchant_id")
+    private String jinyuntongMerchantId;
+    /**
+     * 金运通平台公钥
+     */
+    @Column(name = "jinyuntong_public_key")
+    private String jinyuntongPublicKey;
+    /**
+     * 金运通商户私钥
+     */
+    @Column(name = "jinyuntong_private_key")
+    private String jinyuntongPrivateKey;
+
+
+    public String getJinyuntongMerchantId() {
+        return jinyuntongMerchantId;
+    }
+
+    public void setJinyuntongMerchantId(String jinyuntongMerchantId) {
+        this.jinyuntongMerchantId = jinyuntongMerchantId;
+    }
+
+    public String getJinyuntongPublicKey() {
+        return jinyuntongPublicKey;
+    }
+
+    public void setJinyuntongPublicKey(String jinyuntongPublicKey) {
+        this.jinyuntongPublicKey = jinyuntongPublicKey;
+    }
+
+    public String getJinyuntongPrivateKey() {
+        return jinyuntongPrivateKey;
+    }
+
+    public void setJinyuntongPrivateKey(String jinyuntongPrivateKey) {
+        this.jinyuntongPrivateKey = jinyuntongPrivateKey;
+    }
 
     public String getYeepay_loan_appkey() {
         return yeepay_loan_appkey;

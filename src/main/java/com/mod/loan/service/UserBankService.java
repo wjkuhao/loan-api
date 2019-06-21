@@ -72,4 +72,5 @@ public interface UserBankService extends BaseService<UserBank,Long> {
 
     UserBank selectUserMerchantBankCard(Long uid, Integer bindType);
 
+
 }
