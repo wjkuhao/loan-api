@@ -20,7 +20,14 @@ public interface MerchantQuotaConfigService extends BaseService<MerchantQuotaCon
      */
     List<MerchantQuotaConfig> selectByMerchant(String merchant);
 
-    BigDecimal computeQuota(String merchant, Long uid, BigDecimal basicQuota);
+    /**
+     * @param borrowType: merchantRate表对应的借款次数
+     */
+    List<MerchantQuotaConfig> selectByBorrowType(String merchant, Integer borrowType);
+    /**
+     * 通过借款测试计算出该用户的提额金额
+     */
+    BigDecimal computeQuota(String merchant, Long uid, BigDecimal basicQuota, Integer borrowType);
 
 }
 

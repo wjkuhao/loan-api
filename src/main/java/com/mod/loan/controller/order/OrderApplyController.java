@@ -92,10 +92,12 @@ public class OrderApplyController {
         map.put("totalFee", totalFee);
         map.put("actualMoney", actualMoney);
 
-      //  BigDecimal maxQuota = merchantQuotaConfigService.computeQuota(RequestThread.getClientAlias(), uid, merchantRate.getProductMoney());
-      //  map.put("totalRate", merchantRate.getTotalRate());
+        BigDecimal maxQuota = merchantQuotaConfigService.computeQuota(RequestThread.getClientAlias(), uid,
+                merchantRate.getProductMoney(), merchantRate.getBorrowType());
+      //  自选额度暂时关闭
+        // map.put("totalRate", merchantRate.getTotalRate());
       //  map.put("productMoneyRange", merchantRate.getProductMoney().intValue()+ "~" + maxQuota.intValue());
-        map.put("productMoney", merchantRate.getProductMoney());
+        map.put("productMoney", maxQuota);
 
         map.put("cardName", userBank.getCardName());
         map.put("cardNo", StringUtil.bankTailNo(userBank.getCardNo()));
@@ -283,4 +285,5 @@ public class OrderApplyController {
         }
         return new ResultMessage(ResponseEnum.M2000);
     }
+
 }

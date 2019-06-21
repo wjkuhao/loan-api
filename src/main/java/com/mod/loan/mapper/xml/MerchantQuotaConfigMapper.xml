@@ -11,14 +11,23 @@
     <result column="quota_type" jdbcType="TINYINT" property="quotaType" />
     <result column="preset_value" jdbcType="VARCHAR" property="presetValue" />
     <result column="status" jdbcType="TINYINT" property="quotaType" />
-    <result column="create_time" jdbcType="TINYINT" property="createTime" />
+    <result column="create_time" jdbcType="VARCHAR" property="createTime" />
     <result column="update_time" jdbcType="VARCHAR" property="updateTime" />
+    <result column="borrow_type" jdbcType="VARCHAR" property="borrowType" />
   </resultMap>
 
   <select id="selectByMerchant" resultMap="BaseResultMap">
     select quota_name,quota_value,comparator,quota_type,preset_value
     from tb_merchant_quota_config
     where merchant = #{merchant} and status=1
+  </select>
+
+  <select id="selectByBorrowType" resultMap="BaseResultMap">
+    select quota_name,quota_value,comparator,quota_type,preset_value
+    from tb_merchant_quota_config
+    where merchant = #{merchant}
+    and borrow_type = #{borrowType}
+    and status=1
   </select>
 
 </mapper>

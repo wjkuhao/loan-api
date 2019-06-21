@@ -24,10 +24,9 @@
 	</select>
 
     <select id="getLastOneByPhone" resultMap="BaseResultMap">
-		select order_id, risk_id, risk_model_score
+		select id, order_id, risk_id, risk_model_score
 		from tb_order_risk_info
 		where  user_phone = #{userPhone}
-		and risk_model_score is not null
 		order by risk_id desc limit 1
 	</select>
 

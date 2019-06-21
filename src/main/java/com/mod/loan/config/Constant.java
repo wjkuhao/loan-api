@@ -59,6 +59,10 @@ public class Constant {
      */
     public static Integer MERCHANT_MAX_PRODUCT_MONEY;
 
+    public static String MX_RISK_API_MODEL_SCORE_URL;
+
+    public static String MX_RISK_TOKEN;
+
     @Value("${environment:}")
     public void setENVIROMENT(String environment) {
         Constant.ENVIROMENT = environment;
@@ -195,5 +199,15 @@ public class Constant {
             merchantMaxProductMoney = 10000;
         }
         MERCHANT_MAX_PRODUCT_MONEY = merchantMaxProductMoney;
+    }
+
+    @Value("${mx.risk.api.model.score.url:}")
+    public void setMxRiskApiModelScoreUrl(String mxRiskApiModelScoreUrl) {
+        MX_RISK_API_MODEL_SCORE_URL = mxRiskApiModelScoreUrl;
+    }
+
+    @Value("${mx.risk.api.token:}")
+    public void setMxRiskToken(String mxRiskToken) {
+        MX_RISK_TOKEN = mxRiskToken;
     }
 }
