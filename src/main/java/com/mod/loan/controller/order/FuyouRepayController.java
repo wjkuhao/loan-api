@@ -201,7 +201,7 @@ public class FuyouRepayController {
 			return;
 		}
 		if (!"0000".equals(responseCode)) {
-			logger.info("富友异步通知支付失败，订单流水为：{}，对应富友订单号为：{}，失败信息为：{}",mchntOrderId,orderId,responseMsg);
+			logger.info("富友异步通知支付失败，订单流水为：{}，对应富友订单号为：{}，失败信息为：{}，富有错误码：{}",mchntOrderId,orderId,responseMsg,responseCode);
 			OrderRepay orderRepay1 = new OrderRepay();
 			orderRepay1.setRepayNo(mchntOrderId);
 			orderRepay1.setRepayStatus(2);
