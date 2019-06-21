@@ -237,6 +237,7 @@ public class OrderChangjieRepayServiceImpl extends BaseServiceImpl<OrderRepay, S
                     orderRepay.setRepayStatus(OrderRepayStatusEnum.ACCEPT_SUCCESS.getCode());
                     orderRepayMapper.updateByPrimaryKeySelective(orderRepay);
                 }
+
                 return "DOING";
             }
             logger.info("#[畅捷订单协议支付还款确认]-[结束]");
