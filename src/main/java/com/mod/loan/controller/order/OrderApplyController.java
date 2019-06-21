@@ -137,7 +137,7 @@ public class OrderApplyController {
             if (2 == blacklist.getType()) {
                 addOrder(uid ,productId,
                          productMoney, phoneType, paramValue, phoneModel,  phoneMemory, OrderEnum.AUTO_AUDIT_REFUSE.getCode(),new Date());
-                return new ResultMessage(ResponseEnum.M4000.getCode(), "您不符合下单条件");
+                return new ResultMessage(ResponseEnum.M2000);
             }
         }
 
@@ -157,7 +157,7 @@ public class OrderApplyController {
             blacklistService.insert(blacklistInsert);
             addOrder(uid ,productId,
                     productMoney, phoneType, paramValue, phoneModel,  phoneMemory, OrderEnum.AUTO_AUDIT_REFUSE.getCode(),new Date());
-            return new ResultMessage(ResponseEnum.M4000.getCode(), "您不符合下单条件");
+            return new ResultMessage(ResponseEnum.M2000);
         }
 
 //         是否在整个系统有正在进行的订单(查询所有商户)
@@ -166,7 +166,7 @@ public class OrderApplyController {
             logger.info("存在进行中的订单，无法提单， certNo={}", certNo);
             addOrder(uid ,productId,
                    productMoney, phoneType, paramValue, phoneModel,  phoneMemory, OrderEnum.AUTO_AUDIT_REFUSE.getCode(),new Date());
-            return new ResultMessage(ResponseEnum.M4000.getCode(), "您不符合下单条件");
+            return new ResultMessage(ResponseEnum.M2000);
         } else {
             // 整个系统没有查到进行的单子
             // 再检查一下是否最近风控拒绝了
@@ -189,7 +189,7 @@ public class OrderApplyController {
             logger.info("存在多头借贷，无法提单， certNo={}", certNo);
             addOrder(uid ,productId,
                     productMoney, phoneType, paramValue, phoneModel,  phoneMemory, OrderEnum.AUTO_AUDIT_REFUSE.getCode(),new Date());
-            return new ResultMessage(ResponseEnum.M4000.getCode(), "您不符合下单条件");
+            return new ResultMessage(ResponseEnum.M2000);
         }
 
 
