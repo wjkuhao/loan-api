@@ -58,8 +58,6 @@ public class OrderRiskInfoServiceImpl extends BaseServiceImpl<OrderRiskInfo, Lon
             String riskModelScoreUrl = Constant.MX_RISK_API_MODEL_SCORE_URL;
             String getParam = String.format(riskModelScoreUrl, reportId, Constant.MX_RISK_TOKEN);
 
-            logger.info("getParam={}",getParam);
-
             String result = okHttpReader.get(getParam,null, null);
             JSONObject resultJson = JSON.parseObject(result);
             if (resultJson.getInteger("status")==200) {

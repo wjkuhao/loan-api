@@ -86,11 +86,9 @@ public class OrderApplyController {
             return new ResultMessage(ResponseEnum.M4000.getCode(), "未查到产品信息");
         }
         BigDecimal totalFee = MoneyUtil.totalFee(merchantRate.getProductMoney(), merchantRate.getTotalRate());// 综合费用
-        BigDecimal actualMoney = MoneyUtil.actualMoney(merchantRate.getProductMoney(), totalFee);// 实际到账
         map.put("productId", merchantRate.getId());
         map.put("productDay", merchantRate.getProductDay());
         map.put("totalFee", totalFee);
-        map.put("actualMoney", actualMoney);
 
         BigDecimal maxQuota = merchantQuotaConfigService.computeQuota(RequestThread.getClientAlias(), uid,
                 merchantRate.getProductMoney(), merchantRate.getBorrowType());
@@ -98,6 +96,10 @@ public class OrderApplyController {
         // map.put("totalRate", merchantRate.getTotalRate());
       //  map.put("productMoneyRange", merchantRate.getProductMoney().intValue()+ "~" + maxQuota.intValue());
         map.put("productMoney", maxQuota);
+
+        BigDecimal actualMoney = MoneyUtil.actualMoney(maxQuota, totalFee);// 实际到账
+        map.put("actualMoney", actualMoney);
+
 
         map.put("cardName", userBank.getCardName());
         map.put("cardNo", StringUtil.bankTailNo(userBank.getCardNo()));
@@ -212,7 +214,7 @@ public class OrderApplyController {
         }
 
         Order order = addOrder(uid, productId,
-                productMoney, phoneType, paramValue, phoneModel, phoneMemory, 11,null);
+                productMoney, phoneType, paramValue, phoneModel, phoneMemory, OrderEnum.DAI_FUKUAN.getCode(),null);
         // 发送消息，等待请求风控
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("orderId", order.getId());
