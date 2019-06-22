@@ -63,6 +63,11 @@ public class Constant {
 
     public static String MX_RISK_TOKEN;
 
+    /**
+     * 需要贷超按钮功能得商户 商户alias1,商户alias2,...
+     */
+    public static String MERCHANT_NEED_LOAN_MARKET_BUTTON;
+
     @Value("${environment:}")
     public void setENVIROMENT(String environment) {
         Constant.ENVIROMENT = environment;
@@ -209,5 +214,10 @@ public class Constant {
     @Value("${mx.risk.api.token:}")
     public void setMxRiskToken(String mxRiskToken) {
         MX_RISK_TOKEN = mxRiskToken;
+    }
+
+    @Value("${merchant.need.loan.market.button:unk}")
+    public void setMerchantNeedLoanMarketButton(String merchantNeedLoanMarketButton) {
+        MERCHANT_NEED_LOAN_MARKET_BUTTON = merchantNeedLoanMarketButton;
     }
 }
