@@ -26,4 +26,7 @@ public interface OrderRepayService extends BaseService<OrderRepay,String>{
     void repaySuccess(OrderRepay orderRepay, Order orderOld);
 
     void repayFailed(OrderRepay orderRepay, String callbackErr);
+
+	List<OrderRepay> huichaoRepay4AliAppH5OrWxScanQuery();
+
 }

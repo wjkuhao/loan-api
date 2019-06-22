@@ -46,6 +46,17 @@ public class MerchantConfig {
     @Column(name = "default_origin_status")
     private Integer defaultOriginStatus;
 
+    @Column(name = "promote_quota_type")
+    private Integer promoteQuotaType;
+
+    public Integer getPromoteQuotaType() {
+        return promoteQuotaType;
+    }
+
+    public void setPromoteQuotaType(Integer promoteQuotaType) {
+        this.promoteQuotaType = promoteQuotaType;
+    }
+
     public String getOverdueBlacklistDay() {
         return overdueBlacklistDay;
     }

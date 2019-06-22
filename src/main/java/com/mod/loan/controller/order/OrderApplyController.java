@@ -64,17 +64,20 @@ public class OrderApplyController {
     MerchantQuotaConfigService merchantQuotaConfigService;
     @Autowired
     DataCenterService dataCenterService;
+    @Autowired
+    MerchantService merchantService;
+
     /**
      * h5 借款确认 获取费用明细
      */
-    @LoginRequired(check = true)
+    @LoginRequired()
     @RequestMapping(value = "order_confirm")
     public ResultMessage order_confirm() {
-        Map<String, Object> map = new HashMap<String, Object>();
+        Map<String, Object> map = new HashMap<>();
         Long uid = RequestThread.getUid();
         UserBank userBank = userBankService.selectUserCurrentBankCard(uid);
         if (null == userBank) {
-            return new ResultMessage(ResponseEnum.M2000, "未查到银行卡信息");
+            return new ResultMessage(ResponseEnum.M4000, "未查到银行卡信息");
         }
         Integer borrowType = orderService.countPaySuccessByUid(uid);
         MerchantRate merchantRate = merchantRateService.findByMerchantAndBorrowType(RequestThread.getClientAlias(),
@@ -89,9 +92,11 @@ public class OrderApplyController {
         map.put("totalFee", totalFee);
         map.put("actualMoney", actualMoney);
 
-        BigDecimal maxQuota = merchantQuotaConfigService.computeQuota(RequestThread.getClientAlias(), uid, merchantRate.getProductMoney());
-        map.put("totalRate", merchantRate.getTotalRate());
-        map.put("productMoneyRange", merchantRate.getProductMoney().intValue()+ "~" + maxQuota.intValue());
+        BigDecimal maxQuota = merchantQuotaConfigService.computeQuota(RequestThread.getClientAlias(), uid,
+                merchantRate.getProductMoney(), merchantRate.getBorrowType());
+      //  自选额度暂时关闭
+        // map.put("totalRate", merchantRate.getTotalRate());
+      //  map.put("productMoneyRange", merchantRate.getProductMoney().intValue()+ "~" + maxQuota.intValue());
         map.put("productMoney", maxQuota);
 
         map.put("cardName", userBank.getCardName());
@@ -113,6 +118,12 @@ public class OrderApplyController {
         if (!redisMapper.lock(RedisConst.lock_user_order + uid, 5)) {
             return new ResultMessage(ResponseEnum.M4005);
         }
+
+        MerchantRate merchantRate = merchantRateService.selectByPrimaryKey(productId);
+        if (null == merchantRate) {
+            return new ResultMessage(ResponseEnum.M4000.getCode(), "未查到规则");
+        }
+
         UserIdent userIdent = userIdentService.selectByPrimaryKey(uid);
         if (2 != userIdent.getRealName() || 2 != userIdent.getUserDetails() || 2 != userIdent.getBindbank()
                 || 2 != userIdent.getMobile() || 2 != userIdent.getLiveness() || 2 != userIdent.getAlipay()
@@ -126,7 +137,9 @@ public class OrderApplyController {
         if (null != blacklist) {
             // 黑名单
             if (2 == blacklist.getType()) {
-                return new ResultMessage(ResponseEnum.M4000.getCode(), "您不符合下单条件");
+                addOrder(uid ,productId,
+                         productMoney, phoneType, paramValue, phoneModel,  phoneMemory, OrderEnum.AUTO_AUDIT_REFUSE.getCode(),new Date());
+                return new ResultMessage(ResponseEnum.M2000);
             }
         }
 
@@ -144,43 +157,78 @@ public class OrderApplyController {
             blacklistInsert.setRemark(userInfo.getWorkCompany());
             blacklistInsert.setCreateTime(new Date());
             blacklistService.insert(blacklistInsert);
-            return new ResultMessage(ResponseEnum.M4000.getCode(), "您不符合下单条件");
+            addOrder(uid ,productId,
+                    productMoney, phoneType, paramValue, phoneModel,  phoneMemory, OrderEnum.AUTO_AUDIT_REFUSE.getCode(),new Date());
+            return new ResultMessage(ResponseEnum.M2000);
         }
 
-        // 是否在整个系统有正在进行的订单(查询所有商户)
-//        String certNo = user.getUserCertNo();
-//        if (orderService.checkUnfinishOrderByCertNo(certNo)) {
-//            logger.info("存在进行中的订单，无法提单， certNo={}", certNo);
-//            return new ResultMessage(ResponseEnum.M4000.getCode(), "您不符合下单条件");
-//        } else {
-//            // 整个系统没有查到进行的单子
-//            // 再检查一下是否最近风控拒绝了
-//            Order orderIng = orderService.findUserLatestOrder(uid);
-//            if (null != orderIng) {
-//                // 审核拒绝的订单7天内无法再下单
-//                if (orderIng.getStatus() == 51 || orderIng.getStatus() == 52) {
-//                    DateTime applyTime = new DateTime(orderIng.getCreateTime()).plusDays(7);
-//                    DateTime nowTime = new DateTime();
-//                    Integer remainDays = Days.daysBetween(nowTime.withMillisOfDay(0), applyTime.withMillisOfDay(0)).getDays();
-//                    if (0 < remainDays && remainDays <= 7) {
-//                        return new ResultMessage(ResponseEnum.M4000.getCode(), "请" + remainDays + "天后重试提单");
-//                    }
-//                }
-//            }
-//        }
+//         是否在整个系统有正在进行的订单(查询所有商户)
+        String certNo = user.getUserCertNo();
+        if (orderService.checkUnfinishOrderByCertNo(certNo)) {
+            logger.info("存在进行中的订单，无法提单， certNo={}", certNo);
+            addOrder(uid ,productId,
+                   productMoney, phoneType, paramValue, phoneModel,  phoneMemory, OrderEnum.AUTO_AUDIT_REFUSE.getCode(),new Date());
+            return new ResultMessage(ResponseEnum.M2000);
+        } else {
+            // 整个系统没有查到进行的单子
+            // 再检查一下是否最近风控拒绝了
+            Order orderIng = orderService.findUserLatestOrder(uid);
+            if (null != orderIng) {
+                // 审核拒绝的订单7天内无法再下单
+                if (orderIng.getStatus() == 51 || orderIng.getStatus() == 52) {
+                    DateTime applyTime = new DateTime(orderIng.getCreateTime()).plusDays(7);
+                    DateTime nowTime = new DateTime();
+                    Integer remainDays = Days.daysBetween(nowTime.withMillisOfDay(0), applyTime.withMillisOfDay(0)).getDays();
+                    if (0 < remainDays && remainDays <= 7) {
+                        return new ResultMessage(ResponseEnum.M4000.getCode(), "请" + remainDays + "天后重试提单");
+                    }
+                }
+            }
+        }
 
         // 检查是否存在多头借贷
-//        if(dataCenterService.checkMultiLoan(null, certNo)){
-//            logger.info("存在多头借贷，无法提单， certNo={}", certNo);
-//            return new ResultMessage(ResponseEnum.M4000.getCode(), "您不符合下单条件");
-//        }
-
-        Order order = new Order();
-        MerchantRate merchantRate = merchantRateService.selectByPrimaryKey(productId);
-        if (null == merchantRate) {
-            return new ResultMessage(ResponseEnum.M4000.getCode(), "未查到规则");
+        if(dataCenterService.checkMultiLoan(null, certNo)){
+            logger.info("存在多头借贷，无法提单， certNo={}", certNo);
+            addOrder(uid ,productId,
+                    productMoney, phoneType, paramValue, phoneModel,  phoneMemory, OrderEnum.AUTO_AUDIT_REFUSE.getCode(),new Date());
+            return new ResultMessage(ResponseEnum.M2000);
         }
 
+
+
+        //灰名单客户直接进入人审
+        if (blacklist != null && 1 == blacklist.getType()) {
+            addOrder(uid ,productId,
+                    productMoney, phoneType, paramValue, phoneModel,  phoneMemory, OrderEnum.WAIT_AUDIT.getCode(),new Date());
+            return new ResultMessage(ResponseEnum.M2000);
+        }
+
+        // 老客户不走风控，直接进入放款列表
+        Integer borrowType = orderService.countPaySuccessByUid(uid);
+        if (borrowType != null && borrowType > 0) {
+            addOrder(uid ,productId,
+                    productMoney, phoneType, paramValue, phoneModel,  phoneMemory, OrderEnum.WAIT_LOAN.getCode(),new Date());
+            return new ResultMessage(ResponseEnum.M2000);
+        }
+
+        Order order = addOrder(uid, productId,
+                productMoney, phoneType, paramValue, phoneModel, phoneMemory, 11,null);
+        // 发送消息，等待请求风控
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("orderId", order.getId());
+        jsonObject.put("merchant", order.getMerchant());
+
+        rabbitTemplate.convertAndSend(RabbitConst.queue_risk_order_notify, jsonObject);
+
+        return new ResultMessage(ResponseEnum.M2000);
+    }
+
+
+    private  Order  addOrder(Long uid ,Long productId,BigDecimal productMoney,
+                           String phoneType,String paramValue,
+                            String phoneModel, Integer phoneMemory,Integer status,Date auditTime){
+        Order order = new Order();
+        MerchantRate merchantRate = merchantRateService.selectByPrimaryKey(productId);
         BigDecimal totalFee = MoneyUtil.totalFee(productMoney, merchantRate.getTotalRate());// 综合费用
         BigDecimal interestFee = MoneyUtil.interestFee(productMoney, merchantRate.getProductDay(),
                 merchantRate.getProductRate());// 利息
@@ -204,41 +252,20 @@ public class OrderApplyController {
         order.setShouldRepay(shouldRepay);
         order.setHadRepay(new BigDecimal(0));
         order.setReduceMoney(new BigDecimal(0));
-        order.setStatus(11);
         order.setCreateTime(new Date());
         order.setMerchant(RequestThread.getClientAlias());
         order.setProductId(productId);
         order.setUserType(userType);
+        if (auditTime!=null){
+            order.setAuditTime(new Date());
+        }
+        order.setStatus(status);
         OrderPhone orderPhone = new OrderPhone();
         orderPhone.setParamValue(paramValue);
         orderPhone.setPhoneModel(phoneModel + "|" + phoneMemory);
         orderPhone.setPhoneType(phoneType);
-
-        //灰名单客户直接进入人审
-        if (blacklist != null && 1 == blacklist.getType()) {
-            order.setAuditTime(new Date());
-            order.setStatus(OrderEnum.WAIT_AUDIT.getCode());
-            orderService.addOrder(order, orderPhone);
-            return new ResultMessage(ResponseEnum.M2000);
-        }
-
-        // 老客户不走风控，直接进入放款列表
-        Integer borrowType = orderService.countPaySuccessByUid(uid);
-        if (borrowType != null && borrowType > 0) {
-            order.setAuditTime(new Date());
-            order.setStatus(OrderEnum.WAIT_LOAN.getCode());
-            orderService.addOrder(order, orderPhone);
-            return new ResultMessage(ResponseEnum.M2000);
-        }
-
         orderService.addOrder(order, orderPhone);
-        // 发送消息，等待请求风控
-        JSONObject jsonObject = new JSONObject();
-        jsonObject.put("orderId", order.getId());
-        jsonObject.put("merchant", order.getMerchant());
-        rabbitTemplate.convertAndSend(RabbitConst.queue_risk_order_notify, jsonObject);
-
-        return new ResultMessage(ResponseEnum.M2000);
+        return order;
     }
 
     @LoginRequired
@@ -267,4 +294,18 @@ public class OrderApplyController {
         data.put("actualMoney", actualMoney);
         return new ResultMessage(ResponseEnum.M2000, data);
     }
+
+    @LoginRequired
+    @RequestMapping("/check_pay")
+    public ResultMessage check_pay() {
+        Long uid = RequestThread.getUid();
+
+        Merchant merchant = merchantService.findMerchantByAlias(RequestThread.getClientAlias());
+        UserBank userBank = userBankService.selectUserMerchantBankCard(uid, merchant.getBindType());
+        if (null == userBank) {
+            return new ResultMessage(ResponseEnum.M4000.getCode(), "支付通道异常，请重新绑卡");
+        }
+        return new ResultMessage(ResponseEnum.M2000);
+    }
+
 }

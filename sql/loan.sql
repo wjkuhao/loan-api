@@ -508,6 +508,7 @@ CREATE TABLE `tb_merchant_config`  (
   `service_phone` varchar(20) DEFAULT NULl COMMENT '客服电话',
   `default_origin_status` tinyint(1) DEFAULT 1 COMMENT '默认渠道号(61)注册:0-拒绝 1-允许',
   `max_overdue_fee_rate` tinyint(1) DEFAULT 100 COMMENT '最大逾期费费率率,数值类型,例:30表示逾期费率为百分之三十(借款金额*最大逾期费率=最大逾期费)',
+  `promote_quota_type` tinyint(1) DEFAULT 1 COMMENT '0-关闭提额 1-新老客都提额 2-只新客提额 3-只老客提额'  ,
   `create_time` CHAR(19) DEFAULT NULL COMMENT '插入时间',
   `update_time` CHAR(19) DEFAULT NULL COMMENT '更新时间',
   PRIMARY KEY (`id`) USING BTREE,
@@ -1326,10 +1327,10 @@ CREATE TABLE `tb_merchant_quota_config`  (
   `preset_value` varchar(128) DEFAULT NULL COMMENT '预设值',
   `merchant` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '商户别名',
   `quota_type` tinyint(4) NULL  COMMENT '1-天机分，2-展期次数',
+  `borrow_type` int(4) NULL DEFAULT 0 COMMENT '借款次数',
   `status` tinyint(4) NULL DEFAULT 1 COMMENT '1-启用, 0-停用',
   `create_time` datetime(0) NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   `update_time` datetime(0) NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP(0) COMMENT '修改时间',
   PRIMARY KEY (`id`) USING BTREE
 ) ENGINE = InnoDB  CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '商户提额配置表' ROW_FORMAT = Dynamic;
-
 

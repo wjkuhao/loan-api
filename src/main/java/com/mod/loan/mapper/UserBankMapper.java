@@ -35,4 +35,5 @@ public interface UserBankMapper extends MyBaseMapper<UserBank> {
 	List<UserBank> selectEntrustedBindFailList(String merchant);
 
 
+	UserBank selectUserMerchantBankCard(@Param("uid")Long uid, @Param("bindType")Integer bindType);
 }

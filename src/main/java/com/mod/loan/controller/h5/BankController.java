@@ -128,13 +128,14 @@ public class BankController {
         if (ident.getBindbank() == 0) {
             return new ResultMessage(ResponseEnum.M3003);
         }
-        // 当前有订单则无法重新绑卡
-        Order order = orderService.findUserLatestOrder(RequestThread.getUid());
-        if (order != null && order.getStatus() < 40) {
-            data.put("status", 0);
-        } else {
-            data.put("status", 1);
-        }
+//        // 当前有订单则无法重新绑卡
+//        Order order = orderService.findUserLatestOrder(RequestThread.getUid());
+//        if (order != null && order.getStatus() < 40) {
+//            data.put("status", 0);
+//        } else {
+//            data.put("status", 1);
+//        }
+        data.put("status", 1);
         // 绑卡使用中的逻辑
         UserBank record = new UserBank();
         record.setUid(RequestThread.getUid());
@@ -156,13 +157,13 @@ public class BankController {
      * @throws Exception
      */
     @RequestMapping(value = "bank_card_code")
-    @LoginRequired(check = true)
+    @LoginRequired()
     public ResultMessage bank_card_code(String cardNo, String cardPhone) throws Exception {
-        ResultMessage message = null;
-        if (GetBankUtil.checkBankCard(cardNo) == false) {
+        ResultMessage message;
+        if (!GetBankUtil.checkBankCard(cardNo)) {
             return new ResultMessage(ResponseEnum.M4000.getCode(), "银行卡号不正确");
         }
-        if (CheckUtils.isMobiPhoneNum(cardPhone) == false) {
+        if (!CheckUtils.isMobiPhoneNum(cardPhone)) {
             return new ResultMessage(ResponseEnum.M4000.getCode(), "手机号不合法");
         }
         String url = String.format(bank_url, cardNo);
@@ -179,16 +180,19 @@ public class BankController {
         if (bank == null || bank.getBankStatus() == 0) {
             return new ResultMessage(ResponseEnum.M4000.getCode(), "不支持该银行");
         }
-        UserBank userBank = userBankService.selectUserCurrentBankCard(RequestThread.getUid());
-        if (userBank != null && userBank.getCardNo().equals(cardNo)) {
-            return new ResultMessage(ResponseEnum.M4000.getCode(), "当前银行卡已绑定");
-        }
+
         Long uid = RequestThread.getUid();
         if (!redisMapper.lock(RedisConst.lock_user_bind_card_code + uid, 2)) {
             return new ResultMessage(ResponseEnum.M4005);
         }
         Merchant merchant = merchantService.findMerchantByAlias(RequestThread.getClientAlias());
         Integer bindType = merchant.getBindType() == null ? 1 : merchant.getBindType();
+
+        UserBank userBank = userBankService.selectUserMerchantBankCard(RequestThread.getUid(), bindType);
+        if (userBank != null && userBank.getCardNo().equals(cardNo)) {
+            return new ResultMessage(ResponseEnum.M4000.getCode(), "当前银行卡已绑定");
+        }
+
         switch (bindType) {
             case 1:
                 message = userBankService.sendHeliSms(uid, cardNo, cardPhone, bank);
@@ -243,10 +247,7 @@ public class BankController {
         if (validateCode.length() > 6) {
             return new ResultMessage(ResponseEnum.M4000.getCode(), "验证码长度过长");
         }
-        Order order = orderService.findUserLatestOrder(RequestThread.getUid());
-        if (order != null && order.getStatus() < 40) {
-            return new ResultMessage(ResponseEnum.M4000.getCode(), "当前无法绑定银行卡");
-        }
+
         Long uid = RequestThread.getUid();
         String bindInfo = redisMapper.get(RedisConst.user_bank_bind + uid);
         if (StringUtils.isBlank(bindInfo)) {

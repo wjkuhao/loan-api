@@ -8,10 +8,16 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.mod.loan.common.enums.OrderEnum;
+import com.mod.loan.model.*;
+import com.mod.loan.service.*;
 import org.apache.commons.lang.StringUtils;
 import org.joda.time.DateTime;
 import org.joda.time.Days;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -24,17 +30,8 @@ import com.mod.loan.common.enums.ResponseEnum;
 import com.mod.loan.common.model.RequestThread;
 import com.mod.loan.common.model.ResultMessage;
 import com.mod.loan.config.Constant;
-import com.mod.loan.model.Merchant;
-import com.mod.loan.model.MerchantRate;
-import com.mod.loan.model.Order;
-import com.mod.loan.model.OrderPay;
-import com.mod.loan.model.UserIdent;
 import com.mod.loan.model.dto.LoanBefore;
 import com.mod.loan.model.dto.OrderStatusDTO;
-import com.mod.loan.service.MerchantRateService;
-import com.mod.loan.service.MerchantService;
-import com.mod.loan.service.OrderService;
-import com.mod.loan.service.UserIdentService;
 import com.mod.loan.util.StringUtil;
 import com.mod.loan.util.TimeUtils;
 import com.mod.loan.util.jwtUtil;
@@ -50,6 +47,7 @@ import io.jsonwebtoken.Claims;
 @RestController
 @RequestMapping("order")
 public class LoanOrderController {
+	private static Logger logger = LoggerFactory.getLogger(LoanOrderController.class);
 
 	@Autowired
 	private OrderService orderService;
@@ -61,6 +59,12 @@ public class LoanOrderController {
 	private MerchantRateService merchantRateService;
 	@Autowired
 	private MerchantService merchantService;
+	@Autowired
+    MerchantQuotaConfigService merchantQuotaConfigService;
+	@Autowired
+    OrderRiskInfoService orderRiskInfoService;
+	@Autowired
+    UserService userService;
 	/**
 	 * api h5获取额度 首页
 	 */
@@ -89,6 +93,11 @@ public class LoanOrderController {
             Integer borrowType = orderService.countPaySuccessByUid(Long.parseLong(uid));
             MerchantRate merchantRate = merchantRateService.findByMerchantAndBorrowType(merchant,borrowType);
 			BigDecimal money=merchantRate.getProductMoney();
+
+            BigDecimal maxQuota = merchantQuotaConfigService.computeQuota(RequestThread.getClientAlias(), Long.valueOf(uid),
+					merchantRate.getProductMoney(),  merchantRate.getBorrowType());
+            money = maxQuota;
+
 			map.put("descMid","去借钱");
 			map.put("descTop","");
 			map.put("amount", money.intValue());
@@ -481,5 +490,45 @@ public class LoanOrderController {
 		data.put("count",count);
 		return new ResultMessage(ResponseEnum.M2000,data);
 	}
+
+    /**
+     * 按条件是否显示贷超按钮
+     */
+    @LoginRequired(check = true)
+    @RequestMapping(value="loan_market_button")
+    public ResultMessage loanMarketButton(Long orderId) {
+        Map<String,Object> map = new HashMap<>();
+        int showButton = 0;
+        String alias = RequestThread.getClientAlias();
+        if (alias.equals("fly") || alias.equals("lai")){
+            try {
+                OrderRiskInfo orderRiskInfo = orderRiskInfoService.getLastOneByOrderId(orderId);
+                String riskModelScore = orderRiskInfo.getRiskModelScore();
+                if (StringUtils.isEmpty(riskModelScore)){
+                    riskModelScore = orderRiskInfoService.updateRiskMotelScore(orderRiskInfo.getId());
+                }
+                JSONObject riskModelScoreJson = JSON.parseObject(riskModelScore);
+                String tianjiScore = riskModelScoreJson.getString("天机-小额模型分");
+                //天机分520分以下显示按钮
+                if (Double.valueOf(tianjiScore)<520){
+                    showButton = 1;
+
+                    Merchant merchant = merchantService.findMerchantByAlias(alias);
+                    if(StringUtils.isBlank(merchant.getMerchantMarket())){
+                        map.put("url", Constant.SERVER_H5_URL + "market.html?");
+                    }else if("order".equals(merchant.getMerchantMarket())){
+                        map.put("url", Constant.SERVER_H5_URL+"order/store_order_detail.html?orderId="+orderId);
+                    }else {
+                        map.put("url", merchant.getMerchantMarket());
+                    }
+                }
+            }
+            catch (Exception e){
+                logger.error("loan_market_button orderId={}, err={}", orderId, e);
+            }
+        }
+        map.put("show", showButton);
+        return new ResultMessage(ResponseEnum.M2000, map);
+    }
 
 }

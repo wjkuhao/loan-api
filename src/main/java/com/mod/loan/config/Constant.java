@@ -52,6 +52,16 @@ public class Constant {
      * 查询是否存在多头借贷的接口
      */
     public static String MULTI_LOAN_QUERY_URL;
+    public static String MULTI_LOAN_DEL_URL;
+
+    /**
+     * 商户最大额度限制
+     */
+    public static Integer MERCHANT_MAX_PRODUCT_MONEY;
+
+    public static String MX_RISK_API_MODEL_SCORE_URL;
+
+    public static String MX_RISK_TOKEN;
 
     @Value("${environment:}")
     public void setENVIROMENT(String environment) {
@@ -178,4 +188,26 @@ public class Constant {
         MULTI_LOAN_QUERY_URL = multiLoanQueryUrl;
     }
 
+    @Value("${multi.loan.del.url:}")
+    public void setMultiLoanDelUrl(String multiLoanDelUrl) {
+        MULTI_LOAN_DEL_URL = multiLoanDelUrl;
+    }
+
+    @Value("${merchant.max.product.money:5000}")
+    public void setMerchantMaxProductMoney(Integer merchantMaxProductMoney) {
+        if (merchantMaxProductMoney > 10000) {
+            merchantMaxProductMoney = 10000;
+        }
+        MERCHANT_MAX_PRODUCT_MONEY = merchantMaxProductMoney;
+    }
+
+    @Value("${mx.risk.api.model.score.url:}")
+    public void setMxRiskApiModelScoreUrl(String mxRiskApiModelScoreUrl) {
+        MX_RISK_API_MODEL_SCORE_URL = mxRiskApiModelScoreUrl;
+    }
+
+    @Value("${mx.risk.api.token:}")
+    public void setMxRiskToken(String mxRiskToken) {
+        MX_RISK_TOKEN = mxRiskToken;
+    }
 }

@@ -71,6 +71,10 @@ public interface UserBankService extends BaseService<UserBank,Long> {
      */
     ResultMessage bindKuaiqianSms(String validateCode, Long uid, String bindInfo);
 
+
+    UserBank selectUserMerchantBankCard(Long uid, Integer bindType);
+
+
     /**
      * 查询合利宝委托代付绑卡失败的银行卡列表
      * */

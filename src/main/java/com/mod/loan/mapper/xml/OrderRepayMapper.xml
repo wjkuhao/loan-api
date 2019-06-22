@@ -50,4 +50,9 @@
     )
   </select>
 
+    <!-- 汇潮支付宝还款/微信扫码支付结果查询定时任务 -->
+    <select id="huichaoRepay4AliAppH5OrWxScanQuery" resultMap="BaseResultMap">
+      select repay_no,uid,order_id from tb_order_repay where repay_status = 1 and repay_type in (2,3) and create_time &lt;= date_format(date_sub(now(), interval 10 minute ), '%Y-%m-%d %H:%i:%s');
+  </select>
+
 </mapper>

@@ -17,14 +17,6 @@ import com.mod.loan.model.Merchant;
 import com.mod.loan.model.User;
 import com.mod.loan.model.UserBank;
 import com.mod.loan.service.*;
-import com.mod.loan.util.HttpUtils;
-import com.mod.loan.util.MD5;
-import com.mod.loan.util.StringUtil;
-import com.mod.loan.util.TimeUtils;
-import com.mod.loan.service.MerchantService;
-import com.mod.loan.service.UserBankService;
-import com.mod.loan.service.UserService;
-import com.mod.loan.service.YeepayService;
 import com.mod.loan.util.*;
 import com.mod.loan.util.fuyou.util.XMapUtil;
 import com.mod.loan.util.fuyou.vo.FuyouBindVo;
@@ -647,10 +639,12 @@ public class UserBankServiceImpl extends BaseServiceImpl<UserBank, Long> impleme
             respMap = KuaiqianPost.sendPost(merchant.getKqCertPath(), merchant.getKqCertPwd(), merchantId, kuaiqian_bind_smg_url, sb.toString(), transInfo);
             if("00".equals(MapUtils.getString(respMap, "responseCode"))) {
                 //请求参数格式转成map
-                ParseUtil parseUtil = new ParseUtil();
                 HashMap reqMap = ParseUtil.parseXML(sb.toString(), transInfo);
-                reqMap.put("cardCode", bank.getCode());
-                reqMap.put("cardName", bank.getBankName());
+                reqMap.put("P4_orderId", externalRefNumber);
+                reqMap.put("P6_cardNo", cardNo);
+                reqMap.put("P7_phone", cardPhone);
+                reqMap.put("bankCode", bank.getCode());
+                reqMap.put("bankName", bank.getBankName());
                 reqMap.put("token", MapUtils.getString(respMap, "token"));
                 redisMapper.set(RedisConst.user_bank_bind + user.getId(), reqMap, Constant.SMS_EXPIRATION_TIME);
                 return new ResultMessage(ResponseEnum.M2000);
@@ -714,8 +708,8 @@ public class UserBankServiceImpl extends BaseServiceImpl<UserBank, Long> impleme
             respMap = KuaiqianPost.sendPost(merchant.getKqCertPath(), merchant.getKqCertPwd(), merchantId, kuaiqian_bind_commit_url, sb.toString(), transInfo);
             if("00".equals(MapUtils.getString(respMap, "responseCode"))) {
                 UserBank userBank = new UserBank();
-                userBank.setCardCode(MapUtils.getString(reqMap, "cardCode"));
-                userBank.setCardName(MapUtils.getString(reqMap, "cardName"));
+                userBank.setCardCode(MapUtils.getString(reqMap, "bankCode"));
+                userBank.setCardName(MapUtils.getString(reqMap, "bankName"));
                 userBank.setCardNo(MapUtils.getString(reqMap, "pan"));
                 userBank.setCardPhone(MapUtils.getString(reqMap, "phoneNO"));
                 userBank.setCardStatus(1);
@@ -735,6 +729,11 @@ public class UserBankServiceImpl extends BaseServiceImpl<UserBank, Long> impleme
             message = new ResultMessage(ResponseEnum.M4000);
         }
         return message;
+    }
+
+    @Override
+    public UserBank selectUserMerchantBankCard(Long uid, Integer bindType) {
+        return userBankMapper.selectUserMerchantBankCard(uid, bindType);
     }
 
     /**

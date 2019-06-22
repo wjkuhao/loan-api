@@ -232,4 +232,82 @@ public class RegisterController {
         return new ResultMessage(ResponseEnum.M2000);
     }
 
+    // 不需要验证码注册
+    @RequestMapping(value = "register_no_code")
+    public ResultMessage user_register_no_code(String phone, String password,String alias,
+                                       String origin_id, String browser_type) {
+        if (StringUtils.isBlank(origin_id)) {
+            origin_id = "android";
+        }
+        if (!CheckUtils.isMobiPhoneNum(phone)) {
+            return new ResultMessage(ResponseEnum.M4000.getCode(), "手机号码错误");
+        }
+        if (StringUtils.isBlank(password)) {
+            return new ResultMessage(ResponseEnum.M4000.getCode(), "密码不能为空");
+        }
+        if (password.length() < 6) {
+            return new ResultMessage(ResponseEnum.M4000.getCode(), "密码至少6位");
+        }
+        if (merchantService.findMerchantByAlias(alias) == null) {
+            return new ResultMessage(ResponseEnum.M4000.getCode(), "商户不存在");
+        }
+        if (userService.selectUserByPhone(phone, alias) != null) {
+            return new ResultMessage(ResponseEnum.M2001);
+        }
+
+        //海豚对渠道号base64
+        if ("haitun".equals(alias)) {
+            origin_id = Base64ToMultipartFileUtil.decodeOrigin(origin_id);
+        } else if ("huijie".equals(alias)) {
+            try {
+                origin_id = DesUtil.decryption(origin_id, null);
+            } catch (Exception e) {
+                logger.info("渠道编号异常 origin_id={} error={}", origin_id, e.getStackTrace());
+                return new ResultMessage(ResponseEnum.M4000.getCode(), "渠道编号异常");
+            }
+        } else {
+            // 新商户全部用des解密 care/xiaoxiang
+            try {
+                origin_id = DesUtil.decryption(origin_id, null);
+            } catch (Exception e) {
+                logger.info("渠道编号异常 origin_id={} error={}", origin_id, e.getStackTrace());
+                return new ResultMessage(ResponseEnum.M4000.getCode(), "渠道编号异常");
+            }
+        }
+
+        MerchantOrigin merchantOrigin = merchantOriginService.selectByPrimaryKey(Long.valueOf(origin_id));
+        if (merchantOrigin.getCheckBlacklist() == 1) {
+            Blacklist blacklist = blacklistService.getByPhone(phone);
+            if (null != blacklist) {
+                logger.info("存在黑名单中，无法注册， phone={}", phone);
+                return new ResultMessage(ResponseEnum.M4000.getCode(), "审核不通过");
+            }
+        }
+
+        if (merchantOrigin.getCheckRepay() == 1) {
+            if (orderService.checkUnfinishOrderByPhone(phone)) {
+                logger.info("存在进行中的订单，无法注册， phone={}", phone);
+                return new ResultMessage(ResponseEnum.M4000.getCode(), "审核不通过");
+            }
+
+            // 检查是否存在多头借贷
+            if(dataCenterService.checkMultiLoan(phone, null)){
+                logger.info("存在多头借贷，无法注册， phone={}", phone);
+                return new ResultMessage(ResponseEnum.M4000.getCode(), "审核不通过");
+            }
+        }
+
+        if (merchantOrigin.getCheckOverdue() == 1) {
+            Order orderOverDue = orderService.findOverdueByCertNo(phone);
+            if (null != orderOverDue) {
+                logger.info("存在逾期订单，无法注册， phone={}", phone);
+                return new ResultMessage(ResponseEnum.M4000.getCode(), "审核不通过");
+            }
+        }
+
+        Long uid = userService.addUser(phone, MD5.toMD5(password), origin_id, alias, browser_type);
+        userDeductionService.addUser(uid, origin_id, alias, phone);
+        return new ResultMessage(ResponseEnum.M2000);
+    }
+
 }

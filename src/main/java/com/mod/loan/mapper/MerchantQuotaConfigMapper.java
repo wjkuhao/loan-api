@@ -10,4 +10,6 @@ public interface MerchantQuotaConfigMapper extends MyBaseMapper<MerchantQuotaCon
 
     List<MerchantQuotaConfig> selectByMerchant(@Param("merchant") String merchant);
 
+    List<MerchantQuotaConfig> selectByBorrowType(@Param("merchant") String merchant, @Param("borrowType") Integer borrowType);
+
 }

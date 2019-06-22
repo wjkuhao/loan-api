@@ -3,6 +3,7 @@ package com.mod.loan.service.impl;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.mod.loan.common.mapper.BaseServiceImpl;
+import com.mod.loan.config.Constant;
 import com.mod.loan.config.redis.RedisMapper;
 import com.mod.loan.mapper.MerchantQuotaConfigMapper;
 import com.mod.loan.model.MerchantQuotaConfig;
@@ -48,6 +49,11 @@ public class MerchantQuotaConfigServiceImpl extends BaseServiceImpl<MerchantQuot
         return merchantQuotaConfigMapper.selectByMerchant(merchant);
     }
 
+    @Override
+    public List<MerchantQuotaConfig> selectByBorrowType(String merchant, Integer borrowType) {
+        return merchantQuotaConfigMapper.selectByBorrowType(merchant, borrowType);
+    }
+
     private Integer matchQuotaConfig(List<MerchantQuotaConfig> listQuotaConfig, String actualValue) {
         Integer quotaValue = 0;
         if (listQuotaConfig == null || actualValue == null) {
@@ -80,7 +86,7 @@ public class MerchantQuotaConfigServiceImpl extends BaseServiceImpl<MerchantQuot
     }
 
     @Override
-    public BigDecimal computeQuota(String merchant, Long uid, BigDecimal basicQuota) {
+    public BigDecimal computeQuota(String merchant, Long uid, BigDecimal basicQuota, Integer borrowType) {
         BigDecimal lastQuota = basicQuota;
         try {
             String userPromoteQuota = redisMapper.get("quota:"+ uid);
@@ -89,7 +95,7 @@ public class MerchantQuotaConfigServiceImpl extends BaseServiceImpl<MerchantQuot
             }
 
             //加载提额配置
-            List<MerchantQuotaConfig> merchantQuotaConfigs = selectByMerchant(merchant);
+            List<MerchantQuotaConfig> merchantQuotaConfigs = selectByBorrowType(merchant,borrowType);
             if (merchantQuotaConfigs==null || merchantQuotaConfigs.isEmpty()){
                 return lastQuota;
             }
@@ -106,17 +112,16 @@ public class MerchantQuotaConfigServiceImpl extends BaseServiceImpl<MerchantQuot
             List<MerchantQuotaConfig> deferQuotaConfigs = merchantQuotaConfigsMap.get(MerchantQuotaConfigService.QUOTA_TYPE_DEFER_COUNT);
             Integer deferQuota = getDeferQuota(deferQuotaConfigs, uid);
 
-
-            //借款金额区间范围控制在1000-5000
+            //借款金额区间范围控制在1000-10000
             int promoteQuota = tianjiQuota + deferQuota;
-            redisMapper.set("quota:"+uid, String.valueOf(promoteQuota),60*60*24);
+            redisMapper.set("quota:"+uid, String.valueOf(promoteQuota),60*5);
 
             lastQuota = lastQuota.add(new BigDecimal(promoteQuota)) ;
             if (lastQuota.compareTo(new BigDecimal(1000))<0){
                 lastQuota = new BigDecimal(1000);
             }
-            else if (lastQuota.compareTo(new BigDecimal(5000))>0){
-                lastQuota = new BigDecimal(5000);
+            else if (lastQuota.compareTo(new BigDecimal(Constant.MERCHANT_MAX_PRODUCT_MONEY))>0){
+                lastQuota = new BigDecimal(Constant.MERCHANT_MAX_PRODUCT_MONEY);
             }
         }catch (Exception e){
             logger.error("computeQuota err uid={}, error={}",uid, e);
@@ -128,7 +133,6 @@ public class MerchantQuotaConfigServiceImpl extends BaseServiceImpl<MerchantQuot
     //天机分对应提额
     private Integer getTianjiQuota(List<MerchantQuotaConfig> tianjiQuotaConfigs,  Long uid){
         Integer tianjiQuota = 0;
-        int repaySuccessCount = 0;
         try {
             User user = userService.selectByPrimaryKey(uid);
             OrderRiskInfo orderRiskInfo = orderRiskInfoService.getLastOneByPhone(user.getUserPhone());
@@ -137,22 +141,19 @@ public class MerchantQuotaConfigServiceImpl extends BaseServiceImpl<MerchantQuot
             }
 
             String riskModelScore = orderRiskInfo.getRiskModelScore();
+            if (StringUtils.isEmpty(riskModelScore)){
+                riskModelScore = orderRiskInfoService.updateRiskMotelScore(orderRiskInfo.getId());
+            }
             JSONObject riskModelScoreJson = JSON.parseObject(riskModelScore);
             String tianjiScore = riskModelScoreJson.getString("天机-小额模型分");
 
             tianjiQuota = matchQuotaConfig(tianjiQuotaConfigs, tianjiScore);
-
-            repaySuccessCount = orderService.countPaySuccessByUid(uid);
-            //新客默认设置一次，方便按天机分匹配额度
-            if (repaySuccessCount==0){
-                repaySuccessCount=1;
-            }
         }
         catch(Exception e){
             logger.error("getTianjiQuota error orderId={},err={}",uid, e);
         }
         //按还款成功次数提额
-        return tianjiQuota*repaySuccessCount;
+        return tianjiQuota;
     }
 
     //展期次数提额
