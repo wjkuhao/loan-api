@@ -61,7 +61,8 @@ public class HelipayEntrustedServiceImpl implements HelipayEntrustedService {
     /**
      * 绑定用户到委托代付商户端
      */
-    private MerchantUserUploadResVo bindUserCard(User user, UserBank userBank, Merchant merchant) {
+    @Override
+    public MerchantUserUploadResVo bindUserCard(User user, UserBank userBank, Merchant merchant) {
         MerchantUserUploadResVo uploadResVo = new MerchantUserUploadResVo();
         try {
             //step 1.用户注册

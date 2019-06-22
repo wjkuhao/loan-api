@@ -54,6 +54,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Service
@@ -734,5 +735,13 @@ public class UserBankServiceImpl extends BaseServiceImpl<UserBank, Long> impleme
             message = new ResultMessage(ResponseEnum.M4000);
         }
         return message;
+    }
+
+    /**
+     * 查询合利宝委托代付绑卡失败的银行卡列表
+     * */
+    @Override
+    public List<UserBank> selectEntrustedBindFailList(String merchant){
+       return userBankMapper.selectEntrustedBindFailList(merchant);
     }
 }

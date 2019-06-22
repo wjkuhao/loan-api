@@ -29,4 +29,7 @@
   <select id="selectFuyouBankCard"  resultMap="BaseResultMap">
   select * from tb_user_bank where uid=#{uid} and bind_type=2 order by create_time desc limit 1
   </select>
+  <select id="selectEntrustedBindFailList" resultMap="BaseResultMap">
+  select b.id,b.uid,b.card_name,b.card_phone from tb_order o,tb_user_bank b,tb_merchant m where o.status = 23 and o.uid = b.uid and b.hlb_entrusted_cuid is null and b.card_status = 1 and b.bind_type = 1 and o.merchant = m.merchant_alias and m.merchant_alias = #{merchant} and m.hlb_entrusted_sign_key is not null and m.hlb_entrusted_private_key is not null
+  </select>
 </mapper>

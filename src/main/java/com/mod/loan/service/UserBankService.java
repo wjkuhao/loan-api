@@ -6,6 +6,8 @@ import com.mod.loan.model.Bank;
 import com.mod.loan.model.Merchant;
 import com.mod.loan.model.UserBank;
 
+import java.util.List;
+
 public interface UserBankService extends BaseService<UserBank,Long> {
     /**
      * 获取当前使用中的银行卡
@@ -68,4 +70,9 @@ public interface UserBankService extends BaseService<UserBank,Long> {
      * 根据快钱短验进行绑卡
      */
     ResultMessage bindKuaiqianSms(String validateCode, Long uid, String bindInfo);
+
+    /**
+     * 查询合利宝委托代付绑卡失败的银行卡列表
+     * */
+    List<UserBank> selectEntrustedBindFailList(String merchant);
 }
