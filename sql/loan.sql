@@ -1331,6 +1331,7 @@ CREATE TABLE `tb_merchant_quota_config`  (
   `status` tinyint(4) NULL DEFAULT 1 COMMENT '1-启用, 0-停用',
   `create_time` datetime(0) NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   `update_time` datetime(0) NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP(0) COMMENT '修改时间',
-  PRIMARY KEY (`id`) USING BTREE
+  PRIMARY KEY (`id`) USING BTREE,
+  INDEX `idx_merchant_borrow_type`(`merchant`, borrow_type) USING BTREE
 ) ENGINE = InnoDB  CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '商户提额配置表' ROW_FORMAT = Dynamic;
 
