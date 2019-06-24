@@ -88,6 +88,11 @@ public class MerchantQuotaConfigServiceImpl extends BaseServiceImpl<MerchantQuot
     @Override
     public BigDecimal computeQuota(String merchant, Long uid, BigDecimal basicQuota, Integer borrowType) {
         BigDecimal lastQuota = basicQuota;
+        if (borrowType<1){
+            //新客在风控提额，这里不提额，在其他系统有过天机分导致了新客，重复提额
+            return lastQuota;
+        }
+
         try {
             String userPromoteQuota = redisMapper.get("quota:"+ uid);
             if (StringUtils.isNotEmpty(userPromoteQuota)) {
