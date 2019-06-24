@@ -85,10 +85,8 @@ public class OrderApplyController {
         if (null == merchantRate) {
             return new ResultMessage(ResponseEnum.M4000.getCode(), "未查到产品信息");
         }
-        BigDecimal totalFee = MoneyUtil.totalFee(merchantRate.getProductMoney(), merchantRate.getTotalRate());// 综合费用
         map.put("productId", merchantRate.getId());
         map.put("productDay", merchantRate.getProductDay());
-        map.put("totalFee", totalFee);
 
         BigDecimal maxQuota = merchantQuotaConfigService.computeQuota(RequestThread.getClientAlias(), uid,
                 merchantRate.getProductMoney(), merchantRate.getBorrowType());
@@ -97,8 +95,12 @@ public class OrderApplyController {
       //  map.put("productMoneyRange", merchantRate.getProductMoney().intValue()+ "~" + maxQuota.intValue());
         map.put("productMoney", maxQuota);
 
+        BigDecimal totalFee = MoneyUtil.totalFee(maxQuota, merchantRate.getTotalRate());// 综合费用
+        map.put("totalFee", totalFee);
+
         BigDecimal actualMoney = MoneyUtil.actualMoney(maxQuota, totalFee);// 实际到账
         map.put("actualMoney", actualMoney);
+
 
 
         map.put("cardName", userBank.getCardName());
