@@ -1,7 +1,7 @@
 package com.mod.loan.task;
 
 import com.mod.loan.model.OrderRepay;
-import com.mod.loan.service.OrderJInYunTongRePayService;
+import com.mod.loan.service.OrderJinYunTongRePayService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,10 +14,10 @@ import java.util.List;
 @Component
 public class OrderJinYunTongRepayQueryTask {
     private static final Logger logger = LoggerFactory.getLogger(OrderJinYunTongRepayQueryTask.class);
-    private final OrderJInYunTongRePayService orderJInYunTongRePayService;
+    private final OrderJinYunTongRePayService orderJInYunTongRePayService;
 
     @Autowired
-    public OrderJinYunTongRepayQueryTask(OrderJInYunTongRePayService orderJInYunTongRePayService){
+    public OrderJinYunTongRepayQueryTask(OrderJinYunTongRePayService orderJInYunTongRePayService){
         this.orderJInYunTongRePayService=orderJInYunTongRePayService;
     }
 

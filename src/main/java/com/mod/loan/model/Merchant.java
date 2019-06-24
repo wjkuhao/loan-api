@@ -170,8 +170,8 @@ public class Merchant {
     /**
      * 金运通商户私钥
      */
-    @Column(name = "jinyuntong_private_key")
-    private String jinyuntongPrivateKey;
+    @Column(name = "jinyuntong_merchant_private_key")
+    private String jinyuntongMerchantPrivateKey ;
 
 
     public String getJinyuntongMerchantId() {
@@ -190,12 +190,12 @@ public class Merchant {
         this.jinyuntongPublicKey = jinyuntongPublicKey;
     }
 
-    public String getJinyuntongPrivateKey() {
-        return jinyuntongPrivateKey;
+    public String getJinyuntongMerchantPrivateKey() {
+        return jinyuntongMerchantPrivateKey;
     }
 
-    public void setJinyuntongPrivateKey(String jinyuntongPrivateKey) {
-        this.jinyuntongPrivateKey = jinyuntongPrivateKey;
+    public void setJinyuntongMerchantPrivateKey(String jinyuntongMerchantPrivateKey) {
+        this.jinyuntongMerchantPrivateKey = jinyuntongMerchantPrivateKey;
     }
 
     public String getYeepay_loan_appkey() {

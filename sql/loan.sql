@@ -487,6 +487,9 @@ CREATE TABLE `tb_merchant`  (
   `huichao_public_key` varchar(500) DEFAULT NULL COMMENT '汇潮自己的公钥',
   `huichao_merchant_repay_private_key` varchar(1000) DEFAULT NULL COMMENT '汇潮商户的微信、支付宝、代扣的私钥',
   `huichao_merchant_pay_private_key` varchar(1000) DEFAULT NULL COMMENT '汇潮商户的代付的私钥',
+  `jinyuntong_public_key` varchar(1024) DEFAULT NULL COMMENT '金运通公钥',
+  `jinyuntong_merchant_id` varchar(32) DEFAULT NULL COMMENT '金运通商户号',
+  `jinyuntong_merchant_private_key` varchar(2048) DEFAULT NULL COMMENT '金运通商户私钥',
   `create_time` datetime(0) NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`merchant_alias`) USING BTREE
 ) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;

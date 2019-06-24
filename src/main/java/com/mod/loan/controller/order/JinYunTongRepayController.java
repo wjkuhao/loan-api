@@ -3,7 +3,7 @@ package com.mod.loan.controller.order;
 import com.alibaba.fastjson.JSON;
 import com.mod.loan.common.annotation.LoginRequired;
 import com.mod.loan.common.model.ResultMessage;
-import com.mod.loan.service.OrderJInYunTongRePayService;
+import com.mod.loan.service.OrderJinYunTongRePayService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,7 +21,7 @@ public class JinYunTongRepayController {
     private static Logger log = LoggerFactory.getLogger(JinYunTongRepayController.class);
 
     @Autowired
-    private OrderJInYunTongRePayService orderJInYunTongRePayService;
+    private OrderJinYunTongRePayService orderJinYunTongRePayService;
 
     /**
      * 金运通还款回调
@@ -32,28 +32,32 @@ public class JinYunTongRepayController {
     @RequestMapping("orderRepayNotice")
     public String jinyuntongOrderRepayNotice(@RequestBody Map map) {
         log.info("金运通还款回调,request={}", JSON.toJSONString(map));
-        return orderJInYunTongRePayService.jinyuntongOrderRepayNotice(map);
+        return orderJinYunTongRePayService.jinyuntongOrderRepayNotice(map);
     }
 
     /**
-    * 换款测试
-    * @Author actor
-    * @Date 2019/6/21 16:57
-    */
+     * 还款
+     *
+     * @Author actor
+     * @Date 2019/6/21 16:57
+     */
     @RequestMapping("repay")
     @LoginRequired
-    public ResultMessage rePay(Long orderId){
-        return orderJInYunTongRePayService.orderRepay(orderId);
+    public ResultMessage rePay(Long orderId) {
+        log.info("金运通还款开始:orderId={}",orderId);
+        return orderJinYunTongRePayService.orderRepay(orderId);
     }
 
     /**
-    * 还款查询测试
-    * @Author actor
-    * @Date 2019/6/21 17:01
-    */
+     * 还款查询
+     *
+     * @Author actor
+     * @Date 2019/6/21 17:01
+     */
     @RequestMapping("queryRepay")
     @LoginRequired
-    public void queryRepay(String repayNo){
-         orderJInYunTongRePayService.queryRePayStatus(repayNo);
+    public void queryRepay(String repayNo) {
+        log.info("金运通还款查询,repayNo={}",repayNo);
+        orderJinYunTongRePayService.queryRePayStatus(repayNo);
     }
 }

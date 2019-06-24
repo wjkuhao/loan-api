@@ -8,7 +8,7 @@ import com.mod.loan.model.OrderRepay;
 import java.util.List;
 import java.util.Map;
 
-public interface OrderJInYunTongRePayService {
+public interface OrderJinYunTongRePayService {
     ResultMessage sendBindCardSms(Long uid, String cardNo, String cardPhone, Bank bank);
     ResultMessage bindCard(String validateCode, Long uid, String bindInfo);
     String jinyuntongOrderRepayNotice(Map map);

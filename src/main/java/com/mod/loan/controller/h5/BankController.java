@@ -66,7 +66,7 @@ public class BankController {
     @Autowired
     UserChangjieBankService userChangjieBankService;
     @Autowired
-    private OrderJInYunTongRePayService orderJInYunTongRePayService;
+    private OrderJinYunTongRePayService orderJinYunTongRePayService;
 
     @RequestMapping(value = "bank_user")
     @LoginRequired(check = true)
@@ -215,7 +215,7 @@ public class BankController {
                 message = userBankService.sendKuaiqianSms(uid, cardNo, cardPhone, bank);
                 break;
             case 8:
-                message= orderJInYunTongRePayService.sendBindCardSms(uid, cardNo, cardPhone, bank);
+                message = orderJinYunTongRePayService.sendBindCardSms(uid, cardNo, cardPhone, bank);
                 break;
             default:
                 log.error("绑卡异常,该商户未开通相关绑卡渠道,merchant={},bindType={}", merchant.getMerchantAlias(), bindType);
@@ -283,7 +283,7 @@ public class BankController {
                 message = userBankService.bindKuaiqianSms(validateCode, uid, bindInfo);
                 break;
             case 8:
-                message= orderJInYunTongRePayService.bindCard(validateCode,uid,bindInfo);
+                message = orderJinYunTongRePayService.bindCard(validateCode, uid, bindInfo);
                 break;
             default:
                 log.error("绑卡异常,该商户未开通相关绑卡渠道,merchant={},bindType={}", merchant.getMerchantAlias(), bindType);
