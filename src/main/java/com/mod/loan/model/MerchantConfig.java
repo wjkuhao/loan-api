@@ -49,6 +49,12 @@ public class MerchantConfig {
     @Column(name = "promote_quota_type")
     private Integer promoteQuotaType;
 
+    @Column(name = "old_customer_risk")
+    private Integer oldCustomerRisk;
+
+    @Column(name = "max_overdue_fee_rate")
+    private Integer maxOverdueFeeRate;
+
     public Integer getPromoteQuotaType() {
         return promoteQuotaType;
     }
@@ -159,5 +165,21 @@ public class MerchantConfig {
 
     public void setDefaultOriginStatus(Integer defaultOriginStatus) {
         this.defaultOriginStatus = defaultOriginStatus;
+    }
+
+    public Integer getOldCustomerRisk() {
+        return oldCustomerRisk;
+    }
+
+    public void setOldCustomerRisk(Integer oldCustomerRisk) {
+        this.oldCustomerRisk = oldCustomerRisk;
+    }
+
+    public Integer getMaxOverdueFeeRate() {
+        return maxOverdueFeeRate;
+    }
+
+    public void setMaxOverdueFeeRate(Integer maxOverdueFeeRate) {
+        this.maxOverdueFeeRate = maxOverdueFeeRate;
     }
 }
