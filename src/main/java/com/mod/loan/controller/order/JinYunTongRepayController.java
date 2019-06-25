@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.mod.loan.common.annotation.LoginRequired;
 import com.mod.loan.common.model.ResultMessage;
 import com.mod.loan.service.OrderJinYunTongRePayService;
+import com.mod.loan.task.OrderJinYunTongRepayQueryTask;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +23,8 @@ public class JinYunTongRepayController {
 
     @Autowired
     private OrderJinYunTongRePayService orderJinYunTongRePayService;
+    @Autowired
+    private OrderJinYunTongRepayQueryTask orderJinYunTongRepayQueryTask;
 
     /**
      * 金运通还款回调
@@ -59,5 +62,14 @@ public class JinYunTongRepayController {
     public void queryRepay(String repayNo) {
         log.info("金运通还款查询,repayNo={}",repayNo);
         orderJinYunTongRePayService.queryRePayStatus(repayNo);
+    }
+    /**
+    * 测试查询还款定时任务
+    * @Author actor
+    * @Date 2019/6/25 9:41
+    */
+    @RequestMapping("testQuery")
+    public void testQuery(){
+        orderJinYunTongRepayQueryTask.jinyuntongRepayQuery();
     }
 }

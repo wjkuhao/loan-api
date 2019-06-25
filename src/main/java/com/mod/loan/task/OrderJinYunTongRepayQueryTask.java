@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 
-@Profile("online")
+//@Profile("online")
 @Component
 public class OrderJinYunTongRepayQueryTask {
     private static final Logger logger = LoggerFactory.getLogger(OrderJinYunTongRepayQueryTask.class);
@@ -28,7 +28,7 @@ public class OrderJinYunTongRepayQueryTask {
     //@Scheduled(cron = "0 0/10 * * * ?")
     public void jinyuntongRepayQuery() {
         logger.info("#[金运通代扣还款结果查询定时任务]-[开始]");
-        //获取畅捷代扣还款订单列表
+        //获取金运通代扣还款订单列表
         List<OrderRepay> orderRepayList = orderJInYunTongRePayService.jinyuntongRepayQuery4Task();
         orderRepayList.stream().forEach(orderRepay -> {
             //不影响其他
