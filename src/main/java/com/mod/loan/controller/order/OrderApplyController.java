@@ -198,8 +198,6 @@ public class OrderApplyController {
             return new ResultMessage(ResponseEnum.M2000);
         }
 
-
-
         //灰名单客户直接进入人审
         if (blacklist != null && 1 == blacklist.getType()) {
             addOrder(uid ,productId,
@@ -207,12 +205,15 @@ public class OrderApplyController {
             return new ResultMessage(ResponseEnum.M2000);
         }
 
-        // 老客户不走风控，直接进入放款列表
-        Integer borrowType = orderService.countPaySuccessByUid(uid);
-        if (borrowType != null && borrowType > 0) {
-            addOrder(uid ,productId,
-                    productMoney, phoneType, paramValue, phoneModel,  phoneMemory, OrderEnum.WAIT_LOAN.getCode(),new Date());
-            return new ResultMessage(ResponseEnum.M2000);
+        MerchantConfig merchantConfig = merchantConfigService.selectByMerchant(user.getMerchant());
+        if (merchantConfig==null || merchantConfig.getOldCustomerRisk()==0) {
+            // 老客户不走风控，直接进入放款列表
+            Integer borrowType = orderService.countPaySuccessByUid(uid);
+            if (borrowType != null && borrowType > 0) {
+                addOrder(uid ,productId,
+                        productMoney, phoneType, paramValue, phoneModel,  phoneMemory, OrderEnum.WAIT_LOAN.getCode(),new Date());
+                return new ResultMessage(ResponseEnum.M2000);
+            }
         }
 
         Order order = addOrder(uid, productId,
