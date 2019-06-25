@@ -315,6 +315,7 @@ public class HelipayRepayServiceImpl implements HelipayRepayService {
             if (!"0000".equals(responseVo.getRt2_retCode())) {
                 logger.error("绑卡支付受理失败，result={}", response);
                 OrderRepay orderRepay1 = new OrderRepay();
+                orderRepay1.setRepayNo(dto.getRepayNo());// bug fix,,, 失败设置主键更新
                 orderRepay1.setRepayNo(dto.getOrderId());
                 orderRepay1.setRepayStatus(2);
                 String responseMsg = responseVo.getRt3_retMsg();
