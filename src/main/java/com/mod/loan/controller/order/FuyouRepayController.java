@@ -245,7 +245,7 @@ public class FuyouRepayController {
 		if (orderDefer.getPayStatus() == 3) {
 			return new ResultMessage(ResponseEnum.M4000.getCode(), "续期订单[" + orderId + "]已支付完成,请勿重复支付");
 		}
-		orderDefer.setPayNo(StringUtil.getOrderNumber("r"));
+		orderDefer.setPayNo(StringUtil.getOrderNumber("d"));
 		deferService.updateByPrimaryKey(orderDefer);
 		//支付请求
 		Order order = orderService.selectByPrimaryKey(orderId);
@@ -353,7 +353,9 @@ public class FuyouRepayController {
 			orderDefer.setPayStatus(4);
 			logger.info("富友异步通知支付失败，订单流水为：{}，对应富友订单号为：{}，失败信息为：{}",mchntOrderId,orderId,responseMsg);
 		}
-		orderDefer.setPayStatus(3);
+		if ("0000".equals(responseCode)) {
+			orderDefer.setPayStatus(3);
+		}
 		deferService.modifyOrderDeferByPayCallback(orderDefer);
 	}
 
