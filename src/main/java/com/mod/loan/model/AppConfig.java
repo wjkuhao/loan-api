@@ -20,6 +20,7 @@ public class AppConfig {
     @Column(name = "youdun_callback_url")
     private String youDunCallbackUrl;
 
+
     @Column(name = "youdun_key")
     private String youDunKey;
 
