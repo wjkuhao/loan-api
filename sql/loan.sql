@@ -1206,6 +1206,8 @@ CREATE TABLE `tb_tongdun_mobile`  (
   `create_time` datetime DEFAULT CURRENT_TIMESTAMP,
   `update_time` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `tag` tinyint(4) DEFAULT '0' COMMENT '0-未抓取数据，1-已抓取数据',
+  `mobile_upload_status` tinyint(4) DEFAULT '0' COMMENT '0-运营商数据未上传OSS，1-运营商数据已上传OSS',
+  `mofang_upload_status` tinyint(4) DEFAULT '0' COMMENT '0-魔方报告未上传到OSS，1-魔方报告已上传到OSS',
   PRIMARY KEY (`uid`),
   UNIQUE KEY `idx_task_id` (`task_id`) USING BTREE,
   KEY `idx_uid` (`uid`) USING BTREE
