@@ -336,7 +336,7 @@ public class FuyouRepayController {
 			logger.info("续期订单[" + orderDefer.getOrderId() + "]已支付完成,请勿重复支付");
 			return;
 		}
-		//备注信息
+		// 备注信息
 		orderDefer.setRemark(responseCode + ":" + responseMsg);
 		orderDefer.setPayType("fuyou");
 		Order order = orderService.selectByPrimaryKey(orderDefer.getOrderId());
