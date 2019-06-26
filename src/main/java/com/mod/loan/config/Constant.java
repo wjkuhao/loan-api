@@ -59,6 +59,15 @@ public class Constant {
      */
     public static Integer MERCHANT_MAX_PRODUCT_MONEY;
 
+    public static String MX_RISK_API_MODEL_SCORE_URL;
+
+    public static String MX_RISK_TOKEN;
+
+    /**
+     * 需要贷超按钮功能得商户 商户alias1,商户alias2,...
+     */
+    public static String MERCHANT_NEED_LOAN_MARKET_BUTTON;
+
     @Value("${environment:}")
     public void setENVIROMENT(String environment) {
         Constant.ENVIROMENT = environment;
@@ -195,5 +204,20 @@ public class Constant {
             merchantMaxProductMoney = 10000;
         }
         MERCHANT_MAX_PRODUCT_MONEY = merchantMaxProductMoney;
+    }
+
+    @Value("${mx.risk.api.model.score.url:}")
+    public void setMxRiskApiModelScoreUrl(String mxRiskApiModelScoreUrl) {
+        MX_RISK_API_MODEL_SCORE_URL = mxRiskApiModelScoreUrl;
+    }
+
+    @Value("${mx.risk.api.token:}")
+    public void setMxRiskToken(String mxRiskToken) {
+        MX_RISK_TOKEN = mxRiskToken;
+    }
+
+    @Value("${merchant.need.loan.market.button:unk}")
+    public void setMerchantNeedLoanMarketButton(String merchantNeedLoanMarketButton) {
+        MERCHANT_NEED_LOAN_MARKET_BUTTON = merchantNeedLoanMarketButton;
     }
 }

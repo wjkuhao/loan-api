@@ -34,8 +34,19 @@ public class MerchantQuotaConfig {
     @Column(name = "quota_type")
     private Integer quotaType;
 
+    @Column(name = "borrow_type")
+    private Integer borrowType;
+
     @Column(name = "status")
     private Integer status;
+
+    public Integer getBorrowType() {
+        return borrowType;
+    }
+
+    public void setBorrowType(Integer borrowType) {
+        this.borrowType = borrowType;
+    }
 
     public Integer getId() {
         return id;
