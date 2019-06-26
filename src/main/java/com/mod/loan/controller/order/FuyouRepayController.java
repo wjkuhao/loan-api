@@ -245,7 +245,8 @@ public class FuyouRepayController {
 		if (orderDefer.getPayStatus() == 3) {
 			return new ResultMessage(ResponseEnum.M4000.getCode(), "续期订单[" + orderId + "]已支付完成,请勿重复支付");
 		}
-		orderDefer.setPayNo(StringUtil.getOrderNumber("d"));
+        String orderSeriesId = StringUtil.getOrderNumber("d");
+		orderDefer.setPayNo(orderSeriesId);
 		deferService.updateByPrimaryKey(orderDefer);
 		//支付请求
 		Order order = orderService.selectByPrimaryKey(orderId);
@@ -262,7 +263,7 @@ public class FuyouRepayController {
 			String idType = "0";
 			String type = "10";
 			StringBuffer orderPlain = new StringBuffer();
-			String orderSeriesId = StringUtil.getOrderNumber("r");// 支付流水号
+			// 支付流水号
 			//回调接口
 			String backUrl = Constant.SERVER_API_URL + "order/defer_fuyou_callback";
 			//支付成功跳转页面
