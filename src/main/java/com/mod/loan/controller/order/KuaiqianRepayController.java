@@ -23,7 +23,7 @@ public class KuaiqianRepayController {
     /**
      * 快钱支付还款--以同步返回结果为准，受理中订单主动查询
      */
-//    @LoginRequired(check = true)
+    @LoginRequired(check = true)
     @RequestMapping(value = "order_repay_kuaiqian")
     public ResultMessage orderRepayKuaiqian(@RequestParam(required = true) Long orderId) {
         logger.info("#[快钱支付还款]-[请求参数]-request={}", orderId);
