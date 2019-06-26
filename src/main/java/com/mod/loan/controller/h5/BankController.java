@@ -65,6 +65,8 @@ public class BankController {
     RedisMapper redisMapper;
     @Autowired
     UserChangjieBankService userChangjieBankService;
+    @Autowired
+    private OrderJinYunTongRePayService orderJinYunTongRePayService;
 
     @RequestMapping(value = "bank_user")
     @LoginRequired(check = true)
@@ -212,6 +214,9 @@ public class BankController {
             case 6:
                 message = userBankService.sendKuaiqianSms(uid, cardNo, cardPhone, bank);
                 break;
+            case 8:
+                message = orderJinYunTongRePayService.sendBindCardSms(uid, cardNo, cardPhone, bank);
+                break;
             default:
                 log.error("绑卡异常,该商户未开通相关绑卡渠道,merchant={},bindType={}", merchant.getMerchantAlias(), bindType);
                 message = new ResultMessage(ResponseEnum.M4000);
@@ -276,6 +281,9 @@ public class BankController {
                 break;
             case 6:
                 message = userBankService.bindKuaiqianSms(validateCode, uid, bindInfo);
+                break;
+            case 8:
+                message = orderJinYunTongRePayService.bindCard(validateCode, uid, bindInfo);
                 break;
             default:
                 log.error("绑卡异常,该商户未开通相关绑卡渠道,merchant={},bindType={}", merchant.getMerchantAlias(), bindType);

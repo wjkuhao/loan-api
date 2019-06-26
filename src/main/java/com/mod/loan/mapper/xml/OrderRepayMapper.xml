@@ -50,6 +50,26 @@
     )
   </select>
 
+<!--  金运通还款定时查询-->
+  <select id="jinyuntongRepayQuery4Task" resultMap="BaseResultMap">
+    SELECT
+    tory.repay_no,
+    tory.uid,
+    tory.order_id
+    FROM
+    tb_order_repay tory
+    INNER JOIN tb_order tor ON tory.order_id = tor.id
+    INNER JOIN tb_merchant tmt ON tor.merchant = tmt.merchant_alias
+    WHERE
+    tory.repay_status = 1
+    AND tor.`status` >= 31 AND tor.`status` &lt; 41
+    AND tmt.bind_type = 8
+    AND tory.create_time &lt;= date_format(
+    date_sub(now(), INTERVAL 10 MINUTE),
+    '%Y-%m-%d %H:%i:%s'
+    )
+  </select>
+
     <!-- 汇潮支付宝还款/微信扫码支付结果查询定时任务 -->
     <select id="huichaoRepay4AliAppH5OrWxScanQuery" resultMap="BaseResultMap">
       select repay_no,uid,order_id from tb_order_repay where repay_status = 1 and repay_type in (2,3) and create_time &lt;= date_format(date_sub(now(), interval 10 minute ), '%Y-%m-%d %H:%i:%s');

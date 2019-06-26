@@ -21,6 +21,12 @@ public interface OrderRepayMapper extends MyBaseMapper<OrderRepay> {
     List<OrderRepay> changjieRepayQuery4Task();
 
     /**
+    * 金运通还款定时任务
+    * @Author actor
+    * @Date 2019/6/20 17:27
+    */
+    List<OrderRepay> jinyuntongRepayQuery4Task();
+    /**
      * 汇潮支付宝还款/微信扫码支付结果查询--定时任务
      *
      * @return

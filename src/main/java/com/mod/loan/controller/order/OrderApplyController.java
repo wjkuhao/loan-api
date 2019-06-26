@@ -85,10 +85,8 @@ public class OrderApplyController {
         if (null == merchantRate) {
             return new ResultMessage(ResponseEnum.M4000.getCode(), "未查到产品信息");
         }
-        BigDecimal totalFee = MoneyUtil.totalFee(merchantRate.getProductMoney(), merchantRate.getTotalRate());// 综合费用
         map.put("productId", merchantRate.getId());
         map.put("productDay", merchantRate.getProductDay());
-        map.put("totalFee", totalFee);
 
         BigDecimal maxQuota = merchantQuotaConfigService.computeQuota(RequestThread.getClientAlias(), uid,
                 merchantRate.getProductMoney(), merchantRate.getBorrowType());
@@ -97,8 +95,12 @@ public class OrderApplyController {
       //  map.put("productMoneyRange", merchantRate.getProductMoney().intValue()+ "~" + maxQuota.intValue());
         map.put("productMoney", maxQuota);
 
+        BigDecimal totalFee = MoneyUtil.totalFee(maxQuota, merchantRate.getTotalRate());// 综合费用
+        map.put("totalFee", totalFee);
+
         BigDecimal actualMoney = MoneyUtil.actualMoney(maxQuota, totalFee);// 实际到账
         map.put("actualMoney", actualMoney);
+
 
 
         map.put("cardName", userBank.getCardName());
@@ -196,8 +198,6 @@ public class OrderApplyController {
             return new ResultMessage(ResponseEnum.M2000);
         }
 
-
-
         //灰名单客户直接进入人审
         if (blacklist != null && 1 == blacklist.getType()) {
             addOrder(uid ,productId,
@@ -205,12 +205,15 @@ public class OrderApplyController {
             return new ResultMessage(ResponseEnum.M2000);
         }
 
-        // 老客户不走风控，直接进入放款列表
-        Integer borrowType = orderService.countPaySuccessByUid(uid);
-        if (borrowType != null && borrowType > 0) {
-            addOrder(uid ,productId,
-                    productMoney, phoneType, paramValue, phoneModel,  phoneMemory, OrderEnum.WAIT_LOAN.getCode(),new Date());
-            return new ResultMessage(ResponseEnum.M2000);
+        MerchantConfig merchantConfig = merchantConfigService.selectByMerchant(user.getMerchant());
+        if (merchantConfig==null || merchantConfig.getOldCustomerRisk()==0) {
+            // 老客户不走风控，直接进入放款列表
+            Integer borrowType = orderService.countPaySuccessByUid(uid);
+            if (borrowType != null && borrowType > 0) {
+                addOrder(uid ,productId,
+                        productMoney, phoneType, paramValue, phoneModel,  phoneMemory, OrderEnum.WAIT_LOAN.getCode(),new Date());
+                return new ResultMessage(ResponseEnum.M2000);
+            }
         }
 
         Order order = addOrder(uid, productId,

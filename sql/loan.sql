@@ -487,6 +487,9 @@ CREATE TABLE `tb_merchant`  (
   `huichao_public_key` varchar(500) DEFAULT NULL COMMENT '汇潮自己的公钥',
   `huichao_merchant_repay_private_key` varchar(1000) DEFAULT NULL COMMENT '汇潮商户的微信、支付宝、代扣的私钥',
   `huichao_merchant_pay_private_key` varchar(1000) DEFAULT NULL COMMENT '汇潮商户的代付的私钥',
+  `jinyuntong_public_key` varchar(1024) DEFAULT NULL COMMENT '金运通公钥',
+  `jinyuntong_merchant_id` varchar(32) DEFAULT NULL COMMENT '金运通商户号',
+  `jinyuntong_merchant_private_key` varchar(2048) DEFAULT NULL COMMENT '金运通商户私钥',
   `create_time` datetime(0) NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`merchant_alias`) USING BTREE
 ) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
@@ -507,8 +510,9 @@ CREATE TABLE `tb_merchant_config`  (
   `auto_apply_order` tinyint(1) DEFAULT 1 COMMENT '自动提单:0-关闭 1-自动提单',
   `service_phone` varchar(20) DEFAULT NULl COMMENT '客服电话',
   `default_origin_status` tinyint(1) DEFAULT 1 COMMENT '默认渠道号(61)注册:0-拒绝 1-允许',
-  `max_overdue_fee_rate` tinyint(1) DEFAULT 100 COMMENT '最大逾期费费率率,数值类型,例:30表示逾期费率为百分之三十(借款金额*最大逾期费率=最大逾期费)',
-  `promote_quota_type` tinyint(1) DEFAULT 1 COMMENT '0-关闭提额 1-新老客都提额 2-只新客提额 3-只老客提额'  ,
+  `max_overdue_fee_rate` tinyint(4) DEFAULT 100 COMMENT '最大逾期费费率率,数值类型,例:30表示逾期费率为百分之三十(借款金额*最大逾期费率=最大逾期费)',
+  `promote_quota_type` tinyint(1) DEFAULT 1 COMMENT '0-关闭提额 1-新老客都提额 2-只新客提额 3-只老客提额',
+  `old_customer_risk` tinyint(1) DEFAULT 0 COMMENT '老客是否过风控:0-不过风控 1-过风控',
   `create_time` CHAR(19) DEFAULT NULL COMMENT '插入时间',
   `update_time` CHAR(19) DEFAULT NULL COMMENT '更新时间',
   PRIMARY KEY (`id`) USING BTREE,

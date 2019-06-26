@@ -66,6 +66,8 @@ public class UserBankServiceImpl extends BaseServiceImpl<UserBank, Long> impleme
     YeepayService yeepayService;
     @Autowired
     private HelipayEntrustedService helipayEntrustedService;
+    @Autowired
+    private OrderJinYunTongRePayService orderJinYunTongRePayService;
 
     @Value("${helipay.path:}")
     String helipay_path;
