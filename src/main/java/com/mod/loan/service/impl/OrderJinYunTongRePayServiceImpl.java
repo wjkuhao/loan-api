@@ -135,9 +135,9 @@ public class OrderJinYunTongRePayServiceImpl implements OrderJinYunTongRePayServ
      * @return
      * @throws Exception
      */
-    public String sendMsg(String json, String sign, String orderId, String merchantId, RSAHelper rsaHelper) throws Exception {
-        log.info("金运通,上送报文："+ json);
-        log.info("金运通,上送签名："+ sign);
+    public String sendMsg(String json, String sign, String orderId, String merchantId, RSAHelper rsaHelper) {
+        log.info("金运通,上送报文：" + json);
+        log.info("金运通,上送签名：" + sign);
         byte[] des_key = DESHelper.generateDesKey();
 
 
@@ -150,35 +150,39 @@ public class OrderJinYunTongRePayServiceImpl implements OrderJinYunTongRePayServ
         paramMap.put("mer_order_id", orderId);
 
         //2、请求，并获取结果
-        String res = HttpClient431Util.doPost(paramMap, APP_SERVER_URL);
-        if (res == null) {
-            log.error("金运通,服务器连接失败");
-            throw new AppException("E0000000", "测试异常");
-        } else {
-            log.info("金运通,连接服务器成功,返回结果={}", res);
+        String res = null;
+        try {
+            res = HttpClient431Util.doPost(paramMap, APP_SERVER_URL);
+            if (res == null) {
+                log.error("金运通,服务器连接失败");
+                return null;
+            } else {
+                log.info("金运通,连接服务器成功,返回结果={}", res);
+            }
+            //3、解析结果
+            String[] respMsg = res.split(RESP_MSG_PARAM_SEPARATOR); //分割
+            String merchantId1 = respMsg[0].substring(RESP_MSG_PARAM_PREFIX_MERCHANT_ID.length());
+            String respJsonEnc = respMsg[1].substring(RESP_MSG_PARAM_PREFIX_MSG_ENC.length());
+            String respKeyEnc = respMsg[2].substring(RESP_MSG_PARAM_PREFIX_KEY_ENC.length());
+            String respSign = respMsg[3].substring(RESP_MSG_PARAM_PREFIX_SIGN.length());
+
+            //4、解密密钥
+            byte respKey[] = decryptKey(respKeyEnc, rsaHelper);
+
+            //5、解密报文
+            String respJson = decrytJson(respJsonEnc, respKey);
+            log.info("金运通,返回报文merchantId:" + merchantId1);
+            log.info("金运通,返回报文JSON:" + respJson);
+            log.info("金运通,返回报文签名:" + respSign);
+            //6、验签
+            if (!verifyMsgSign(respJson, respSign, rsaHelper)) {
+                return null;
+            }
+            return respJson;
+        } catch (Exception e) {
+            log.error("金运通服务器异常,e={}", e);
+            return null;
         }
-
-        //3、解析结果
-        String[] respMsg = res.split(RESP_MSG_PARAM_SEPARATOR); //分割
-        String merchantId1 = respMsg[0].substring(RESP_MSG_PARAM_PREFIX_MERCHANT_ID.length());
-        String respJsonEnc = respMsg[1].substring(RESP_MSG_PARAM_PREFIX_MSG_ENC.length());
-        String respKeyEnc = respMsg[2].substring(RESP_MSG_PARAM_PREFIX_KEY_ENC.length());
-        String respSign = respMsg[3].substring(RESP_MSG_PARAM_PREFIX_SIGN.length());
-
-        //4、解密密钥
-        byte respKey[] = decryptKey(respKeyEnc, rsaHelper);
-
-        //5、解密报文
-        String respJson = decrytJson(respJsonEnc, respKey);
-        log.info("金运通,返回报文merchantId:"+ merchantId1);
-        log.info("金运通,返回报文JSON:"+ respJson);
-        log.info("金运通,返回报文签名:"+ respSign);
-
-        //6、验签
-        if (!verifyMsgSign(respJson, respSign, rsaHelper)) {
-            throw new AppException("E9999999", "返回报文验签失败");
-        }
-        return respJson;
     }
 
     /**
@@ -227,7 +231,7 @@ public class OrderJinYunTongRePayServiceImpl implements OrderJinYunTongRePayServ
         try {
             key = rsaHelper.decryptRSA(enc_key, false, "UTF-8");
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("金运通返回decryptKey异常,e={}", e);
         }
 
         return key;
@@ -249,9 +253,9 @@ public class OrderJinYunTongRePayServiceImpl implements OrderJinYunTongRePayServ
         try {
             ret = rsaHelper.verifyRSA(json.getBytes("UTF-8"), bsign, false, "UTF-8");
         } catch (UnsupportedEncodingException e) {
-            log.error("UnsupportedEncodingException异常：", e);
+            log.error("UnsupportedEncodingException异常,e={}", e);
         } catch (Exception e) {
-            log.error("验签失败：", e);
+            log.error("金运通验签失败,e={}", e);
         }
         return ret;
     }
@@ -268,9 +272,9 @@ public class OrderJinYunTongRePayServiceImpl implements OrderJinYunTongRePayServ
             byte[] sign = rsaHelper.signRSA(json.getBytes("UTF-8"), false, "UTF-8");
             hexSign = StringUtil.bytesToHexString(sign);
         } catch (UnsupportedEncodingException e) {
-            log.error("UnsupportedEncodingException异常：", e);
+            log.error("UnsupportedEncodingException异常,e={}", e);
         } catch (Exception e) {
-            log.error("签名异常：", e);
+            log.error("签名异常.e={}", e);
         }
         return hexSign;
     }
@@ -309,7 +313,7 @@ public class OrderJinYunTongRePayServiceImpl implements OrderJinYunTongRePayServ
             return tranState;
 
         } catch (Exception e) {
-            log.error("解析异常", e);
+            log.error("解析异常,e={}", e);
         }
         return "";
     }
@@ -324,7 +328,7 @@ public class OrderJinYunTongRePayServiceImpl implements OrderJinYunTongRePayServ
             System.out.println(respCode + " | " + respDesc);
             return respCode;
         } catch (Exception e) {
-            log.error("解析异常", e);
+            log.error("解析异常,e={}", e);
         }
         return "";
     }
@@ -334,10 +338,9 @@ public class OrderJinYunTongRePayServiceImpl implements OrderJinYunTongRePayServ
         try {
             JSONObject json = JSON.parseObject(respJson);
             JSONObject jsonHead = json.getJSONObject("head");
-            System.out.println(jsonHead);
             return jsonHead;
         } catch (Exception e) {
-            log.error("解析异常", e);
+            log.error("金运通head解析异常,e={}", e);
         }
         return null;
     }
@@ -348,7 +351,7 @@ public class OrderJinYunTongRePayServiceImpl implements OrderJinYunTongRePayServ
             JSONObject body = json.getJSONObject("body");
             return body;
         } catch (Exception e) {
-            log.error("解析异常", e);
+            log.error("金运通body解析异常,e={}", e);
         }
         return null;
     }
@@ -359,7 +362,7 @@ public class OrderJinYunTongRePayServiceImpl implements OrderJinYunTongRePayServ
             JSONObject head = json.getJSONObject("head");
             return head;
         } catch (Exception e) {
-            log.error("解析异常", e);
+            log.error("解析异常,e={}", e);
         }
         return null;
     }
@@ -370,13 +373,12 @@ public class OrderJinYunTongRePayServiceImpl implements OrderJinYunTongRePayServ
      */
     public RSAHelper getRSAHelper(String merchantId, String clientPrivateKey, String serverPublicKey) {
         RSAHelper rsaHelper = new RSAHelper();
-
         try {
             rsaHelper.initKey(clientPrivateKey, serverPublicKey, 2048);
             return rsaHelper;
         } catch (Exception e) {
             log.error("金运通生成rsakey异常,merchantId={},e={}", merchantId, e);
-            throw new AppException("金运通生成rsakey异常");
+            return null;
         }
     }
 
@@ -390,66 +392,66 @@ public class OrderJinYunTongRePayServiceImpl implements OrderJinYunTongRePayServ
         //获取用户信息
         User user = userService.selectByPrimaryKey(uid);
         if (null == user) {
-            return new ResultMessage(ResponseEnum.M4000, "用户信息不存在");
+            return new ResultMessage(ResponseEnum.M4000.getCode(), "用户信息不存在");
         }
         //获取商户信息
         Merchant merchant = merchantService.findMerchantByAlias(user.getMerchant());
         if (merchant == null || StringUtils.isEmpty(merchant.getJinyuntongMerchantId()) || StringUtils.isEmpty(merchant.getJinyuntongMerchantPrivateKey()) || StringUtils.isEmpty(merchant.getJinyuntongPublicKey())) {
             log.error("商户金运通信息不全,clientAlias={}", RequestThread.getClientAlias());
-            return new ResultMessage(ResponseEnum.M4000, "商户信息异常");
+            return new ResultMessage(ResponseEnum.M4000.getCode(), "商户信息异常");
         }
         String custNo = String.valueOf(uid);
         String orderId = getOrderId(merchant.getJinyuntongMerchantId());
-        try {
-            RSAHelper rsaHelper = getRSAHelper(merchant.getJinyuntongMerchantId(), merchant.getJinyuntongMerchantPrivateKey(), merchant.getJinyuntongPublicKey());
-            //1、报文头
-            JSONObject jsonHead = getMsgHeadJson(sendBindCardSmsTraceCode, merchant.getJinyuntongMerchantId());
-            JSONObject json = new JSONObject();
-            json.put("head", jsonHead);
 
-            //2、报文头体
-            JSONObject jsonBody = new JSONObject();
-            jsonBody.put("custNo", custNo);
-            jsonBody.put("orderId", orderId);
-            jsonBody.put("bankCardNo", cardNo);
-            jsonBody.put("idCardNo", user.getUserCertNo());
-            jsonBody.put("mobile", cardPhone);
-            jsonBody.put("name", user.getUserName());
+        RSAHelper rsaHelper = getRSAHelper(merchant.getJinyuntongMerchantId(), merchant.getJinyuntongMerchantPrivateKey(), merchant.getJinyuntongPublicKey());
+        if (rsaHelper == null) {
+            return new ResultMessage(ResponseEnum.M4000.getCode(), "商户秘钥异常");
+        }
+        //1、报文头
+        JSONObject jsonHead = getMsgHeadJson(sendBindCardSmsTraceCode, merchant.getJinyuntongMerchantId());
+        JSONObject json = new JSONObject();
+        json.put("head", jsonHead);
 
-            json.put("body", jsonBody);
+        //2、报文头体
+        JSONObject jsonBody = new JSONObject();
+        jsonBody.put("custNo", custNo);
+        jsonBody.put("orderId", orderId);
+        jsonBody.put("bankCardNo", cardNo);
+        jsonBody.put("idCardNo", user.getUserCertNo());
+        jsonBody.put("mobile", cardPhone);
+        jsonBody.put("name", user.getUserName());
 
-            System.out.println("上送报文" + json);
+        json.put("body", jsonBody);
 
-            String mac = signMsg(json.toJSONString(), rsaHelper); //加签，用商户端私钥进行加签
-            String respJson = sendMsg(json.toJSONString(), mac, orderId, merchant.getJinyuntongMerchantId(), rsaHelper); //接收响应报文
+        log.info("上送报文:" + json);
 
-//            String respCode = getRespCodeByRespJson(respJson, sendBindCardSmsTraceCode); //获取关键信息（如交易状态、响应码等）
-            JSONObject headByRespJson = getHeadByRespJson(respJson);
-            String respCode = headByRespJson.getString("respCode");
-            String respDesc = headByRespJson.getString("respDesc");
-            //看文档判断
-            if ("S0000000".equals(respCode)) {
-                JSONObject bodyByRespJson = getBodyByRespJson(respJson);
-                String bindOrderId = bodyByRespJson.getString("bindOrderId");
-                //缓存绑卡数据
-                JSONObject requestVo = new JSONObject();
-                requestVo.put("P4_orderId", orderId);
-                requestVo.put("P6_cardNo", cardNo);
-                requestVo.put("P7_phone", cardPhone);
-                requestVo.put("bankName", bank.getBankName());
-                requestVo.put("bankCode", bank.getCode());
-                requestVo.put("bindOrderId", bindOrderId);
-                redisMapper.set(RedisConst.user_bank_bind + user.getId(), requestVo, Constant.SMS_EXPIRATION_TIME);
-                return new ResultMessage(ResponseEnum.M2000);
-            } else {
-                ResultMessage resultMessage = new ResultMessage(ResponseEnum.M4000);
-                resultMessage.setMessage(respDesc);
-                return resultMessage;
-            }
-        } catch (Exception e) {
-            log.error("金运通绑卡发短信异常:", e);
+        String mac = signMsg(json.toJSONString(), rsaHelper); //加签，用商户端私钥进行加签
+        String respJson = sendMsg(json.toJSONString(), mac, orderId, merchant.getJinyuntongMerchantId(), rsaHelper); //接收响应报文
+        if (respJson == null) {
             return new ResultMessage(ResponseEnum.M4000);
         }
+//            String respCode = getRespCodeByRespJson(respJson, sendBindCardSmsTraceCode); //获取关键信息（如交易状态、响应码等）
+        JSONObject headByRespJson = getHeadByRespJson(respJson);
+        String respCode = headByRespJson.getString("respCode");
+        String respDesc = headByRespJson.getString("respDesc");
+        //看文档判断
+        if ("S0000000".equals(respCode)) {
+            JSONObject bodyByRespJson = getBodyByRespJson(respJson);
+            String bindOrderId = bodyByRespJson.getString("bindOrderId");
+            //缓存绑卡数据
+            JSONObject requestVo = new JSONObject();
+            requestVo.put("P4_orderId", orderId);
+            requestVo.put("P6_cardNo", cardNo);
+            requestVo.put("P7_phone", cardPhone);
+            requestVo.put("bankName", bank.getBankName());
+            requestVo.put("bankCode", bank.getCode());
+            requestVo.put("bindOrderId", bindOrderId);
+            redisMapper.set(RedisConst.user_bank_bind + user.getId(), requestVo, Constant.SMS_EXPIRATION_TIME);
+            return new ResultMessage(ResponseEnum.M2000);
+        } else {
+            return new ResultMessage(ResponseEnum.M4000.getCode(), respDesc);
+        }
+
     }
 
     /**
@@ -459,37 +461,44 @@ public class OrderJinYunTongRePayServiceImpl implements OrderJinYunTongRePayServ
      * @Date 2019/6/19 17:37
      */
     public ResultMessage bindCard(String validateCode, Long uid, String bindInfo) {
+
+        if (StringUtils.isEmpty(bindInfo)) {
+            return new ResultMessage(ResponseEnum.M4000.getCode(), "验证码失效,请重新获取");
+        }
+        Map reqMap = JSON.parseObject(bindInfo, Map.class);
+        if (MapUtils.isEmpty(reqMap)) {
+            return new ResultMessage(ResponseEnum.M4000.getCode(), "验证码失效,请重新获取");
+        }
+        Merchant merchant = merchantService.findMerchantByAlias(RequestThread.getClientAlias());
+        //获取商户信息
+        if (merchant == null || StringUtils.isEmpty(merchant.getJinyuntongMerchantId()) || StringUtils.isEmpty(merchant.getJinyuntongMerchantPrivateKey()) || StringUtils.isEmpty(merchant.getJinyuntongPublicKey())) {
+            log.error("商户金运通信息不全,clientAlias={}", RequestThread.getClientAlias());
+            return new ResultMessage(ResponseEnum.M4000, "商户信息异常");
+        }
+        RSAHelper rsaHelper = getRSAHelper(merchant.getJinyuntongMerchantId(), merchant.getJinyuntongMerchantPrivateKey(), merchant.getJinyuntongPublicKey());
+        if (rsaHelper == null) {
+            return new ResultMessage(ResponseEnum.M4000.getCode(), "商户密钥异常");
+        }
+        JSONObject json = new JSONObject();
+
+        //1、报文头
+        JSONObject jsonHead = getMsgHeadJson(bindCardTraceCode, merchant.getJinyuntongMerchantId());
+        json.put("head", jsonHead);
+        String bindOrderId = MapUtils.getString(reqMap, "bindOrderId");
+        //2、报文头体
+        JSONObject jsonBody = new JSONObject();
+        jsonBody.put("mobile", reqMap.get("P7_phone"));
+        jsonBody.put("verifyCode", validateCode);
+        jsonBody.put("bindOrderId", bindOrderId);
+        json.put("body", jsonBody);
+
+        log.info("金运通绑卡,上送报文:{}", json);
+
+        String mac = signMsg(json.toJSONString(), rsaHelper); //加签，用商户端私钥进行加签
+        if (mac == null) {
+            return new ResultMessage(ResponseEnum.M4000.getCode(), "加签异常");
+        }
         try {
-            if (StringUtils.isEmpty(bindInfo)) {
-                return new ResultMessage(ResponseEnum.M4000.getCode(), "验证码失效,请重新获取");
-            }
-            Map reqMap = JSON.parseObject(bindInfo, Map.class);
-            if (MapUtils.isEmpty(reqMap)) {
-                return new ResultMessage(ResponseEnum.M4000.getCode(), "验证码失效,请重新获取");
-            }
-            Merchant merchant = merchantService.findMerchantByAlias(RequestThread.getClientAlias());
-            //获取商户信息
-            if (merchant == null || StringUtils.isEmpty(merchant.getJinyuntongMerchantId()) || StringUtils.isEmpty(merchant.getJinyuntongMerchantPrivateKey()) || StringUtils.isEmpty(merchant.getJinyuntongPublicKey())) {
-                log.error("商户金运通信息不全,clientAlias={}", RequestThread.getClientAlias());
-                return new ResultMessage(ResponseEnum.M4000, "商户信息异常");
-            }
-            RSAHelper rsaHelper = getRSAHelper(merchant.getJinyuntongMerchantId(), merchant.getJinyuntongMerchantPrivateKey(), merchant.getJinyuntongPublicKey());
-            JSONObject json = new JSONObject();
-
-            //1、报文头
-            JSONObject jsonHead = getMsgHeadJson(bindCardTraceCode, merchant.getJinyuntongMerchantId());
-            json.put("head", jsonHead);
-            String bindOrderId = MapUtils.getString(reqMap, "bindOrderId");
-            //2、报文头体
-            JSONObject jsonBody = new JSONObject();
-            jsonBody.put("mobile", reqMap.get("P7_phone"));
-            jsonBody.put("verifyCode", validateCode);
-            jsonBody.put("bindOrderId", bindOrderId);
-            json.put("body", jsonBody);
-
-            log.info("金运通绑卡,上送报文:", json);
-
-            String mac = signMsg(json.toJSONString(), rsaHelper); //加签，用商户端私钥进行加签
             String respJson = sendMsg(json.toJSONString(), mac, bindOrderId, merchant.getJinyuntongMerchantId(), rsaHelper); //接收响应报文
 
 //            String respCode = getRespCodeByRespJson(respJson, bindCardTraceCode); //获取关键信息（如交易状态、响应码等）
@@ -515,9 +524,7 @@ public class OrderJinYunTongRePayServiceImpl implements OrderJinYunTongRePayServ
                 return new ResultMessage(ResponseEnum.M2000);
             } else {
                 log.info("金运通短信鉴权绑卡失败,uid={},bindOrderId={}", uid, bindOrderId);
-                ResultMessage resultMessage = new ResultMessage(ResponseEnum.M4000);
-                resultMessage.setMessage(respDesc);
-                return resultMessage;
+                return new ResultMessage(ResponseEnum.M4000.getCode(), respDesc);
             }
         } catch (Exception e) {
             log.error("金运通绑卡异常,e={}", e);
@@ -533,57 +540,73 @@ public class OrderJinYunTongRePayServiceImpl implements OrderJinYunTongRePayServ
      */
     @Override
     public String jinyuntongOrderRepayNotice(Map map) {
-        try {
-            String responseStr = JSON.toJSONString(map);
-            JSONObject headByRespJson = getHeadByRespJson(responseStr);
-            JSONObject bodyByRespJson = getBodyByRespJson(responseStr);
-            String tranState = bodyByRespJson.getString("tranState");
-            String repayNo = bodyByRespJson.getString("orderId");
-            OrderRepay orderRepay = orderRepayService.selectByPrimaryKey(repayNo);
-            if (orderRepay == null) {
-                log.error("还款流水为空,repayNo={}", repayNo);
-            }
-            Order order = orderService.selectByPrimaryKey(orderRepay.getOrderId());
-
-            if ("00".equals(tranState)) {
-                log.info("金运通异步回调还款成功,orderId={},repayNo={}", order.getId(), repayNo);
-                OrderRepay orderRepay1 = new OrderRepay();
-                orderRepay1.setRepayNo(repayNo);
-                orderRepay1.setRepayStatus(3);
-                orderRepay1.setUpdateTime(new Date());
-                orderRepay1.setRemark(bodyByRespJson.getString("remark"));
-                Order order1 = new Order();
-                order1.setId(orderRepay.getOrderId());
-                order1.setRealRepayTime(new Date());
-                order1.setHadRepay(bodyByRespJson.getBigDecimal("tranAmt"));
-                order1.setStatus(orderService.setRepaySuccStatusByCurrStatus(order.getStatus()));
-                orderRepayService.updateOrderRepayInfo(orderRepay1, order1);
-            } else if ("03".equals(tranState)) {
-                log.info("金运通异步回调还款成功,orderId={},repayNo={}", order.getId(), repayNo);
-                OrderRepay orderRepay1 = new OrderRepay();
-                orderRepay1.setRepayNo(repayNo);
-                orderRepay1.setRepayStatus(4);
-                orderRepay1.setRemark(bodyByRespJson.getString("remark"));
-                orderRepayService.updateByPrimaryKeySelective(orderRepay1);
-            }
-            Merchant merchant = merchantService.selectByPrimaryKey(order.getMerchant());
-            JSONObject json = new JSONObject();
-            //请求头
-            JSONObject jsonHead = getMsgHeadJson(null, merchant.getJinyuntongMerchantId());
-            jsonHead.put("tranFlowid", headByRespJson.getString("tranFlowid"));
-            jsonHead.put("respCode", "S0000000");
-            jsonHead.put("tranType", "02");
-            json.put("head", jsonHead);
-            //2、报文头体
-            JSONObject jsonBody = new JSONObject();
-            json.put("body", jsonBody);
-            RSAHelper rsaHelper = getRSAHelper(merchant.getJinyuntongMerchantId(), merchant.getJinyuntongMerchantPrivateKey(), merchant.getJinyuntongPublicKey());
-            String sign = signMsg(json.toJSONString(), rsaHelper);
-            return backRepayNotice(json.toJSONString(), sign, headByRespJson.getString("tranFlowid"), merchant.getJinyuntongMerchantId(), rsaHelper);
-        } catch (Exception e) {
-            log.error("金运通回调异常,e={},request={}", e, JSON.toJSONString(map));
-            throw new RuntimeException("金运通回调异常");
+        String merchantId = MapUtils.getString(map, "merchant_id");
+        Merchant merchantQuery = new Merchant();
+        merchantQuery.setJinyuntongMerchantId(merchantId);
+        Merchant merchant = merchantService.selectOne(merchantQuery);
+        if (merchant == null) {
+            log.error("金运通回调商户信息不存在,merchant_id={}", merchantId);
         }
+        RSAHelper rsaHelper = getRSAHelper(merchant.getJinyuntongMerchantId(), merchant.getJinyuntongMerchantPrivateKey(), merchant.getJinyuntongPublicKey());
+
+        //4、解密密钥
+        byte respKey[] = decryptKey(MapUtils.getString(map, "key_enc"), rsaHelper);
+
+        //5、解密报文
+        String respJson = decrytJson(MapUtils.getString(map, "msg_enc"), respKey);
+
+        //6、验签
+        if (!verifyMsgSign(respJson, MapUtils.getString(map, "sign"), rsaHelper)) {
+            return null;
+        }
+        JSONObject headByRespJson = getHeadByRespJson(respJson);
+        JSONObject bodyByRespJson = getBodyByRespJson(respJson);
+        String tranState = bodyByRespJson.getString("tranState");
+        String repayNo = bodyByRespJson.getString("orderId");
+        log.info("金运通打款回调,tranState={},repayNo={}", tranState, repayNo);
+        OrderRepay orderRepay = orderRepayService.selectByPrimaryKey(repayNo);
+        if (orderRepay == null) {
+            log.error("还款流水为空,repayNo={}", repayNo);
+        }
+        Order order = orderService.selectByPrimaryKey(orderRepay.getOrderId());
+        if (order == null) {
+            log.error("金运通还款回调,订单为空orderId={}", order.getId());
+        }
+        if ("00".equals(tranState)) {
+            log.info("金运通异步回调还款成功,orderId={},repayNo={}", order.getId(), repayNo);
+            OrderRepay orderRepay1 = new OrderRepay();
+            orderRepay1.setRepayNo(repayNo);
+            orderRepay1.setRepayStatus(3);
+            orderRepay1.setUpdateTime(new Date());
+            orderRepay1.setRemark(bodyByRespJson.getString("remark"));
+            Order order1 = new Order();
+            order1.setId(orderRepay.getOrderId());
+            order1.setRealRepayTime(new Date());
+            order1.setHadRepay(bodyByRespJson.getBigDecimal("tranAmt"));
+            order1.setStatus(orderService.setRepaySuccStatusByCurrStatus(order.getStatus()));
+            orderRepayService.updateOrderRepayInfo(orderRepay1, order1);
+        } else if ("03".equals(tranState)) {
+            log.info("金运通异步回调还款成功,orderId={},repayNo={}", order.getId(), repayNo);
+            OrderRepay orderRepay1 = new OrderRepay();
+            orderRepay1.setRepayNo(repayNo);
+            orderRepay1.setRepayStatus(4);
+            orderRepay1.setRemark(bodyByRespJson.getString("remark"));
+            orderRepayService.updateByPrimaryKeySelective(orderRepay1);
+        }
+
+        JSONObject json = new JSONObject();
+        //请求头
+        JSONObject jsonHead = getMsgHeadJson(null, merchant.getJinyuntongMerchantId());
+        jsonHead.put("tranFlowid", headByRespJson.getString("tranFlowid"));
+        jsonHead.put("respCode", "S0000000");
+        jsonHead.put("tranType", "02");
+        json.put("head", jsonHead);
+        //2、报文头体
+        JSONObject jsonBody = new JSONObject();
+        json.put("body", jsonBody);
+        String sign = signMsg(json.toJSONString(), rsaHelper);
+        return backRepayNotice(json.toJSONString(), sign, headByRespJson.getString("tranFlowid"), merchant.getJinyuntongMerchantId(), rsaHelper);
+
     }
 
     /**
@@ -600,8 +623,11 @@ public class OrderJinYunTongRePayServiceImpl implements OrderJinYunTongRePayServ
         }
         //查询订单信息
         Order order = orderService.selectByPrimaryKey(orderId);
+        if (order == null) {
+            return new ResultMessage(ResponseEnum.M4000.getCode(), "订单为空");
+        }
         if (!order.getUid().equals(uid)) {
-            log.info("订单异常，订单号为：{}", order.getId());
+            log.info("订单不属于登录用户，orderId={},uid={}", order.getId(), uid);
             return new ResultMessage(ResponseEnum.M4000.getCode(), "订单异常");
         }
         if (order.getStatus() >= OrderEnum.NORMAL_REPAY.getCode() || order.getStatus() < OrderEnum.REPAYING.getCode()) {
@@ -610,18 +636,25 @@ public class OrderJinYunTongRePayServiceImpl implements OrderJinYunTongRePayServ
         }
         //查询用户绑定银行卡信息
         UserBank userBank = userBankService.selectUserCurrentBankCard(uid);
+        if (userBank == null) {
+            return new ResultMessage(ResponseEnum.M4000.getCode(), "未绑卡");
+        }
         //查询商户信息
         Merchant merchant = merchantService.findMerchantByAlias(RequestThread.getClientAlias());
         if (merchant == null || StringUtils.isEmpty(merchant.getJinyuntongMerchantId()) || StringUtils.isEmpty(merchant.getJinyuntongMerchantPrivateKey()) || StringUtils.isEmpty(merchant.getJinyuntongPublicKey())) {
             log.error("商户金运通信息不全,clientAlias={}", RequestThread.getClientAlias());
-            return new ResultMessage(ResponseEnum.M4000, "商户信息异常");
+            return new ResultMessage(ResponseEnum.M4000.getCode(), "商户信息异常");
         }
         JSONObject json = new JSONObject();
         RSAHelper rsaHelper = getRSAHelper(merchant.getJinyuntongMerchantId(), merchant.getJinyuntongMerchantPrivateKey(), merchant.getJinyuntongPublicKey());
+        if (rsaHelper == null) {
+            return new ResultMessage(ResponseEnum.M4000.getCode(), "商户秘钥异常");
+        }
         String repayNo = com.mod.loan.util.StringUtil.getOrderNumber("r");// 支付流水号
         BigDecimal shouldRepay = order.getShouldRepay();
         if (shouldRepay == null) {
             log.error("订单应还金额为空,orderId={}", orderId);
+            return new ResultMessage(ResponseEnum.M4000.getCode(), "订单应还金额为空");
         }
         //1、报文头
         JSONObject jsonHead = getMsgHeadJson(orderRepayTraceCode, merchant.getJinyuntongMerchantId());
@@ -635,6 +668,9 @@ public class OrderJinYunTongRePayServiceImpl implements OrderJinYunTongRePayServ
         jsonBody.put("tranAmt", shouldRepay);
         json.put("body", jsonBody);
         String mac = signMsg(json.toJSONString(), rsaHelper); //加签，用商户端私钥进行加签
+        if (mac == null) {
+            return new ResultMessage(ResponseEnum.M4000.getCode(), "加签异常");
+        }
         String respJson = null; //接收响应报文
         // 还款记录表
         OrderRepay orderRepay = new OrderRepay();
@@ -658,11 +694,15 @@ public class OrderJinYunTongRePayServiceImpl implements OrderJinYunTongRePayServ
                 orderRepayService.insertSelective(orderRepay);
             } catch (Exception e2) {
                 log.error("金运通生成流水失败,e={}", e2);
+                return new ResultMessage(ResponseEnum.M4000.getCode(), "金运通生成流水失败");
             }
         }
         try {
             respJson = sendMsg(json.toJSONString(), mac, repayNo, merchant.getJinyuntongMerchantId(), rsaHelper);
             log.info("金运通支付返回，orderId={},respJson={}:", orderId, respJson);
+            if (respJson == null) {
+                return new ResultMessage(ResponseEnum.M4000.getCode(), "金运通生成流水失败");
+            }
         } catch (Exception e) {
             OrderRepay orderRepay1 = new OrderRepay();
             orderRepay1.setRepayNo(repayNo);
@@ -675,6 +715,9 @@ public class OrderJinYunTongRePayServiceImpl implements OrderJinYunTongRePayServ
 
         String tranState = getTranStateByRespJson(respJson, orderRepayTraceCode); //获取关键信息（如交易状态、响应码等）
         JSONObject bodyByRespJson = getBodyByRespJson(respJson);
+        if (bodyByRespJson == null) {
+            return new ResultMessage(ResponseEnum.M4000.getCode());
+        }
         //看文档判断
         if ("00".equals(tranState)) {
             OrderRepay orderRepay1 = new OrderRepay();
@@ -708,7 +751,7 @@ public class OrderJinYunTongRePayServiceImpl implements OrderJinYunTongRePayServ
             orderRepay1.setRemark(bodyByRespJson.getString("remark"));
             orderRepayService.updateByPrimaryKeySelective(orderRepay1);
             //处理中返回订单号，便于查看详情
-            return new ResultMessage(ResponseEnum.M2000.getCode(), order.getId());
+            return new ResultMessage(ResponseEnum.M2000, order.getId());
         }
     }
 
@@ -723,7 +766,7 @@ public class OrderJinYunTongRePayServiceImpl implements OrderJinYunTongRePayServ
         //根据还款流水号查询还款流水信息
         OrderRepay orderRepay = orderRepayService.selectByPrimaryKey(repayNo);
         if (null == orderRepay) {
-            log.info("根据还款流水号查询还款流水信息为空");
+            log.info("根据还款流水号查询还款流水信息为空,repayNo={}", repayNo);
             return;
         }
         //根据订单id查询订单信息
@@ -760,10 +803,14 @@ public class OrderJinYunTongRePayServiceImpl implements OrderJinYunTongRePayServ
             respJson = sendMsg(json.toJSONString(), mac, repayNo, merchant.getJinyuntongMerchantId(), rsaHelper); //接收响应报文
         } catch (Exception e) {
             log.error("金运通查询退款异常,e={}", e);
+            return;
         }
 
         String tranState = getTranStateByRespJson(respJson, queryRePayStatusTraceCode); //获取关键信息（如交易状态、响应码等）
         JSONObject bodyByRespJson = getBodyByRespJson(respJson);
+        if (bodyByRespJson == null) {
+            return;
+        }
         //看文档判断
         if ("00".equals(tranState)) {
             log.info("金运通支付成功,orderId={},repayNo={}", order.getId(), repayNo);

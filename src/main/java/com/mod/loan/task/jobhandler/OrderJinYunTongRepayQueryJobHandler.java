@@ -22,7 +22,7 @@ public class OrderJinYunTongRepayQueryJobHandler extends IJobHandler {
     }
 
     @Override
-    public ReturnT<String> execute(String s) throws Exception {
+    public ReturnT<String> execute(String s) {
         XxlJobLogger.log("XXL-JOB, OrderJinYunTongRepayQueryJobHandler.");
         orderJinYunTongRepayQueryTask.jinyuntongRepayQuery();
         return SUCCESS;

@@ -13,6 +13,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.servlet.http.HttpServletRequest;
+import java.util.HashMap;
 import java.util.Map;
 
 @CrossOrigin("*")
@@ -33,9 +35,15 @@ public class JinYunTongRepayController {
      * @Date 2019/6/20 15:04
      */
     @RequestMapping("orderRepayNotice")
-    public String jinyuntongOrderRepayNotice(@RequestBody Map map) {
-        log.info("金运通还款回调,request={}", JSON.toJSONString(map));
-        return orderJinYunTongRePayService.jinyuntongOrderRepayNotice(map);
+    public String jinyuntongOrderRepayNotice(HttpServletRequest httpServletRequest) {
+        log.info("金运通还款回调,request={}", JSON.toJSONString(httpServletRequest.getParameterMap()));
+        Map<String, String> paramMap = new HashMap<String, String>();
+        paramMap.put("merchant_id", httpServletRequest.getParameter("merchant_id"));
+        paramMap.put("msg_enc", httpServletRequest.getParameter("msg_enc"));
+        paramMap.put("key_enc", httpServletRequest.getParameter("key_enc"));
+        paramMap.put("sign", httpServletRequest.getParameter("sign"));
+        paramMap.put("mer_order_id", httpServletRequest.getParameter("mer_order_id"));
+        return orderJinYunTongRePayService.jinyuntongOrderRepayNotice(paramMap);
     }
 
     /**
@@ -52,24 +60,24 @@ public class JinYunTongRepayController {
     }
 
     /**
-     * 还款查询
+     * 还款查询,测试用
      *
      * @Author actor
      * @Date 2019/6/21 17:01
      */
-    @RequestMapping("queryRepay")
-    @LoginRequired
-    public void queryRepay(String repayNo) {
-        log.info("金运通还款查询,repayNo={}",repayNo);
-        orderJinYunTongRePayService.queryRePayStatus(repayNo);
-    }
+//    @RequestMapping("queryRepay")
+//    @LoginRequired
+//    public void queryRepay(String repayNo) {
+//        log.info("金运通还款查询,repayNo={}",repayNo);
+//        orderJinYunTongRePayService.queryRePayStatus(repayNo);
+//    }
     /**
     * 测试查询还款定时任务
     * @Author actor
     * @Date 2019/6/25 9:41
     */
-    @RequestMapping("testQuery")
-    public void testQuery(){
-        orderJinYunTongRepayQueryTask.jinyuntongRepayQuery();
-    }
+//    @RequestMapping("testQuery")
+//    public void testQuery(){
+//        orderJinYunTongRepayQueryTask.jinyuntongRepayQuery();
+//    }
 }
