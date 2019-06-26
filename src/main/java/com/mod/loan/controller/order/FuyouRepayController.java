@@ -231,8 +231,12 @@ public class FuyouRepayController {
 	@LoginRequired(check = true)
 	@RequestMapping(value = "defer_repay_fuyou")
 	public ResultMessage defer_repay_fuyou( @RequestParam(required = true) Long orderId,@RequestParam(required = true)String cardNo,
-											@RequestParam(required = true)String cardName)throws IOException {
-		ResultMessage message = null;
+											@RequestParam(required = true)String cardName) {
+		ResultMessage message;
+		// 记录所有的续期请求
+		logger.info("request defer_repay_fuyou start, orderId = {}, cardNo = {}, cardName = {}",
+				orderId, cardNo, cardName);
+		//
 		Long uid = RequestThread.getUid();
 		if(StringUtils.isBlank(cardNo)|| StringUtils.isBlank(cardName)){
 			return new ResultMessage(ResponseEnum.M4000.getCode(), "请输入正确的卡号");
@@ -253,11 +257,11 @@ public class FuyouRepayController {
 		User user = userService.selectByPrimaryKey(uid);
 		Merchant merchant = merchantService.findMerchantByAlias(RequestThread.getClientAlias());
 		//以分为单位，取整
-		Long amount = 100*(orderDefer.getDeferTotalFee()).longValue();
+		long amount = 100*(orderDefer.getDeferTotalFee()).longValue();
 		if ("dev".equals(Constant.ENVIROMENT)) {
 			amount = 100L;//以分为单位
 		}
-		Map<String,String> param = new HashMap<String, String>();
+		Map<String,String> param = new HashMap<>();
 		try {
 			String userId = uid.toString();
 			String idType = "0";
@@ -303,8 +307,8 @@ public class FuyouRepayController {
 			param.put("FUIOU_URL",Constant.FUIOU_PAY_URL);
 			message = new ResultMessage(ResponseEnum.M2000,param);
 		} catch (Exception e){
-			logger.info("富友支付异常。订单号为{}，卡号为{}，银行名称为{}",orderId,cardNo,cardName);
-			logger.error("富友支付异常",e);
+			logger.info("富友支付异常。订单号为: {}，卡号为: {}，银行名称为: {}",orderId,cardNo,cardName);
+			logger.error("富友支付异常, error = {}",e);
 			message = new ResultMessage(ResponseEnum.M4000);
 		}
 		return message;
@@ -317,7 +321,8 @@ public class FuyouRepayController {
 	 */
 	@LoginRequired(check = false)
 	@RequestMapping(value = "defer_fuyou_callback")
-	public void defer_fuyou_callback(HttpServletRequest req) throws IOException {
+	public void defer_fuyou_callback(HttpServletRequest req) {
+		//
 		String version = req.getParameter("VERSION");
 		String type = req.getParameter("TYPE");
 		String responseCode = req.getParameter("RESPONSECODE");
@@ -328,6 +333,10 @@ public class FuyouRepayController {
 		String bankCard = req.getParameter("BANKCARD");
 		String amt = req.getParameter("AMT");
 		String sign = req.getParameter("SIGN");
+		// 所有回调记录
+		logger.info("defer_fuyou_callback: responseCode = {}, responseMsg = {}, mchntCd = {}, mchntOrderId = {}, orderId = {}, bankCard = {}",
+				responseCode, responseMsg, mchntCd, mchntOrderId, orderId, bankCard);
+		//
 		OrderDefer orderDefer = deferService.selectByPayNo(mchntOrderId);
 		if (orderDefer == null) {
 			logger.error("异步通知异常,展期订单不存在：订单流水为：{}，对应富友订单号为：{}",mchntOrderId,orderId);
@@ -350,12 +359,12 @@ public class FuyouRepayController {
 			orderDefer.setPayStatus(4);
 			logger.info("富友异步通知验签失败，订单流水为：{}，对应富友订单号为：{}",mchntOrderId,orderId);
 		}
-		if (!"0000".equals(responseCode)) {
-			orderDefer.setPayStatus(4);
-			logger.info("富友异步通知支付失败，订单流水为：{}，对应富友订单号为：{}，失败信息为：{}",mchntOrderId,orderId,responseMsg);
-		}
+
 		if ("0000".equals(responseCode)) {
 			orderDefer.setPayStatus(3);
+		} else {
+			orderDefer.setPayStatus(4);
+			logger.info("富友异步通知支付失败，订单流水为：{}，对应富友订单号为：{}，失败信息为：{}", mchntOrderId, orderId, responseMsg);
 		}
 		deferService.modifyOrderDeferByPayCallback(orderDefer);
 	}
