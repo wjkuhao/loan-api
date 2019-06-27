@@ -43,9 +43,10 @@
   where u.id = i.uid and u.merchant = m.merchant_alias and u.id = b.uid
   and m.hlb_entrusted_private_key is not null
   and m.hlb_entrusted_sign_key is not null
+  and m.bind_type = 1
   and i.bindbank = 2
   and b.card_status = 1 and b.bind_type = 1 and b.foreign_id is not null
   and b.hlb_entrusted_cuid is null
-  and u.merchant = #{merchant} limit 1000
+  and u.merchant = #{merchant} order by b.uid desc limit 100
   </select>
 </mapper>

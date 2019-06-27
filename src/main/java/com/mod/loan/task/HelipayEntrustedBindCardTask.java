@@ -11,7 +11,6 @@ import com.mod.loan.util.helientrusted.vo.MerchantUserUploadResVo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -21,7 +20,6 @@ import java.util.List;
  * @Date: 2019-06-21 14:19
  * @Description:合利宝委托代付绑卡处理任务
  */
-@Profile("online")
 @Component
 public class HelipayEntrustedBindCardTask {
 
@@ -96,7 +94,7 @@ public class HelipayEntrustedBindCardTask {
     /**
      * 合利宝委托代付,merchant下所有用户批量处理
      */
-    public void bindCardMerchant(String merchantAlias) throws Exception{
+    public void bindCardMerchant(String merchantAlias) throws Exception {
         List<UserBank> bankList = userBankService.selectEntrustedBindCardList(merchantAlias);
         int count = 0;
         while (count < 10 && bankList != null && bankList.size() > 0) {
