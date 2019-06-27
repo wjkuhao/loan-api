@@ -245,24 +245,23 @@ public class FuyouRepayController {
 		if (orderDefer.getPayStatus() == 3) {
 			return new ResultMessage(ResponseEnum.M4000.getCode(), "续期订单[" + orderId + "]已支付完成,请勿重复支付");
 		}
-		orderDefer.setPayNo(StringUtil.getOrderNumber("r"));
-		deferService.updateByPrimaryKey(orderDefer);
+
 		//支付请求
 		Order order = orderService.selectByPrimaryKey(orderId);
 		User user = userService.selectByPrimaryKey(uid);
 		Merchant merchant = merchantService.findMerchantByAlias(RequestThread.getClientAlias());
+		//更新支付流水号
+		String orderSeriesId = StringUtil.getOrderNumber("r");
+		orderDefer.setPayNo(orderSeriesId);
+		deferService.updateByPrimaryKey(orderDefer);
 		//以分为单位，取整
 		Long amount = 100*(orderDefer.getDeferTotalFee()).longValue();
-		if ("dev".equals(Constant.ENVIROMENT)) {
-			amount = 100L;//以分为单位
-		}
 		Map<String,String> param = new HashMap<String, String>();
 		try {
 			String userId = uid.toString();
 			String idType = "0";
 			String type = "10";
 			StringBuffer orderPlain = new StringBuffer();
-			String orderSeriesId = StringUtil.getOrderNumber("r");// 支付流水号
 			//回调接口
 			String backUrl = Constant.SERVER_API_URL + "order/defer_fuyou_callback";
 			//支付成功跳转页面
@@ -336,9 +335,6 @@ public class FuyouRepayController {
 			logger.info("续期订单[" + orderDefer.getOrderId() + "]已支付完成,请勿重复支付");
 			return;
 		}
-		// 备注信息
-		orderDefer.setRemark(responseCode + ":" + responseMsg);
-		orderDefer.setPayType("fuyou");
 		Order order = orderService.selectByPrimaryKey(orderDefer.getOrderId());
 		Merchant merchant = merchantService.findMerchantByAlias(order.getMerchant());
 		// 校验签名
@@ -346,14 +342,19 @@ public class FuyouRepayController {
 				.append("|").append(mchntCd).append("|").append(mchntOrderId).append("|").append(orderId).append("|")
 				.append(amt).append("|").append(bankCard).append("|").append(merchant.getFuyou_h5key()).toString();
 		if (!MD5.toMD5(signPain).equals(sign)) {
-			orderDefer.setPayStatus(4);
 			logger.info("富友异步通知验签失败，订单流水为：{}，对应富友订单号为：{}",mchntOrderId,orderId);
+			return;
 		}
-		if (!"0000".equals(responseCode)) {
+		// 备注信息
+		orderDefer.setRemark(responseCode + ":" + responseMsg);
+		orderDefer.setPayType("fuyou");
+		if ("0000".equals(responseCode)){
+			orderDefer.setPayStatus(3);
+			logger.info("富友异步通知成功，订单流水为：{}，对应富友订单号为：{}",mchntOrderId,orderId);
+		}else{
 			orderDefer.setPayStatus(4);
 			logger.info("富友异步通知支付失败，订单流水为：{}，对应富友订单号为：{}，失败信息为：{}",mchntOrderId,orderId,responseMsg);
 		}
-		orderDefer.setPayStatus(3);
 		deferService.modifyOrderDeferByPayCallback(orderDefer);
 	}
 
