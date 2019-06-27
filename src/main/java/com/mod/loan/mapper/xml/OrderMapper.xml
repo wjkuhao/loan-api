@@ -23,6 +23,7 @@
     <result column="reduce_money" jdbcType="DECIMAL" property="reduceMoney" />
     <result column="status" jdbcType="INTEGER" property="status" />
     <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
     <result column="audit_time" jdbcType="TIMESTAMP" property="auditTime" />
     <result column="arrive_time" jdbcType="TIMESTAMP" property="arriveTime" />
     <result column="repay_time" jdbcType="TIMESTAMP" property="repayTime" />

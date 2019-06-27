@@ -18,6 +18,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.util.Date;
 import java.util.List;
 
 @Service("orderDeferService")
@@ -58,7 +59,7 @@ public class OrderDeferServiceImpl extends BaseServiceImpl<OrderDefer, Integer> 
             modifiedOrder.setOverdueFee(new BigDecimal(0));
             modifiedOrder.setOverdueDay(0);
             modifiedOrder.setShouldRepay(modifiedOrder.getBorrowMoney());
-
+            modifiedOrder.setUpdateTime(new Date());
             Integer status = modifiedOrder.getStatus();
             if (status.equals(OrderEnum.REPAYING.getCode())) {
                 modifiedOrder.setStatus(OrderEnum.DEFER.getCode());

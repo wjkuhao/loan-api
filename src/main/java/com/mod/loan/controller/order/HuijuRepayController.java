@@ -296,6 +296,7 @@ public class HuijuRepayController {
 			Order order1 = new Order();
 			order1.setId(orderRepay.getOrderId());
 			order1.setRealRepayTime(new Date());
+			order1.setUpdateTime(new Date());
 			order1.setHadRepay(new BigDecimal(map.get("r3_Amount")));
 			order1.setStatus(orderService.setRepaySuccStatusByCurrStatus(order.getStatus()));
 

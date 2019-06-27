@@ -107,6 +107,7 @@ public class HuichaoRepayCallBackServiceImpl implements HuichaoRepayCallBackServ
 
                     //更新order
                     order.setRealRepayTime(new Date());
+                    order.setUpdateTime(new Date());
                     order.setHadRepay(orderRepay.getRepayMoney());
                     order.setStatus(orderService.setRepaySuccStatusByCurrStatus(order.getStatus()));
                     orderRepayService.updateOrderRepayInfo(orderRepay, order);

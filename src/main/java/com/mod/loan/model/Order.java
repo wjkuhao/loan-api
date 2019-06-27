@@ -111,6 +111,12 @@ public class Order {
     @Column(name = "create_time")
     private Date createTime;
 
+   /**
+     * 更新时间
+     */
+    @Column(name = "update_time")
+    private Date updateTime;
+
     /**
      * 审核时间
      */
@@ -589,6 +595,14 @@ public class Order {
 
     public Integer getUserType() {
         return userType;
+    }
+
+    public Date getUpdateTime() {
+        return updateTime;
+    }
+
+    public void setUpdateTime(Date updateTime) {
+        this.updateTime = updateTime;
     }
 
     public void setUserType(Integer userType) {

@@ -98,6 +98,29 @@ CREATE TABLE `report_register_order`  (
   UNIQUE INDEX `idx_day_merchant`(`day_key`, `merchant`) USING BTREE
 ) ENGINE = InnoDB  CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
 
+
+-- ----------------------------
+-- Table structure for sms_config
+-- ----------------------------
+DROP TABLE IF EXISTS `sms_config`;
+CREATE TABLE `sms_config` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `sign_key` varchar(128) DEFAULT NULL COMMENT '签名',
+  `sign_id` varchar(128) DEFAULT NULL COMMENT '标记名id',
+  `sign_name` varchar(128) DEFAULT NULL COMMENT '标记名',
+  `access_key` varchar(1000) DEFAULT NULL COMMENT 'access_key',
+  `secret` varchar(1000) DEFAULT NULL COMMENT 'secret',
+  `template_key` varchar(128) DEFAULT NULL COMMENT '1001-注册,1002-忘记密码,2001-打款,2002-当天提醒,2003-提前提醒',
+  `template_id` varchar(128) DEFAULT NULL COMMENT '第三方模板key',
+  `message_platform` varchar(128) DEFAULT NULL COMMENT '短信平台',
+  `template_content` varchar(1000) DEFAULT NULL COMMENT '短信模板信息',
+  `sms_notice` varchar(128) DEFAULT NULL COMMENT '提醒信息',
+  `create_time` datetime DEFAULT NULL COMMENT '插入时间',
+  `update_time` datetime DEFAULT NULL COMMENT '更新时间',
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE=InnoDB AUTO_INCREMENT=89 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
+
+
 -- ----------------------------
 -- Table structure for tb_app_article
 -- ----------------------------
@@ -753,6 +776,7 @@ CREATE TABLE `tb_order`  (
   `reduce_money` decimal(8, 2) NOT NULL DEFAULT 0.00 COMMENT '还款减免金额',
   `status` tinyint(11) UNSIGNED NOT NULL DEFAULT 11 COMMENT '审核中10+：11-新建;12-等待复审;\r\n放款中20+；21-待放款;22-放款中(已受理);23-放款失败(可以重新放款);\r\n还款中30+；31-已放款/还款中;32-还款确认中;33-逾期;34-坏账；35-展期；36-逾期后展期；37-展期后逾期；38-展期后坏账；\r\n已结清中40+；41-正常还款;42-逾期还款;43-展期还款; \r\n订单结束50+；51-自动审核失败 ;52-复审失败;53-取消',
   `create_time` datetime(0) NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `update_time` datetime(0) NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '更新时间',
   `audit_time` datetime(0) NULL DEFAULT NULL COMMENT '审核时间',
   `arrive_time` datetime(0) NULL DEFAULT NULL COMMENT '到账时间',
   `repay_time` date NULL DEFAULT NULL COMMENT '应还日期=data(到账时间+借款期限-1)',

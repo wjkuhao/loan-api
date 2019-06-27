@@ -147,6 +147,7 @@ public class KuaiqianServiceImpl implements KuaiqianService {
 
             Order order1 = new Order();
             order1.setId(orderRepay.getOrderId());
+            order1.setUpdateTime(new Date());
             order1.setRealRepayTime(new Date());
             order1.setHadRepay(amount);
             order1.setStatus(orderService.setRepaySuccStatusByCurrStatus(order.getStatus()));
@@ -242,6 +243,7 @@ public class KuaiqianServiceImpl implements KuaiqianService {
 
             Order order1 = new Order();
             order1.setId(orderId);
+            order1.setUpdateTime(new Date());
             order1.setRealRepayTime(new Date());
             order1.setHadRepay(new BigDecimal(MapUtils.getString(respMap, "amount")));
             order1.setStatus(orderService.setRepaySuccStatusByCurrStatus(order.getStatus()));
