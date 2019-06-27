@@ -7,7 +7,7 @@ import com.mod.loan.service.HelipayEntrustedService;
 import com.mod.loan.service.MerchantService;
 import com.mod.loan.service.UserBankService;
 import com.mod.loan.service.UserService;
-import org.apache.commons.lang.StringUtils;
+import com.mod.loan.util.helientrusted.vo.MerchantUserUploadResVo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,7 +39,7 @@ public class HelipayEntrustedBindCardTask {
     /**
      * 合利宝委托代付单用户绑卡
      */
-    public void bindCard(String phone, String merchantAlias) {
+    public void bindCardByPhone(String phone, String merchantAlias) {
         User user = new User();
         user.setUserPhone(phone);
         user.setMerchant(merchantAlias);
@@ -69,26 +69,50 @@ public class HelipayEntrustedBindCardTask {
 
     /**
      * 合利宝委托代付merchant用户处理
+     * 暂时不用
      */
-    public void bindCardBatch(String merchantAlias) {
-        Merchant merchant = new Merchant();
-        merchant.setMerchantAlias(merchantAlias);
-        merchant.setBindType(1);
-        merchant = merchantService.selectOne(merchant);
-        if (merchant == null) {
-            logger.error("商户信息不存在,merchant:{}", merchantAlias);
-            return;
-        }
-        if (StringUtils.isEmpty(merchant.getHlbEntrustedSignKey()) || StringUtils.isEmpty(merchant.getHlbEntrustedPrivateKey())) {
-            logger.error("商户非合利宝委托代付方式代付,merchant:{}", merchantAlias);
-            return;
-        }
-        List<UserBank> bankList = userBankService.selectEntrustedBindFailList(merchantAlias);
-        if (bankList != null && bankList.size() > 0) {
+//    public void bindCardByOrderStatus(String merchantAlias) {
+//        Merchant merchant = new Merchant();
+//        merchant.setMerchantAlias(merchantAlias);
+//        merchant.setBindType(1);
+//        merchant = merchantService.selectOne(merchant);
+//        if (merchant == null) {
+//            logger.error("商户信息不存在,merchant:{}", merchantAlias);
+//            return;
+//        }
+//        if (StringUtils.isEmpty(merchant.getHlbEntrustedSignKey()) || StringUtils.isEmpty(merchant.getHlbEntrustedPrivateKey())) {
+//            logger.error("商户非合利宝委托代付方式代付,merchant:{}", merchantAlias);
+//            return;
+//        }
+//        List<UserBank> bankList = userBankService.selectEntrustedBindFailList(merchantAlias);
+//        if (bankList != null && bankList.size() > 0) {
+//            for (UserBank userBank : bankList) {
+//                //调用合利宝委托代付绑卡
+//                helipayEntrustedService.bindUserCard(userBank.getUid(), merchantAlias);
+//            }
+//        }
+//    }
+
+    /**
+     * 合利宝委托代付,merchant下所有用户批量处理
+     */
+    public void bindCardMerchant(String merchantAlias) throws Exception{
+        List<UserBank> bankList = userBankService.selectEntrustedBindCardList(merchantAlias);
+        int count = 0;
+        while (count < 10 && bankList != null && bankList.size() > 0) {
             for (UserBank userBank : bankList) {
                 //调用合利宝委托代付绑卡
-                helipayEntrustedService.bindUserCard(userBank.getUid(), merchantAlias);
+                MerchantUserUploadResVo resVo = helipayEntrustedService.bindUserCard(userBank.getUid(), merchantAlias);
+                if ("0000".equals(resVo.getRt2_retCode())) {
+                    logger.info("合利宝委托代付绑卡成功,uid:{},cuid:{}", userBank.getUid(), resVo.getRt6_userId());
+                } else {
+                    count++;
+                    logger.info("合利宝委托代付绑卡失败,uid:{},msg:{}", userBank.getUid(), resVo.getRt3_retMsg() + resVo.getRt8_desc());
+                }
+                Thread.sleep(100);
             }
+            bankList = userBankService.selectEntrustedBindCardList(merchantAlias);
         }
+
     }
 }

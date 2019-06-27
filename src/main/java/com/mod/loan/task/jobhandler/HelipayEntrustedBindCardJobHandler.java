@@ -39,9 +39,9 @@ public class HelipayEntrustedBindCardJobHandler extends IJobHandler {
                 return ReturnT.FAIL;
             }
             if (StringUtils.isNotEmpty(phone)) {
-                bindCardTask.bindCard(phone, merchant);
+                bindCardTask.bindCardByPhone(phone, merchant);
             } else {
-                bindCardTask.bindCardBatch(merchant);
+                bindCardTask.bindCardMerchant(merchant);
             }
         } catch (Exception e) {
             logger.error(e.getMessage());
