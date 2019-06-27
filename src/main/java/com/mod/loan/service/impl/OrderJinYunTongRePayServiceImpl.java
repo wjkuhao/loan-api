@@ -568,6 +568,7 @@ public class OrderJinYunTongRePayServiceImpl implements OrderJinYunTongRePayServ
             orderRepay1.setRemark(bodyByRespJson.getString("remark"));
             Order order1 = new Order();
             order1.setId(orderRepay.getOrderId());
+            order1.setUpdateTime(new Date());
             order1.setRealRepayTime(new Date());
             order1.setHadRepay(bodyByRespJson.getBigDecimal("tranAmt"));
             order1.setStatus(orderService.setRepaySuccStatusByCurrStatus(order.getStatus()));
@@ -707,6 +708,7 @@ public class OrderJinYunTongRePayServiceImpl implements OrderJinYunTongRePayServ
             Order order1 = new Order();
             order1.setId(orderRepay.getOrderId());
             order1.setRealRepayTime(new Date());
+            order1.setUpdateTime(new Date());
             order1.setHadRepay(shouldRepay);
             order1.setStatus(orderService.setRepaySuccStatusByCurrStatus(order.getStatus()));
             orderRepayService.updateOrderRepayInfo(orderRepay1, order1);
@@ -803,6 +805,7 @@ public class OrderJinYunTongRePayServiceImpl implements OrderJinYunTongRePayServ
             Order order1 = new Order();
             order1.setId(orderRepay.getOrderId());
             order1.setRealRepayTime(new Date());
+            order1.setUpdateTime(new Date());
             order1.setHadRepay(bodyByRespJson.getBigDecimal("tranAmount"));
             order1.setStatus(orderService.setRepaySuccStatusByCurrStatus(order.getStatus()));
             orderRepayService.updateOrderRepayInfo(orderRepay1, order1);

@@ -214,6 +214,7 @@ public class FuyouRepayController {
 		Order order1 = new Order();
 		order1.setId(orderRepay.getOrderId());
 		order1.setRealRepayTime(new Date());
+		order1.setUpdateTime(new Date());
 		order1.setHadRepay(order.getShouldRepay());
 		order1.setStatus(orderService.setRepaySuccStatusByCurrStatus(order.getStatus()));
 
@@ -225,137 +226,148 @@ public class FuyouRepayController {
 	}
 
 
-	/**
-	 * 富友展期
-	 */
-	@LoginRequired(check = true)
-	@RequestMapping(value = "defer_repay_fuyou")
-	public ResultMessage defer_repay_fuyou( @RequestParam(required = true) Long orderId,@RequestParam(required = true)String cardNo,
-											@RequestParam(required = true)String cardName)throws IOException {
-		ResultMessage message = null;
-		Long uid = RequestThread.getUid();
-		if(StringUtils.isBlank(cardNo)|| StringUtils.isBlank(cardName)){
-			return new ResultMessage(ResponseEnum.M4000.getCode(), "请输入正确的卡号");
-		}
-		//查询最近一笔展期订单
-		OrderDefer orderDefer = deferService.findLastValidByOrderId(orderId);
-		if (orderDefer == null) {
-			return new ResultMessage(ResponseEnum.M4000.getCode(), "续期订单[" + orderId + "]不存在");
-		}
-		if (orderDefer.getPayStatus() == 3) {
-			return new ResultMessage(ResponseEnum.M4000.getCode(), "续期订单[" + orderId + "]已支付完成,请勿重复支付");
-		}
+    /**
+     * 富友展期
+     */
+    @LoginRequired(check = true)
+    @RequestMapping(value = "defer_repay_fuyou")
+    public ResultMessage defer_repay_fuyou( @RequestParam(required = true) Long orderId,@RequestParam(required = true)String cardNo,
+                                            @RequestParam(required = true)String cardName) {
+        ResultMessage message;
+        // 记录所有的续期请求
+        logger.info("request defer_repay_fuyou start, orderId = {}, cardNo = {}, cardName = {}",
+                orderId, cardNo, cardName);
+        //
+        Long uid = RequestThread.getUid();
+        if(StringUtils.isBlank(cardNo)|| StringUtils.isBlank(cardName)){
+            return new ResultMessage(ResponseEnum.M4000.getCode(), "请输入正确的卡号");
+        }
+        //查询最近一笔展期订单
+        OrderDefer orderDefer = deferService.findLastValidByOrderId(orderId);
+        if (orderDefer == null) {
+            return new ResultMessage(ResponseEnum.M4000.getCode(), "续期订单[" + orderId + "]不存在");
+        }
+        if (orderDefer.getPayStatus() == 3) {
+            return new ResultMessage(ResponseEnum.M4000.getCode(), "续期订单[" + orderId + "]已支付完成,请勿重复支付");
+        }
+        String orderSeriesId = StringUtil.getOrderNumber("d");
+        orderDefer.setPayNo(orderSeriesId);
+        deferService.updateByPrimaryKey(orderDefer);
+        //支付请求
+        Order order = orderService.selectByPrimaryKey(orderId);
+        User user = userService.selectByPrimaryKey(uid);
+        Merchant merchant = merchantService.findMerchantByAlias(RequestThread.getClientAlias());
+        //以分为单位，取整
+        long amount = 100*(orderDefer.getDeferTotalFee()).longValue();
+        if ("dev".equals(Constant.ENVIROMENT)) {
+            amount = 100L;//以分为单位
+        }
+        Map<String,String> param = new HashMap<>();
+        try {
+            String userId = uid.toString();
+            String idType = "0";
+            String type = "10";
+            StringBuffer orderPlain = new StringBuffer();
+            // 支付流水号
+            //回调接口
+            String backUrl = Constant.SERVER_API_URL + "order/defer_fuyou_callback";
+            //支付成功跳转页面
+            String homeUrl = Constant.SERVER_H5_URL + "order/store_pay_return.html?orderId=" + order.getId();
+            //支付失败跳转页面（订单记录页面）
+            String returnUrl = Constant.SERVER_H5_URL + "order/store_order_history.html";
+            String signPlain = type+"|"+"2.0"+"|"+merchant.getFuyou_merid()+"|"+orderSeriesId+"|"+userId
+                    +"|"+amount+"|"+cardNo+"|"+backUrl+"|"+user.getUserName()+"|"+user.getUserCertNo()+"|"+idType+"|"+"0"+"|"
+                    + homeUrl +"|"+returnUrl+"|"+merchant.getFuyou_h5key();
+            String sign= MD5.toMD5(signPlain);
+            orderPlain.append("<ORDER>")
+                    .append("<VERSION>2.0</VERSION>")
+                    .append("<LOGOTP>0</LOGOTP>")
+                    .append("<MCHNTCD>").append(merchant.getFuyou_merid()).append("</MCHNTCD>")
+                    .append("<TYPE>").append(type).append("</TYPE>")
+                    .append("<MCHNTORDERID>").append(orderSeriesId).append("</MCHNTORDERID>")
+                    .append("<USERID>").append(userId).append("</USERID>")
+                    .append("<AMT>").append(amount).append("</AMT>")
+                    .append("<BANKCARD>").append(cardNo).append("</BANKCARD>")
+                    .append("<BACKURL>").append(backUrl).append("</BACKURL>")
+                    .append("<HOMEURL>").append(homeUrl).append("</HOMEURL>")
+                    .append("<REURL>").append(returnUrl).append("</REURL>")
+                    .append("<NAME>").append(user.getUserName()).append("</NAME>")
+                    .append("<IDTYPE>").append(idType).append("</IDTYPE>")
+                    .append("<IDNO>").append(user.getUserCertNo()).append("</IDNO>")
+                    .append("<REM1>").append(userId).append("</REM1>")
+                    .append("<REM2>").append(userId).append("</REM2>")
+                    .append("<REM3>").append(userId).append("</REM3>")
+                    .append("<SIGNTP>").append("md5").append("</SIGNTP>")
+                    .append("<SIGN>").append(sign).append("</SIGN>")
+                    .append("</ORDER>");
+            param.put("VERSION", "2.0");
+            param.put("ENCTP", "1");
+            param.put("LOGOTP", "0");
+            param.put("MCHNTCD", merchant.getFuyou_merid());
+            param.put("FM", DESCoderFUIOU.desEncrypt(orderPlain.toString(), DESCoderFUIOU.getKeyLength8(merchant.getFuyou_h5key())));
+            param.put("FUIOU_URL",Constant.FUIOU_PAY_URL);
+            message = new ResultMessage(ResponseEnum.M2000,param);
+        } catch (Exception e){
+            logger.info("富友支付异常。订单号为: {}，卡号为: {}，银行名称为: {}",orderId,cardNo,cardName);
+            logger.error("富友支付异常, error = {}",e);
+            message = new ResultMessage(ResponseEnum.M4000);
+        }
+        return message;
+    }
 
-		//支付请求
-		Order order = orderService.selectByPrimaryKey(orderId);
-		User user = userService.selectByPrimaryKey(uid);
-		Merchant merchant = merchantService.findMerchantByAlias(RequestThread.getClientAlias());
-		//更新支付流水号
-		String orderSeriesId = StringUtil.getOrderNumber("r");
-		orderDefer.setPayNo(orderSeriesId);
-		deferService.updateByPrimaryKey(orderDefer);
-		//以分为单位，取整
-		Long amount = 100*(orderDefer.getDeferTotalFee()).longValue();
-		Map<String,String> param = new HashMap<String, String>();
-		try {
-			String userId = uid.toString();
-			String idType = "0";
-			String type = "10";
-			StringBuffer orderPlain = new StringBuffer();
-			//回调接口
-			String backUrl = Constant.SERVER_API_URL + "order/defer_fuyou_callback";
-			//支付成功跳转页面
-			String homeUrl = Constant.SERVER_H5_URL + "order/store_pay_return.html?orderId=" + order.getId();
-			//支付失败跳转页面（订单记录页面）
-			String returnUrl = Constant.SERVER_H5_URL + "order/store_order_history.html";
-			String signPlain = type+"|"+"2.0"+"|"+merchant.getFuyou_merid()+"|"+orderSeriesId+"|"+userId
-					+"|"+amount+"|"+cardNo+"|"+backUrl+"|"+user.getUserName()+"|"+user.getUserCertNo()+"|"+idType+"|"+"0"+"|"
-					+ homeUrl +"|"+returnUrl+"|"+merchant.getFuyou_h5key();
-			String sign= MD5.toMD5(signPlain);
-			orderPlain.append("<ORDER>")
-					.append("<VERSION>2.0</VERSION>")
-					.append("<LOGOTP>0</LOGOTP>")
-					.append("<MCHNTCD>").append(merchant.getFuyou_merid()).append("</MCHNTCD>")
-					.append("<TYPE>").append(type).append("</TYPE>")
-					.append("<MCHNTORDERID>").append(orderSeriesId).append("</MCHNTORDERID>")
-					.append("<USERID>").append(userId).append("</USERID>")
-					.append("<AMT>").append(amount).append("</AMT>")
-					.append("<BANKCARD>").append(cardNo).append("</BANKCARD>")
-					.append("<BACKURL>").append(backUrl).append("</BACKURL>")
-					.append("<HOMEURL>").append(homeUrl).append("</HOMEURL>")
-					.append("<REURL>").append(returnUrl).append("</REURL>")
-					.append("<NAME>").append(user.getUserName()).append("</NAME>")
-					.append("<IDTYPE>").append(idType).append("</IDTYPE>")
-					.append("<IDNO>").append(user.getUserCertNo()).append("</IDNO>")
-					.append("<REM1>").append(userId).append("</REM1>")
-					.append("<REM2>").append(userId).append("</REM2>")
-					.append("<REM3>").append(userId).append("</REM3>")
-					.append("<SIGNTP>").append("md5").append("</SIGNTP>")
-					.append("<SIGN>").append(sign).append("</SIGN>")
-					.append("</ORDER>");
-			param.put("VERSION", "2.0");
-			param.put("ENCTP", "1");
-			param.put("LOGOTP", "0");
-			param.put("MCHNTCD", merchant.getFuyou_merid());
-			param.put("FM", DESCoderFUIOU.desEncrypt(orderPlain.toString(), DESCoderFUIOU.getKeyLength8(merchant.getFuyou_h5key())));
-			param.put("FUIOU_URL",Constant.FUIOU_PAY_URL);
-			message = new ResultMessage(ResponseEnum.M2000,param);
-		} catch (Exception e){
-			logger.info("富友支付异常。订单号为{}，卡号为{}，银行名称为{}",orderId,cardNo,cardName);
-			logger.error("富友支付异常",e);
-			message = new ResultMessage(ResponseEnum.M4000);
-		}
-		return message;
-	}
+    /**
+     * 展期异步通知
+     * 回调的结果以http返回码是否是200来判断，
+     * 返回不是200，多次回调。最多10次，前3次每2分钟发，后几次每整点/半点发。
+     */
+    @LoginRequired(check = false)
+    @RequestMapping(value = "defer_fuyou_callback")
+    public void defer_fuyou_callback(HttpServletRequest req) {
+        //
+        String version = req.getParameter("VERSION");
+        String type = req.getParameter("TYPE");
+        String responseCode = req.getParameter("RESPONSECODE");
+        String responseMsg = req.getParameter("RESPONSEMSG");
+        String mchntCd = req.getParameter("MCHNTCD");
+        String mchntOrderId = req.getParameter("MCHNTORDERID");
+        String orderId = req.getParameter("ORDERID");////富友订单号
+        String bankCard = req.getParameter("BANKCARD");
+        String amt = req.getParameter("AMT");
+        String sign = req.getParameter("SIGN");
+        // 所有回调记录
+        logger.info("defer_fuyou_callback: responseCode = {}, responseMsg = {}, mchntCd = {}, mchntOrderId = {}, orderId = {}, bankCard = {}",
+                responseCode, responseMsg, mchntCd, mchntOrderId, orderId, bankCard);
+        //
+        OrderDefer orderDefer = deferService.selectByPayNo(mchntOrderId);
+        if (orderDefer == null) {
+            logger.error("异步通知异常,展期订单不存在：订单流水为：{}，对应富友订单号为：{}",mchntOrderId,orderId);
+            return;
+        }
+        if (orderDefer.getPayStatus() == 3) {
+            logger.info("续期订单[" + orderDefer.getOrderId() + "]已支付完成,请勿重复支付");
+            return;
+        }
+        // 备注信息
+        orderDefer.setRemark(responseCode + ":" + responseMsg);
+        orderDefer.setPayType("fuyou");
+        Order order = orderService.selectByPrimaryKey(orderDefer.getOrderId());
+        Merchant merchant = merchantService.findMerchantByAlias(order.getMerchant());
+        // 校验签名
+        String signPain = new StringBuffer().append(type).append("|").append(version).append("|").append(responseCode)
+                .append("|").append(mchntCd).append("|").append(mchntOrderId).append("|").append(orderId).append("|")
+                .append(amt).append("|").append(bankCard).append("|").append(merchant.getFuyou_h5key()).toString();
+        if (!MD5.toMD5(signPain).equals(sign)) {
+            orderDefer.setPayStatus(4);
+            logger.info("富友异步通知验签失败，订单流水为：{}，对应富友订单号为：{}",mchntOrderId,orderId);
+        }
 
-	/**
-	 * 展期异步通知
-	 * 回调的结果以http返回码是否是200来判断，
-	 * 返回不是200，多次回调。最多10次，前3次每2分钟发，后几次每整点/半点发。
-	 */
-	@LoginRequired(check = false)
-	@RequestMapping(value = "defer_fuyou_callback")
-	public void defer_fuyou_callback(HttpServletRequest req) throws IOException {
-		String version = req.getParameter("VERSION");
-		String type = req.getParameter("TYPE");
-		String responseCode = req.getParameter("RESPONSECODE");
-		String responseMsg = req.getParameter("RESPONSEMSG");
-		String mchntCd = req.getParameter("MCHNTCD");
-		String mchntOrderId = req.getParameter("MCHNTORDERID");
-		String orderId = req.getParameter("ORDERID");////富友订单号
-		String bankCard = req.getParameter("BANKCARD");
-		String amt = req.getParameter("AMT");
-		String sign = req.getParameter("SIGN");
-		OrderDefer orderDefer = deferService.selectByPayNo(mchntOrderId);
-		if (orderDefer == null) {
-			logger.error("异步通知异常,展期订单不存在：订单流水为：{}，对应富友订单号为：{}",mchntOrderId,orderId);
-			return;
-		}
-		if (orderDefer.getPayStatus() == 3) {
-			logger.info("续期订单[" + orderDefer.getOrderId() + "]已支付完成,请勿重复支付");
-			return;
-		}
-		Order order = orderService.selectByPrimaryKey(orderDefer.getOrderId());
-		Merchant merchant = merchantService.findMerchantByAlias(order.getMerchant());
-		// 校验签名
-		String signPain = new StringBuffer().append(type).append("|").append(version).append("|").append(responseCode)
-				.append("|").append(mchntCd).append("|").append(mchntOrderId).append("|").append(orderId).append("|")
-				.append(amt).append("|").append(bankCard).append("|").append(merchant.getFuyou_h5key()).toString();
-		if (!MD5.toMD5(signPain).equals(sign)) {
-			logger.info("富友异步通知验签失败，订单流水为：{}，对应富友订单号为：{}",mchntOrderId,orderId);
-			return;
-		}
-		// 备注信息
-		orderDefer.setRemark(responseCode + ":" + responseMsg);
-		orderDefer.setPayType("fuyou");
-		if ("0000".equals(responseCode)){
-			orderDefer.setPayStatus(3);
-			logger.info("富友异步通知成功，订单流水为：{}，对应富友订单号为：{}",mchntOrderId,orderId);
-		}else{
-			orderDefer.setPayStatus(4);
-			logger.info("富友异步通知支付失败，订单流水为：{}，对应富友订单号为：{}，失败信息为：{}",mchntOrderId,orderId,responseMsg);
-		}
-		deferService.modifyOrderDeferByPayCallback(orderDefer);
-	}
+        if ("0000".equals(responseCode)) {
+            orderDefer.setPayStatus(3);
+        } else {
+            orderDefer.setPayStatus(4);
+            logger.info("富友异步通知支付失败，订单流水为：{}，对应富友订单号为：{}，失败信息为：{}", mchntOrderId, orderId, responseMsg);
+        }
+        deferService.modifyOrderDeferByPayCallback(orderDefer);
+    }
 
 }

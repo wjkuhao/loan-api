@@ -207,6 +207,7 @@ public class HelipayRepayServiceImpl implements HelipayRepayService {
             Order order1 = new Order();
             order1.setId(orderRepay.getOrderId());
             order1.setRealRepayTime(new Date());
+            order1.setUpdateTime(new Date());
             order1.setHadRepay(order.getShouldRepay());
             order1.setStatus(orderService.setRepaySuccStatusByCurrStatus(order.getStatus()));
             OrderRepay orderRepay1 = new OrderRepay();

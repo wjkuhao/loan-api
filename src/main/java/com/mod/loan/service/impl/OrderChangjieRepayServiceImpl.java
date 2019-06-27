@@ -211,6 +211,7 @@ public class OrderChangjieRepayServiceImpl extends BaseServiceImpl<OrderRepay, S
                 }
 
                 order.setRealRepayTime(new Date());
+                order.setUpdateTime(new Date());
                 order.setHadRepay(new BigDecimal(amount));
                 order.setStatus(orderService.setRepaySuccStatusByCurrStatus(order.getStatus()));
                 orderMapper.updateByPrimaryKeySelective(order);

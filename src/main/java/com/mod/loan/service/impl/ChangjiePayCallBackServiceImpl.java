@@ -116,6 +116,7 @@ public class ChangjiePayCallBackServiceImpl implements ChangjiePayCallBackServic
             //更新订单状态和放款流水状态
             Order order1 = new Order();
             order1.setId(order.getId());
+            order1.setUpdateTime(new Date());
 
             OrderPay orderPay1 = new OrderPay();
             orderPay1.setPayNo(outerTradeNo);
