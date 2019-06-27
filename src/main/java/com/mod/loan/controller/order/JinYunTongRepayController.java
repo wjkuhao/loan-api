@@ -65,12 +65,12 @@ public class JinYunTongRepayController {
      * @Author actor
      * @Date 2019/6/21 17:01
      */
-//    @RequestMapping("queryRepay")
-//    @LoginRequired
-//    public void queryRepay(String repayNo) {
-//        log.info("金运通还款查询,repayNo={}",repayNo);
-//        orderJinYunTongRePayService.queryRePayStatus(repayNo);
-//    }
+    @RequestMapping("queryRepay")
+    @LoginRequired
+    public void queryRepay(String repayNo) {
+        log.info("金运通还款查询,repayNo={}",repayNo);
+        orderJinYunTongRePayService.queryRePayStatus(repayNo);
+    }
     /**
     * 测试查询还款定时任务
     * @Author actor
