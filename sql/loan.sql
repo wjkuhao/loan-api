@@ -98,6 +98,29 @@ CREATE TABLE `report_register_order`  (
   UNIQUE INDEX `idx_day_merchant`(`day_key`, `merchant`) USING BTREE
 ) ENGINE = InnoDB  CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
 
+
+-- ----------------------------
+-- Table structure for sms_config
+-- ----------------------------
+DROP TABLE IF EXISTS `sms_config`;
+CREATE TABLE `sms_config` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `sign_key` varchar(128) DEFAULT NULL COMMENT '签名',
+  `sign_id` varchar(128) DEFAULT NULL COMMENT '标记名id',
+  `sign_name` varchar(128) DEFAULT NULL COMMENT '标记名',
+  `access_key` varchar(1000) DEFAULT NULL COMMENT 'access_key',
+  `secret` varchar(1000) DEFAULT NULL COMMENT 'secret',
+  `template_key` varchar(128) DEFAULT NULL COMMENT '1001-注册,1002-忘记密码,2001-打款,2002-当天提醒,2003-提前提醒',
+  `template_id` varchar(128) DEFAULT NULL COMMENT '第三方模板key',
+  `message_platform` varchar(128) DEFAULT NULL COMMENT '短信平台',
+  `template_content` varchar(1000) DEFAULT NULL COMMENT '短信模板信息',
+  `sms_notice` varchar(128) DEFAULT NULL COMMENT '提醒信息',
+  `create_time` datetime DEFAULT NULL COMMENT '插入时间',
+  `update_time` datetime DEFAULT NULL COMMENT '更新时间',
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE=InnoDB AUTO_INCREMENT=89 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
+
+
 -- ----------------------------
 -- Table structure for tb_app_article
 -- ----------------------------
@@ -1210,6 +1233,8 @@ CREATE TABLE `tb_tongdun_mobile`  (
   `create_time` datetime DEFAULT CURRENT_TIMESTAMP,
   `update_time` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `tag` tinyint(4) DEFAULT '0' COMMENT '0-未抓取数据，1-已抓取数据',
+  `mobile_upload_status` tinyint(4) DEFAULT '0' COMMENT '0-运营商数据未上传OSS，1-运营商数据已上传OSS',
+  `mofang_upload_status` tinyint(4) DEFAULT '0' COMMENT '0-魔方报告未上传到OSS，1-魔方报告已上传到OSS',
   PRIMARY KEY (`uid`),
   UNIQUE KEY `idx_task_id` (`task_id`) USING BTREE,
   KEY `idx_uid` (`uid`) USING BTREE

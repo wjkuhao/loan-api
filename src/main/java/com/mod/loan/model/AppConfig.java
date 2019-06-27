@@ -20,6 +20,13 @@ public class AppConfig {
     @Column(name = "youdun_callback_url")
     private String youDunCallbackUrl;
 
+
+    @Column(name = "youdun_key")
+    private String youDunKey;
+
+    @Column(name = "tongdun_url")
+    private String tongdunUrl;
+
     @Column(name = "operators_url")
     private String operatorsUrl;
 
@@ -105,5 +112,21 @@ public class AppConfig {
 
     public void setUpdateTime(Date updateTime) {
         this.updateTime = updateTime;
+    }
+
+    public String getYouDunKey() {
+        return youDunKey;
+    }
+
+    public void setYouDunKey(String youDunKey) {
+        this.youDunKey = youDunKey;
+    }
+
+    public String getTongdunUrl() {
+        return tongdunUrl;
+    }
+
+    public void setTongdunUrl(String tongdunUrl) {
+        this.tongdunUrl = tongdunUrl;
     }
 }
