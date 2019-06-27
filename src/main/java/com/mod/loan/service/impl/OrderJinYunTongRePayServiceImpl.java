@@ -296,7 +296,7 @@ public class OrderJinYunTongRePayServiceImpl implements OrderJinYunTongRePayServ
             JSONObject jsonHead = json.getJSONObject("head");
             String respCode = jsonHead.getString("respCode");
             String respDesc = jsonHead.getString("respDesc");
-            System.out.println(respCode + " | " + respDesc);
+            log.info("respCode={},respDesc={}" ,respCode ,respDesc );
 
             JSONObject jsonBody = json.getJSONObject("body");
             if (jsonBody.isEmpty() || jsonBody == null) {
@@ -325,7 +325,7 @@ public class OrderJinYunTongRePayServiceImpl implements OrderJinYunTongRePayServ
             JSONObject jsonHead = json.getJSONObject("head");
             String respCode = jsonHead.getString("respCode");
             String respDesc = jsonHead.getString("respDesc");
-            System.out.println(respCode + " | " + respDesc);
+            log.info("respCode={},respDesc={}",respCode,respDesc );
             return respCode;
         } catch (Exception e) {
             log.error("解析异常,e={}", e);
@@ -473,7 +473,7 @@ public class OrderJinYunTongRePayServiceImpl implements OrderJinYunTongRePayServ
         //获取商户信息
         if (merchant == null || StringUtils.isEmpty(merchant.getJinyuntongMerchantId()) || StringUtils.isEmpty(merchant.getJinyuntongMerchantPrivateKey()) || StringUtils.isEmpty(merchant.getJinyuntongPublicKey())) {
             log.error("商户金运通信息不全,clientAlias={}", RequestThread.getClientAlias());
-            return new ResultMessage(ResponseEnum.M4000, "商户信息异常");
+            return new ResultMessage(ResponseEnum.M4000.getCode(), "商户信息异常");
         }
         RSAHelper rsaHelper = getRSAHelper(merchant.getJinyuntongMerchantId(), merchant.getJinyuntongMerchantPrivateKey(), merchant.getJinyuntongPublicKey());
         if (rsaHelper == null) {
@@ -504,12 +504,12 @@ public class OrderJinYunTongRePayServiceImpl implements OrderJinYunTongRePayServ
 //            String respCode = getRespCodeByRespJson(respJson, bindCardTraceCode); //获取关键信息（如交易状态、响应码等）
             JSONObject respJsonHead = getRespJsonHeadByRespJson(respJson, bindCardTraceCode);
             String respCode = respJsonHead.getString("respCode");
-            String respDesc = jsonHead.getString("respDesc");
+            String respDesc = respJsonHead.getString("respDesc");
 
             log.info("金运通绑卡订单号bindOrderId={},返回={}", bindOrderId, respJson);
             //看文档判断
             if ("S0000000".equals(respCode)) {
-                System.out.println("短信鉴权绑卡成功");
+                log.info("金运通短信鉴权绑卡成功");
                 UserBank userBank = new UserBank();
                 userBank.setCardCode(MapUtils.getString(reqMap, "bankCode"));
                 userBank.setCardName(MapUtils.getString(reqMap, "bankName"));
