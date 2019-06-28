@@ -46,7 +46,8 @@
   and m.bind_type = 1
   and i.bindbank = 2
   and b.card_status = 1 and b.bind_type = 1 and b.foreign_id is not null
-  and b.hlb_entrusted_cuid is null
-  and u.merchant = #{merchant} order by b.uid desc limit 100
+  and b.hlb_entrusted_cuid is null and u.merchant = #{merchant}
+  and b.create_time &lt;= #{createDate}
+  order by b.uid desc limit 500
   </select>
 </mapper>

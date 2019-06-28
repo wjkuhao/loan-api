@@ -83,5 +83,5 @@ public interface UserBankService extends BaseService<UserBank,Long> {
     /**
      * 查询合利宝委托代付未绑卡的用户银行卡列表
      * */
-    List<UserBank> selectEntrustedBindCardList(String merchant);
+    List<UserBank> selectEntrustedBindCardList(String merchant, String createDate);
 }

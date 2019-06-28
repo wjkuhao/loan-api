@@ -10,10 +10,8 @@ import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
-@Profile("online")
 @JobHandler(value = "HelipayEntrustedBindCardJobHandler")
 @Component
 public class HelipayEntrustedBindCardJobHandler extends IJobHandler {
@@ -35,13 +33,14 @@ public class HelipayEntrustedBindCardJobHandler extends IJobHandler {
             JSONObject data = JSONObject.parseObject(params);
             String phone = data.getString("phone");
             String merchant = data.getString("merchant");
+            String createDate = data.getString("createDate");
             if (StringUtils.isEmpty(merchant)) {
                 return ReturnT.FAIL;
             }
             if (StringUtils.isNotEmpty(phone)) {
                 bindCardTask.bindCardByPhone(phone, merchant);
             } else {
-                bindCardTask.bindCardMerchant(merchant);
+                bindCardTask.bindCardMerchant(merchant, createDate);
             }
         } catch (Exception e) {
             logger.error(e.getMessage());

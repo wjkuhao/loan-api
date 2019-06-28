@@ -33,9 +33,9 @@ public class HelipayTestController {
     }
 
     @RequestMapping(value = "helipayEntrustedBindCardBatch")
-    public ResultMessage helipayEntrustedBindCardBatch(String merchant) {
+    public ResultMessage helipayEntrustedBindCardBatch(String merchant, String createDate) {
         try {
-            bindCardTask.bindCardMerchant(merchant);
+            bindCardTask.bindCardMerchant(merchant, createDate);
         } catch (Exception e) {
             logger.error("helipayEntrustedBindCardBatch error", e);
         }

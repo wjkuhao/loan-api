@@ -750,7 +750,7 @@ public class UserBankServiceImpl extends BaseServiceImpl<UserBank, Long> impleme
      * 查询合利宝委托代付未绑卡的用户银行卡列表
      * */
     @Override
-    public List<UserBank> selectEntrustedBindCardList(String merchant){
-        return userBankMapper.selectEntrustedBindCardList(merchant);
+    public List<UserBank> selectEntrustedBindCardList(String merchant, String createDate){
+        return userBankMapper.selectEntrustedBindCardList(merchant, createDate);
     }
 }

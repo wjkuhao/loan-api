@@ -7,7 +7,9 @@ import com.mod.loan.service.HelipayEntrustedService;
 import com.mod.loan.service.MerchantService;
 import com.mod.loan.service.UserBankService;
 import com.mod.loan.service.UserService;
+import com.mod.loan.util.TimeUtils;
 import com.mod.loan.util.helientrusted.vo.MerchantUserUploadResVo;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -94,10 +96,15 @@ public class HelipayEntrustedBindCardTask {
     /**
      * 合利宝委托代付,merchant下所有用户批量处理
      */
-    public void bindCardMerchant(String merchantAlias) throws Exception {
-        List<UserBank> bankList = userBankService.selectEntrustedBindCardList(merchantAlias);
+    public void bindCardMerchant(String merchantAlias, String createDate) throws Exception {
+        if (StringUtils.isEmpty(createDate)) {
+            createDate = TimeUtils.getTime();
+        }
+        logger.info("bindCardMerchant merchant:{}, createDate:{}", merchantAlias, createDate);
+        List<UserBank> bankList = userBankService.selectEntrustedBindCardList(merchantAlias, createDate);
         int count = 0;
         while (count < 10 && bankList != null && bankList.size() > 0) {
+            logger.info("bindCardMerchant selectEntrustedBindCardList size:{}", bankList.size());
             for (UserBank userBank : bankList) {
                 //调用合利宝委托代付绑卡
                 MerchantUserUploadResVo resVo = helipayEntrustedService.bindUserCard(userBank.getUid(), merchantAlias);
@@ -107,9 +114,9 @@ public class HelipayEntrustedBindCardTask {
                     count++;
                     logger.info("合利宝委托代付绑卡失败,uid:{},msg:{}", userBank.getUid(), resVo.getRt3_retMsg() + resVo.getRt8_desc());
                 }
-                Thread.sleep(100);
+                Thread.sleep(200);
             }
-            bankList = userBankService.selectEntrustedBindCardList(merchantAlias);
+            bankList = userBankService.selectEntrustedBindCardList(merchantAlias, createDate);
         }
 
     }
