@@ -7,4 +7,5 @@ import com.mod.loan.model.UserInfo;
 
 public interface AppConfigService extends BaseService<AppConfig, Integer> {
 
+    AppConfig selectByClientAlias(String clientAlias);
 }
