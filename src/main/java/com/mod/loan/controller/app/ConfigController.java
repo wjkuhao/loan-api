@@ -1,12 +1,13 @@
 package com.mod.loan.controller.app;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import com.mod.loan.common.annotation.LoginRequired;
+import com.mod.loan.mapper.OrderMapper;
 import com.mod.loan.model.*;
-import com.mod.loan.service.AppConfigService;
-import com.mod.loan.service.UserService;
+import com.mod.loan.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -16,8 +17,6 @@ import com.mod.loan.common.annotation.Api;
 import com.mod.loan.common.enums.ResponseEnum;
 import com.mod.loan.common.model.RequestThread;
 import com.mod.loan.common.model.ResultMessage;
-import com.mod.loan.service.AppService;
-import com.mod.loan.service.MerchantService;
 
 @CrossOrigin("*")
 @RestController
@@ -28,7 +27,9 @@ public class ConfigController {
 	@Autowired
 	private MerchantService merchantService;
 	@Autowired
-	private AppConfigService AppConfigService;
+	private AppConfigService appConfigService;
+
+
 
 	/**
 	 * 启动页，首页图片弹窗
@@ -88,14 +89,10 @@ public class ConfigController {
 	/**
 	 * app信息查询
 	 */
-	@Api
-	@LoginRequired()
 	@RequestMapping(value = "/appConfig")
-	public ResultMessage getAppConfig() {
-		String clientAlias = RequestThread.getClientAlias();
-		AppConfig appConfig = new AppConfig();
-		appConfig.setMerchant(clientAlias);
-		AppConfig appConfigNew = AppConfigService.selectOne(appConfig);
+	public ResultMessage getAppConfig(String clientAlias) {
+        AppConfig appConfigNew = appConfigService.selectByClientAlias(clientAlias);
 		return new ResultMessage(ResponseEnum.M2000, appConfigNew);
 	}
+
 }

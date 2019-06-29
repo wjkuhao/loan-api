@@ -1,6 +1,8 @@
 package com.mod.loan.service.impl;
 
 import com.mod.loan.common.mapper.BaseServiceImpl;
+import com.mod.loan.mapper.AppArticleMapper;
+import com.mod.loan.mapper.AppConfigMapper;
 import com.mod.loan.mapper.MerchantConfigMapper;
 import com.mod.loan.model.AppConfig;
 import com.mod.loan.model.MerchantConfig;
@@ -18,4 +20,10 @@ public class AppConfigServiceImpl extends BaseServiceImpl<AppConfig, Integer> im
 
     private static Logger logger = LoggerFactory.getLogger(AppConfigServiceImpl.class);
 
+    @Autowired
+    private AppConfigMapper appConfigMapper;
+    @Override
+    public AppConfig selectByClientAlias(String clientAlias) {
+        return appConfigMapper.selectByClientAlias(clientAlias);
+    }
 }

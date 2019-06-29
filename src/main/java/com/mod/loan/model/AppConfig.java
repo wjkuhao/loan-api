@@ -14,12 +14,17 @@ public class AppConfig {
     @Column(name = "merchant")
     private String merchant;
 
+    @Column(name = "channel_id")
+    private Integer channelId;
+
     @Column(name = "h5_url")
     private String h5Url;
 
+    @Column(name = "api_url")
+    private String apiUrl;
+
     @Column(name = "youdun_callback_url")
     private String youDunCallbackUrl;
-
 
     @Column(name = "youdun_key")
     private String youDunKey;
@@ -35,6 +40,9 @@ public class AppConfig {
 
     @Column(name = "service_url")
     private String serviceUrl;
+
+    @Column(name = "callback")
+    private String callback;
 
     @Column(name = "create_time")
     private Date createTime;
@@ -128,5 +136,29 @@ public class AppConfig {
 
     public void setTongdunUrl(String tongdunUrl) {
         this.tongdunUrl = tongdunUrl;
+    }
+
+    public Integer getChannelId() {
+        return channelId;
+    }
+
+    public void setChannelId(Integer channelId) {
+        this.channelId = channelId;
+    }
+
+    public String getApiUrl() {
+        return apiUrl;
+    }
+
+    public void setApiUrl(String apiUrl) {
+        this.apiUrl = apiUrl;
+    }
+
+    public String getCallback() {
+        return callback;
+    }
+
+    public void setCallback(String callback) {
+        this.callback = callback;
     }
 }

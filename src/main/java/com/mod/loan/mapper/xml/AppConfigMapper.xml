@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mod.loan.mapper.AppConfigMapper">
+  <resultMap id="BaseResultMap" type="com.mod.loan.model.AppConfig">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="merchant" jdbcType="VARCHAR" property="merchant" />
+    <result column="channel_id" jdbcType="INTEGER" property="channelId" />
+    <result column="h5_url" jdbcType="VARCHAR" property="h5Url" />
+    <result column="api_url" jdbcType="VARCHAR" property="apiUrl" />
+    <result column="youdun_callback_url" jdbcType="VARCHAR" property="youDunCallbackUrl" />
+    <result column="youdun_key" jdbcType="VARCHAR" property="youDunKey" />
+    <result column="tongdun_url" jdbcType="VARCHAR" property="tongdunUrl" />
+    <result column="operators_url" jdbcType="VARCHAR" property="operatorsUrl" />
+    <result column="taobao_url" jdbcType="VARCHAR" property="taoBaoUrl" />
+    <result column="service_url" jdbcType="VARCHAR" property="serviceUrl" />
+    <result column="callback" jdbcType="VARCHAR" property="callback" />
+    <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+  </resultMap>
+
+  <select id="selectByClientAlias"  resultMap="BaseResultMap">
+    select * from tb_app_config where merchant=#{merchant}
+  </select>
+</mapper>

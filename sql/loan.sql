@@ -120,6 +120,29 @@ CREATE TABLE `sms_config` (
   PRIMARY KEY (`id`) USING BTREE
 ) ENGINE=InnoDB AUTO_INCREMENT=89 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
 
+-- ----------------------------
+-- Table structure for tb_app_config
+-- ----------------------------
+DROP TABLE IF EXISTS `tb_app_config`;
+CREATE TABLE `tb_app_config` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `merchant` varchar(50) DEFAULT NULL COMMENT '商户名称',
+  `channel_id` bigint(20) DEFAULT NULL COMMENT '渠道号',
+  `h5_url` varchar(255) DEFAULT NULL COMMENT 'h5地址',
+  `api_url` varchar(255) DEFAULT NULL COMMENT 'api地址',
+  `youdun_callback_url` varchar(255) DEFAULT NULL COMMENT '有盾回调地址',
+  `youdun_key` varchar(255) DEFAULT NULL COMMENT '有盾key',
+  `tongdun_url` varchar(255) DEFAULT NULL COMMENT '同盾调转地址',
+  `operators_url` varchar(255) DEFAULT NULL COMMENT '运营商跳转链接',
+  `taobao_url` varchar(255) DEFAULT NULL COMMENT '淘宝的跳转链接',
+  `service_url` varchar(255) DEFAULT NULL COMMENT '在线客服链接',
+  `callback` varchar(255) DEFAULT NULL,
+  `create_time` datetime DEFAULT NULL COMMENT '插入时间',
+  `update_time` datetime DEFAULT NULL COMMENT '更新时间',
+  PRIMARY KEY (`id`) USING BTREE,
+  UNIQUE KEY `idx_merchant` (`merchant`) USING BTREE
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
+
 
 -- ----------------------------
 -- Table structure for tb_app_article
