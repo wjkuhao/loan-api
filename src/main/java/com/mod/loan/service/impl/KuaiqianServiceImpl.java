@@ -86,11 +86,11 @@ public class KuaiqianServiceImpl implements KuaiqianService {
         String entryTime = TimeUtils.parseTime(new Date(), TimeUtils.dateformat5);
         //支付协议号
         String payToken = userBank.getForeignId();
-        // 支付流水号
+        //支付流水号
         String repayNo = StringUtil.getOrderNumber("r");
         //还款金额
         BigDecimal amount = order.getShouldRepay();
-        // 还款记录表
+        //还款记录表
         OrderRepay orderRepay = orderRepayService.selectByPrimaryKey(repayNo);
         if (orderRepay == null) {
             orderRepay = new OrderRepay();
@@ -132,6 +132,7 @@ public class KuaiqianServiceImpl implements KuaiqianService {
                     .append("</TxnMsgContent>")
                     .append("</MasMessage>");
             respMap = KuaiqianPost.sendPost(merchant.getKqCertPath(), merchant.getKqCertPwd(), merchantId, Constant.KUAIQIAN_PAY_URL, orderPlain.toString(), transInfo);
+            logger.info("#[快钱协议返回结果]-respMap={}", JSONObject.toJSON(respMap));
         } catch (Exception e) {
             logger.info("快钱支付异常。订单号为{}，卡号为{}，银行名称为{}", orderId, userBank.getCardNo(), userBank.getCardName());
             logger.error("快钱支付异常", e);
@@ -228,6 +229,7 @@ public class KuaiqianServiceImpl implements KuaiqianService {
                     .append("</QryTxnMsgContent>")
                     .append("</MasMessage>");
             respMap = KuaiqianPost.sendPost(merchant.getKqCertPath(), merchant.getKqCertPwd(), merchantId, Constant.KUAIQIAN_PAY_QUERY_URL, orderPlain.toString(), transInfo);
+            logger.info("#[查询快钱协议支付返回结果]-respMap={}", JSONObject.toJSON(respMap));
         } catch (Exception e) {
             logger.info("查询快钱还款订单异常。订单号为{}", orderId);
             logger.error("查询快钱还款订单异常", e);
@@ -298,6 +300,7 @@ public class KuaiqianServiceImpl implements KuaiqianService {
                     .append("</QryTxnMsgContent>")
                     .append("</MasMessage>");
             respMap = KuaiqianPost.sendPost(merchant.getKqCertPath(), merchant.getKqCertPwd(), merchantId, Constant.KUAIQIAN_PAY_QUERY_URL, orderPlain.toString(), transInfo);
+            logger.info("#[查询快钱协议支付返回结果]-respMap={}", JSONObject.toJSON(respMap));
         } catch (Exception e) {
             logger.info("查询快钱还款订单异常。订单号为{}", orderId);
             logger.error("查询快钱还款订单异常", e);
