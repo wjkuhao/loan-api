@@ -173,6 +173,12 @@ public class Merchant {
     @Column(name = "jinyuntong_merchant_private_key")
     private String jinyuntongMerchantPrivateKey ;
 
+    /**
+     *  是否需要放款，0：不需要，1：需要
+     */
+    @Column(name = "user_pay_confirm")
+    private Integer userPayConfirm;
+
 
     public String getJinyuntongMerchantId() {
         return jinyuntongMerchantId;
@@ -537,5 +543,13 @@ public class Merchant {
 
     public void setHuichaoMerchantPayPrivateKey(String huichaoMerchantPayPrivateKey) {
         this.huichaoMerchantPayPrivateKey = huichaoMerchantPayPrivateKey;
+    }
+
+    public Integer getUserPayConfirm() {
+        return userPayConfirm;
+    }
+
+    public void setUserPayConfirm(Integer userPayConfirm) {
+        this.userPayConfirm = userPayConfirm;
     }
 }

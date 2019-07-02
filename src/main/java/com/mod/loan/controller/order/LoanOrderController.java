@@ -299,15 +299,38 @@ public class LoanOrderController {
             return new ResultMessage(ResponseEnum.M4000.getCode(), "订单异常");
         }
         map.put("orderId", orderId);
-        map.put("borrowDay", order.getBorrowDay());//租期
-        map.put("totalFee", order.getTotalFee());//租金
+        //租期
+        map.put("borrowDay", order.getBorrowDay());
+        //租金
+        map.put("totalFee", order.getTotalFee());
         map.put("reduceMoney", order.getReduceMoney());
-        map.put("actualMoney", order.getActualMoney());//实收金额
-        map.put("shouldRepay", order.getShouldRepay());//回购金额
-        map.put("overdueDay", order.getOverdueDay()); //逾期天数
-        map.put("overdueFee", order.getOverdueFee());  //延期金
-        map.put("repayTime", order.getRepayTime() == null ? "" : new DateTime(order.getRepayTime()).toString(TimeUtils.dateformat2));  //应回购日期
-        map.put("status", 0);//默认0不需要显示还款按钮
+        //实收金额
+        map.put("actualMoney", order.getActualMoney());
+        //回购金额
+        map.put("shouldRepay", order.getShouldRepay());
+        //逾期天数
+        map.put("overdueDay", order.getOverdueDay());
+        //延期金
+        map.put("overdueFee", order.getOverdueFee());
+        //应回购日期
+        map.put("repayTime", order.getRepayTime() == null ? "" : new DateTime(order.getRepayTime()).toString(TimeUtils.dateformat2));
+        //默认0不需要显示还款按钮
+        map.put("status", 0);
+
+        Merchant merchant = merchantService.findMerchantByAlias(RequestThread.getClientAlias());
+        //是否需要用户确认借款，0：不需要，1：需要
+        Integer userPayConfirm = merchant.getUserPayConfirm();
+        if (userPayConfirm == 1) {
+            //是否已经确认放款，0：未确认，1：已确认
+            if (order.getPayConfirmStatus() == 0) {
+                map.put("payConfirmStatus", 0);
+            } else {
+                map.put("payConfirmStatus", 1);
+            }
+        } else {
+            map.put("payConfirmStatus", 1);
+        }
+
         OrderPay orderPay = orderService.findOrderPaySuccessRecord(orderId);
         if (null != orderPay) {
             map.put("cardNo", orderPay.getBank() + "(尾号" + StringUtil.bankTailNo(orderPay.getBankNo()) + ")");
@@ -517,6 +540,16 @@ public class LoanOrderController {
         }
         map.put("show", showButton);
         return new ResultMessage(ResponseEnum.M2000, map);
+    }
+
+    /**
+     * 确认借款
+     */
+    @LoginRequired(check = true)
+    @RequestMapping(value = "loan_confirm")
+    public ResultMessage loanConfirm(Long orderId) {
+        orderService.updatePayConfirmStatus(orderId);
+        return new ResultMessage(ResponseEnum.M2000);
     }
 
 }

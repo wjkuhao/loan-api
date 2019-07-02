@@ -3,6 +3,7 @@ package com.mod.loan.controller.order;
 import com.alibaba.fastjson.JSONObject;
 import com.mod.loan.common.annotation.LoginRequired;
 import com.mod.loan.common.enums.OrderEnum;
+import com.mod.loan.common.enums.OrderPayConfirmEnum;
 import com.mod.loan.common.enums.ResponseEnum;
 import com.mod.loan.common.model.RequestThread;
 import com.mod.loan.common.model.ResultMessage;
@@ -90,9 +91,9 @@ public class OrderApplyController {
 
         BigDecimal maxQuota = merchantQuotaConfigService.computeQuota(RequestThread.getClientAlias(), uid,
                 merchantRate.getProductMoney(), merchantRate.getBorrowType());
-      //  自选额度暂时关闭
+        //  自选额度暂时关闭
         // map.put("totalRate", merchantRate.getTotalRate());
-      //  map.put("productMoneyRange", merchantRate.getProductMoney().intValue()+ "~" + maxQuota.intValue());
+        //  map.put("productMoneyRange", merchantRate.getProductMoney().intValue()+ "~" + maxQuota.intValue());
         map.put("productMoney", maxQuota);
 
         BigDecimal totalFee = MoneyUtil.totalFee(maxQuota, merchantRate.getTotalRate());// 综合费用
@@ -100,7 +101,6 @@ public class OrderApplyController {
 
         BigDecimal actualMoney = MoneyUtil.actualMoney(maxQuota, totalFee);// 实际到账
         map.put("actualMoney", actualMoney);
-
 
 
         map.put("cardName", userBank.getCardName());
@@ -141,8 +141,8 @@ public class OrderApplyController {
         if (null != blacklist) {
             // 黑名单
             if (2 == blacklist.getType()) {
-                addOrder(uid ,productId,
-                         productMoney, phoneType, paramValue, phoneModel,  phoneMemory, OrderEnum.AUTO_AUDIT_REFUSE.getCode(),new Date());
+                addOrder(uid, productId,
+                        productMoney, phoneType, paramValue, phoneModel, phoneMemory, OrderEnum.AUTO_AUDIT_REFUSE.getCode(), OrderPayConfirmEnum.NOT_CONFIRM.getCode(), new Date());
                 return new ResultMessage(ResponseEnum.M2000);
             }
         }
@@ -161,8 +161,8 @@ public class OrderApplyController {
             blacklistInsert.setRemark(userInfo.getWorkCompany());
             blacklistInsert.setCreateTime(new Date());
             blacklistService.insert(blacklistInsert);
-            addOrder(uid ,productId,
-                    productMoney, phoneType, paramValue, phoneModel,  phoneMemory, OrderEnum.AUTO_AUDIT_REFUSE.getCode(),new Date());
+            addOrder(uid, productId,
+                    productMoney, phoneType, paramValue, phoneModel, phoneMemory, OrderEnum.AUTO_AUDIT_REFUSE.getCode(), OrderPayConfirmEnum.NOT_CONFIRM.getCode(), new Date());
             return new ResultMessage(ResponseEnum.M2000);
         }
 
@@ -170,8 +170,8 @@ public class OrderApplyController {
         String certNo = user.getUserCertNo();
         if (orderService.checkUnfinishOrderByCertNo(certNo)) {
             logger.info("存在进行中的订单，无法提单， certNo={}", certNo);
-            addOrder(uid ,productId,
-                   productMoney, phoneType, paramValue, phoneModel,  phoneMemory, OrderEnum.AUTO_AUDIT_REFUSE.getCode(),new Date());
+            addOrder(uid, productId,
+                    productMoney, phoneType, paramValue, phoneModel, phoneMemory, OrderEnum.AUTO_AUDIT_REFUSE.getCode(), OrderPayConfirmEnum.NOT_CONFIRM.getCode(), new Date());
             return new ResultMessage(ResponseEnum.M2000);
         } else {
             // 整个系统没有查到进行的单子
@@ -191,33 +191,33 @@ public class OrderApplyController {
         }
 
         // 检查是否存在多头借贷
-        if(dataCenterService.checkMultiLoan(null, certNo)){
+        if (dataCenterService.checkMultiLoan(null, certNo)) {
             logger.info("存在多头借贷，无法提单， certNo={}", certNo);
-            addOrder(uid ,productId,
-                    productMoney, phoneType, paramValue, phoneModel,  phoneMemory, OrderEnum.AUTO_AUDIT_REFUSE.getCode(),new Date());
+            addOrder(uid, productId,
+                    productMoney, phoneType, paramValue, phoneModel, phoneMemory, OrderEnum.AUTO_AUDIT_REFUSE.getCode(), OrderPayConfirmEnum.NOT_CONFIRM.getCode(), new Date());
             return new ResultMessage(ResponseEnum.M2000);
         }
 
         //灰名单客户直接进入人审
         if (blacklist != null && 1 == blacklist.getType()) {
-            addOrder(uid ,productId,
-                    productMoney, phoneType, paramValue, phoneModel,  phoneMemory, OrderEnum.WAIT_AUDIT.getCode(),new Date());
+            addOrder(uid, productId,
+                    productMoney, phoneType, paramValue, phoneModel, phoneMemory, OrderEnum.WAIT_AUDIT.getCode(), OrderPayConfirmEnum.NOT_CONFIRM.getCode(), new Date());
             return new ResultMessage(ResponseEnum.M2000);
         }
 
         MerchantConfig merchantConfig = merchantConfigService.selectByMerchant(user.getMerchant());
-        if (merchantConfig==null || merchantConfig.getOldCustomerRisk()==0) {
+        if (merchantConfig == null || merchantConfig.getOldCustomerRisk() == 0) {
             // 老客户不走风控，直接进入放款列表
             Integer borrowType = orderService.countPaySuccessByUid(uid);
             if (borrowType != null && borrowType > 0) {
-                addOrder(uid ,productId,
-                        productMoney, phoneType, paramValue, phoneModel,  phoneMemory, OrderEnum.WAIT_LOAN.getCode(),new Date());
+                addOrder(uid, productId,
+                        productMoney, phoneType, paramValue, phoneModel, phoneMemory, OrderEnum.WAIT_LOAN.getCode(), OrderPayConfirmEnum.CONFIRM.getCode(), new Date());
                 return new ResultMessage(ResponseEnum.M2000);
             }
         }
 
         Order order = addOrder(uid, productId,
-                productMoney, phoneType, paramValue, phoneModel, phoneMemory, OrderEnum.DAI_FUKUAN.getCode(),null);
+                productMoney, phoneType, paramValue, phoneModel, phoneMemory, OrderEnum.DAI_FUKUAN.getCode(), OrderPayConfirmEnum.NOT_CONFIRM.getCode(), null);
         // 发送消息，等待请求风控
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("orderId", order.getId());
@@ -229,9 +229,9 @@ public class OrderApplyController {
     }
 
 
-    private  Order  addOrder(Long uid ,Long productId,BigDecimal productMoney,
-                           String phoneType,String paramValue,
-                            String phoneModel, Integer phoneMemory,Integer status,Date auditTime){
+    private Order addOrder(Long uid, Long productId, BigDecimal productMoney,
+                           String phoneType, String paramValue,
+                           String phoneModel, Integer phoneMemory, Integer status, Integer payConfirmStatus, Date auditTime) {
         Order order = new Order();
         MerchantRate merchantRate = merchantRateService.selectByPrimaryKey(productId);
         BigDecimal totalFee = MoneyUtil.totalFee(productMoney, merchantRate.getTotalRate());// 综合费用
@@ -261,10 +261,11 @@ public class OrderApplyController {
         order.setMerchant(RequestThread.getClientAlias());
         order.setProductId(productId);
         order.setUserType(userType);
-        if (auditTime!=null){
+        if (auditTime != null) {
             order.setAuditTime(new Date());
         }
         order.setStatus(status);
+        order.setPayConfirmStatus(payConfirmStatus);
         OrderPhone orderPhone = new OrderPhone();
         orderPhone.setParamValue(paramValue);
         orderPhone.setPhoneModel(phoneModel + "|" + phoneMemory);

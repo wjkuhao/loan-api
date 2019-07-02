@@ -144,4 +144,12 @@ public class OrderServiceImpl  extends BaseServiceImpl<Order,Long> implements Or
 		orderPayMapper.updateByPrimaryKeySelective(orderPay);
 	}
 
+	@Override
+	public void updatePayConfirmStatus(Long orderId) {
+		Order order = new Order();
+		order.setId(orderId);
+		order.setPayConfirmStatus(1);
+		orderMapper.updateByPrimaryKeySelective(order);
+	}
+
 }

@@ -71,4 +71,6 @@ public interface OrderService extends BaseService<Order,Long> {
     int setRepaySuccStatusByCurrStatus(Integer status);
 
     void updatePayCallbackInfo(Order order, OrderPay orderPay);
+
+    void updatePayConfirmStatus(Long orderId);
 }

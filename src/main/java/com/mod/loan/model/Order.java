@@ -176,6 +176,12 @@ public class Order {
     @Column(name = "recycle_date")
     private String recycleDate;
 
+    /**
+     * 是否确认放款，0：否，1：是
+     */
+    @Column(name = "pay_confirm_status")
+    private Integer payConfirmStatus;
+
     public String getRecycleDate() {
         return recycleDate;
     }
@@ -607,5 +613,13 @@ public class Order {
 
     public void setUserType(Integer userType) {
         this.userType = userType;
+    }
+
+    public Integer getPayConfirmStatus() {
+        return payConfirmStatus;
+    }
+
+    public void setPayConfirmStatus(Integer payConfirmStatus) {
+        this.payConfirmStatus = payConfirmStatus;
     }
 }

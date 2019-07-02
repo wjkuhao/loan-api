@@ -5,7 +5,7 @@ public enum MerchantEnum {
         fuyou(2, "富友"),
         huiju(3, "汇聚"),
         yeepay(4, "易宝"),
-    CHANGJIE(5, "畅捷"),
+        CHANGJIE(5, "畅捷"),
         kuaiqian(6, "快钱"),
         jinyuntong(8,"金运通");
     private Integer code;
