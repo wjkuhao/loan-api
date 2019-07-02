@@ -9,10 +9,7 @@ import com.mod.loan.config.Constant;
 import com.mod.loan.config.rabbitmq.RabbitConst;
 import com.mod.loan.config.redis.RedisConst;
 import com.mod.loan.config.redis.RedisMapper;
-import com.mod.loan.model.Blacklist;
-import com.mod.loan.model.MerchantOrigin;
-import com.mod.loan.model.Order;
-import com.mod.loan.model.UserRegisterCodeStat;
+import com.mod.loan.model.*;
 import com.mod.loan.service.*;
 import com.mod.loan.util.*;
 import com.mod.loan.util.sms.EnumSmsTemplate;
@@ -70,6 +67,8 @@ public class RegisterController {
     private UserRegisterCodeStatService userRegisterCodeStatService;
     @Autowired
     private DataCenterService dataCenterService;
+    @Autowired
+    private MerchantConfigService merchantConfigService;
 
     @RequestMapping(value = "graph_code")
     public ResultMessage graph_code() throws IOException {
@@ -212,7 +211,8 @@ public class RegisterController {
             }
 
             // 检查是否存在多头借贷
-            if(dataCenterService.checkMultiLoan(phone, null)){
+            MerchantConfig merchantConfig = merchantConfigService.selectByMerchant(alias);
+            if(dataCenterService.checkMultiLoan(phone, null,merchantConfig)){
                 logger.info("存在多头借贷，无法注册， phone={}", phone);
                 return new ResultMessage(ResponseEnum.M4000.getCode(), "审核不通过");
             }
@@ -291,7 +291,8 @@ public class RegisterController {
             }
 
             // 检查是否存在多头借贷
-            if(dataCenterService.checkMultiLoan(phone, null)){
+            MerchantConfig merchantConfig = merchantConfigService.selectByMerchant(alias);
+            if(dataCenterService.checkMultiLoan(phone, null,merchantConfig)){
                 logger.info("存在多头借贷，无法注册， phone={}", phone);
                 return new ResultMessage(ResponseEnum.M4000.getCode(), "审核不通过");
             }

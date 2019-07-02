@@ -17,6 +17,8 @@
     <result column="max_overdue_fee_rate" jdbcType="TINYINT" property="maxOverdueFeeRate" />
     <result column="promote_quota_type" jdbcType="TINYINT" property="promoteQuotaType" />
     <result column="old_customer_risk" jdbcType="TINYINT" property="oldCustomerRisk" />
+    <result column="multi_loan_merchant" jdbcType="VARCHAR" property="multiLoanMerchant" />
+    <result column="multi_loan_count" jdbcType="TINYINT" property="multiLoanCount" />
     <result column="create_time" jdbcType="TINYINT" property="createTime" />
     <result column="update_time" jdbcType="VARCHAR" property="updateTime" />
   </resultMap>

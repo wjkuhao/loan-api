@@ -46,6 +46,12 @@ public class MerchantConfig {
     @Column(name = "default_origin_status")
     private Integer defaultOriginStatus;
 
+    @Column(name = "multi_loan_merchant")
+    private String multiLoanMerchant;
+
+    @Column(name = "multi_loan_count")
+    private Integer multiLoanCount;
+
     @Column(name = "promote_quota_type")
     private Integer promoteQuotaType;
 
@@ -181,5 +187,21 @@ public class MerchantConfig {
 
     public void setMaxOverdueFeeRate(Integer maxOverdueFeeRate) {
         this.maxOverdueFeeRate = maxOverdueFeeRate;
+    }
+
+    public String getMultiLoanMerchant() {
+        return multiLoanMerchant;
+    }
+
+    public void setMultiLoanMerchant(String multiLoanMerchant) {
+        this.multiLoanMerchant = multiLoanMerchant;
+    }
+
+    public Integer getMultiLoanCount() {
+        return multiLoanCount;
+    }
+
+    public void setMultiLoanCount(Integer multiLoanCount) {
+        this.multiLoanCount = multiLoanCount;
     }
 }

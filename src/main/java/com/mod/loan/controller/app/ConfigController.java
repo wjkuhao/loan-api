@@ -29,7 +29,11 @@ public class ConfigController {
 	@Autowired
 	private AppConfigService appConfigService;
 
+	@Autowired
+	private DataCenterService dataCenterService;
 
+	@Autowired
+	private MerchantConfigService merchantConfigService;
 
 	/**
 	 * 启动页，首页图片弹窗
@@ -93,6 +97,18 @@ public class ConfigController {
 	public ResultMessage getAppConfig(String clientAlias) {
         AppConfig appConfigNew = appConfigService.selectByClientAlias(clientAlias);
 		return new ResultMessage(ResponseEnum.M2000, appConfigNew);
+	}
+
+
+	/**
+	 * test
+	 */
+	@RequestMapping(value = "/test")
+	public ResultMessage test() {
+		MerchantConfig merchantConfig = merchantConfigService.selectByMerchant("huijie");
+		System.out.println(merchantConfig);
+		boolean flag = dataCenterService.checkMultiLoan("", "420322199306120958", merchantConfig);
+		return new ResultMessage(ResponseEnum.M2000, flag);
 	}
 
 }

@@ -2,6 +2,7 @@ package com.mod.loan.service.impl;
 
 import com.alibaba.fastjson.JSONObject;
 import com.mod.loan.config.Constant;
+import com.mod.loan.model.MerchantConfig;
 import com.mod.loan.service.DataCenterService;
 import com.mod.loan.util.OkHttpReader;
 import org.apache.commons.lang.StringUtils;
@@ -22,32 +23,44 @@ public class DataCenterServiceImpl implements DataCenterService {
 		this.okHttpReader = okHttpReader;
 	}
 
-	public boolean checkMultiLoan(String phone, String certNo){
+	public boolean checkMultiLoan(String phone, String certNo ,MerchantConfig merchantConfig){
 		try {
 			JSONObject reqJson = new JSONObject();
-            reqJson.put("phone", phone);
-            reqJson.put("idCard", certNo);
-
-
-			String result = okHttpReader.postJson(Constant.MULTI_LOAN_QUERY_URL, reqJson.toJSONString(), null);
-			
-			// 请求异常
-			if ("".equals(result)) {
-				return false;
+			reqJson.put("phone", phone);
+			reqJson.put("idCard", certNo);
+			if (merchantConfig==null||merchantConfig.getMultiLoanCount()==null){
+                Boolean flag1 = countMultiLoan(reqJson, "0");
+                return flag1;
+            }else{
+				reqJson.put("merchant", merchantConfig.getMultiLoanMerchant());
+                Boolean flag2 = countMultiLoan(reqJson,merchantConfig.getMultiLoanCount().toString());
+				return flag2;
 			}
-			//
-			JSONObject respObject = JSONObject.parseObject(result);
-			String status = respObject.getString("status");
-			if ("200".equals(status)){
-                String count = respObject.getJSONObject("data").getString("count");
-                if (StringUtils.isNotEmpty(count) && count.compareTo("1")>=0){
-                    return true;
-                }
-			}else {
-                logger.error("checkMultiLoan err={}", respObject.getString("msg"));
-            }
 		}catch (Exception e){
 			logger.error("checkMultiLoan Exception phone={}, err={}", phone, e);
+		}
+		return false;
+	}
+
+
+	private Boolean countMultiLoan(JSONObject reqJson,String countMulti){
+
+		String result = okHttpReader.postJson("http://192.168.1.144:6090/buss/onOrder/query", reqJson.toJSONString(), null);
+		//String result = okHttpReader.postJson(Constant.MULTI_LOAN_QUERY_URL, reqJson.toJSONString(), null);
+		// 请求异常
+		if ("".equals(result)) {
+			return false;
+		}
+		//
+		JSONObject respObject = JSONObject.parseObject(result);
+		String status = respObject.getString("status");
+		if ("200".equals(status)){
+			String count = respObject.getJSONObject("data").getString("count");
+			if (StringUtils.isNotEmpty(count) && count.compareTo(countMulti)>0){
+				return true;
+			}
+		}else {
+			logger.error("checkMultiLoan err={}", respObject.getString("msg"));
 		}
 		return false;
 	}
