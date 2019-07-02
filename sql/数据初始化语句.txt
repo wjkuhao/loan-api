@@ -36,6 +36,8 @@ INSERT INTO `tb_manager_resource`(`id`, `pid`, `resource_name`, `resource_url`, 
 INSERT INTO `tb_manager_resource`(`id`, `pid`, `resource_name`, `resource_url`, `resource_icon`, `resource_order`, `resource_status`) VALUES (28, 27, '商户列表', 'merchant/merchant_list', NULL, 1, 0);
 INSERT INTO `tb_manager_resource`(`id`, `pid`, `resource_name`, `resource_url`, `resource_icon`, `resource_order`, `resource_status`) VALUES (29, 27, '用户列表', '/user/user_list', NULL, 3, 0);
 INSERT INTO `tb_manager_resource`(`id`, `pid`, `resource_name`, `resource_url`, `resource_icon`, `resource_order`, `resource_status`) VALUES (48, 27, '订单列表', '/order/order_list', NULL, 4, 0);
+INSERT INTO `tb_manager_resource` (`id`, `pid`, `resource_name`, `resource_url`, `resource_icon`, `resource_order`, `resource_status`) VALUES ('49', '27', '商户提额配置', 'merchant/merchant_quota', NULL, '6', '0');
+INSERT INTO `tb_manager_resource` (`id`, `pid`, `resource_name`, `resource_url`, `resource_icon`, `resource_order`, `resource_status`) VALUES ('53', '27', '商户参数配置', 'merchant_config/merchant_config_list', NULL, '5', '0');
 
 #tb_market_channel
 INSERT INTO `tb_market_channel`(`id`, `channel_name`, `channel_idx`, `channel_status`, `product_id`, `create_time`, `update_time`) VALUES (1, '推荐', 0, 1, NULL, '2018-03-19 13:43:59', '2018-03-20 10:25:41');
