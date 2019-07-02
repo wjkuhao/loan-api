@@ -24,29 +24,32 @@ public class DataCenterServiceImpl implements DataCenterService {
 	}
 
 	public boolean checkMultiLoan(String phone, String certNo ,MerchantConfig merchantConfig){
-		try {
-			JSONObject reqJson = new JSONObject();
-			reqJson.put("phone", phone);
-			reqJson.put("idCard", certNo);
-			if (merchantConfig==null||merchantConfig.getMultiLoanCount()==null){
+        try {
+            JSONObject reqJson = new JSONObject();
+            reqJson.put("phone", phone);
+            reqJson.put("idCard", certNo);
+            if (merchantConfig == null) {
                 Boolean flag1 = countMultiLoan(reqJson, "0");
                 return flag1;
-            }else{
-				reqJson.put("merchant", merchantConfig.getMultiLoanMerchant());
-                Boolean flag2 = countMultiLoan(reqJson,merchantConfig.getMultiLoanCount().toString());
-				return flag2;
-			}
-		}catch (Exception e){
-			logger.error("checkMultiLoan Exception phone={}, err={}", phone, e);
-		}
-		return false;
+            }
+            Integer multiLoanCount = 0;
+            if (merchantConfig.getMultiLoanCount() != null) {
+                multiLoanCount = merchantConfig.getMultiLoanCount();
+            }
+            reqJson.put("merchant", merchantConfig.getMultiLoanMerchant());
+            Boolean flag2 = countMultiLoan(reqJson, multiLoanCount.toString());
+            return flag2;
+
+        } catch (Exception e) {
+            logger.error("checkMultiLoan Exception phone={}, err={}", phone, e);
+        }
+        return false;
 	}
 
 
 	private Boolean countMultiLoan(JSONObject reqJson,String countMulti){
 
-		String result = okHttpReader.postJson("http://192.168.1.144:6090/buss/onOrder/query", reqJson.toJSONString(), null);
-		//String result = okHttpReader.postJson(Constant.MULTI_LOAN_QUERY_URL, reqJson.toJSONString(), null);
+		String result = okHttpReader.postJson(Constant.MULTI_LOAN_QUERY_URL, reqJson.toJSONString(), null);
 		// 请求异常
 		if ("".equals(result)) {
 			return false;
