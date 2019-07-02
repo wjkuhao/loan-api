@@ -98,7 +98,7 @@ public class Order {
 
     /**
       * 审核中10+：11-新建;12-等待复审;
-	放款中20+；21-待放款;22-放款中;23-放款失败(可以重新放款);
+	放款中20+；20-待放款确认;21-待放款;22-放款中;23-放款失败(可以重新放款);
 	还款中30+；31-已放款/还款中;32-还款确认中;33-逾期;34-坏账
 	已结清中40+；41-已结清;42-逾期还款;
 	订单结束50+；51-自动审核失败 ;52-复审失败;53-取消;
@@ -175,12 +175,6 @@ public class Order {
      */
     @Column(name = "recycle_date")
     private String recycleDate;
-
-    /**
-     * 是否确认放款，0：否，1：是
-     */
-    @Column(name = "pay_confirm_status")
-    private Integer payConfirmStatus;
 
     public String getRecycleDate() {
         return recycleDate;
@@ -613,13 +607,5 @@ public class Order {
 
     public void setUserType(Integer userType) {
         this.userType = userType;
-    }
-
-    public Integer getPayConfirmStatus() {
-        return payConfirmStatus;
-    }
-
-    public void setPayConfirmStatus(Integer payConfirmStatus) {
-        this.payConfirmStatus = payConfirmStatus;
     }
 }

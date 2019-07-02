@@ -6,6 +6,7 @@ public enum OrderEnum {
         WAIT_LOAN(21, "待放款"),
         LOANING(22, "放款中"),
         LOAN_FAILED(23, "放款失败"),
+        WAIT_CONFIRM_LOAN(24, "待确认放款"),
         REPAYING(31, "还款中"),
         REPAY_CONFIRMING(32, "还款确认中"),
         OVERDUE(33, "逾期"),
