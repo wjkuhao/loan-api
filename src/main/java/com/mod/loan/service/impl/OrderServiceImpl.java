@@ -145,10 +145,10 @@ public class OrderServiceImpl  extends BaseServiceImpl<Order,Long> implements Or
 	}
 
 	@Override
-	public void updatePayConfirmStatus(Long orderId) {
+	public void updatePayConfirmLoan(Long orderId) {
 		Order order = new Order();
 		order.setId(orderId);
-		order.setPayConfirmStatus(1);
+		order.setStatus(OrderEnum.WAIT_LOAN.getCode());
 		orderMapper.updateByPrimaryKeySelective(order);
 	}
 

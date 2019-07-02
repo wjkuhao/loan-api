@@ -61,6 +61,12 @@ public class MerchantConfig {
     @Column(name = "max_overdue_fee_rate")
     private Integer maxOverdueFeeRate;
 
+    /**
+     *  是否需要放款，0：不需要，1：需要
+     */
+    @Column(name = "user_pay_confirm")
+    private Integer userPayConfirm;
+
     public Integer getPromoteQuotaType() {
         return promoteQuotaType;
     }
@@ -203,5 +209,13 @@ public class MerchantConfig {
 
     public void setMultiLoanCount(Integer multiLoanCount) {
         this.multiLoanCount = multiLoanCount;
+    }
+
+    public Integer getUserPayConfirm() {
+        return userPayConfirm;
+    }
+
+    public void setUserPayConfirm(Integer userPayConfirm) {
+        this.userPayConfirm = userPayConfirm;
     }
 }

@@ -316,21 +316,6 @@ public class LoanOrderController {
         map.put("repayTime", order.getRepayTime() == null ? "" : new DateTime(order.getRepayTime()).toString(TimeUtils.dateformat2));
         //默认0不需要显示还款按钮
         map.put("status", 0);
-
-        Merchant merchant = merchantService.findMerchantByAlias(RequestThread.getClientAlias());
-        //是否需要用户确认借款，0：不需要，1：需要
-        Integer userPayConfirm = merchant.getUserPayConfirm();
-        if (userPayConfirm == 1) {
-            //是否已经确认放款，0：未确认，1：已确认
-            if (order.getPayConfirmStatus() == 0) {
-                map.put("payConfirmStatus", 0);
-            } else {
-                map.put("payConfirmStatus", 1);
-            }
-        } else {
-            map.put("payConfirmStatus", 1);
-        }
-
         OrderPay orderPay = orderService.findOrderPaySuccessRecord(orderId);
         if (null != orderPay) {
             map.put("cardNo", orderPay.getBank() + "(尾号" + StringUtil.bankTailNo(orderPay.getBankNo()) + ")");
@@ -548,7 +533,7 @@ public class LoanOrderController {
     @LoginRequired(check = true)
     @RequestMapping(value = "loan_confirm")
     public ResultMessage loanConfirm(Long orderId) {
-        orderService.updatePayConfirmStatus(orderId);
+        orderService.updatePayConfirmLoan(orderId);
         return new ResultMessage(ResponseEnum.M2000);
     }
 

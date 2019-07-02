@@ -72,5 +72,5 @@ public interface OrderService extends BaseService<Order,Long> {
 
     void updatePayCallbackInfo(Order order, OrderPay orderPay);
 
-    void updatePayConfirmStatus(Long orderId);
+    void updatePayConfirmLoan(Long orderId);
 }

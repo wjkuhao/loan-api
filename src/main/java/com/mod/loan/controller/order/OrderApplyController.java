@@ -3,7 +3,6 @@ package com.mod.loan.controller.order;
 import com.alibaba.fastjson.JSONObject;
 import com.mod.loan.common.annotation.LoginRequired;
 import com.mod.loan.common.enums.OrderEnum;
-import com.mod.loan.common.enums.OrderPayConfirmEnum;
 import com.mod.loan.common.enums.ResponseEnum;
 import com.mod.loan.common.model.RequestThread;
 import com.mod.loan.common.model.ResultMessage;
@@ -13,7 +12,6 @@ import com.mod.loan.config.redis.RedisMapper;
 import com.mod.loan.model.*;
 import com.mod.loan.service.*;
 import com.mod.loan.util.MoneyUtil;
-import com.mod.loan.util.OkHttpReader;
 import com.mod.loan.util.StringUtil;
 import org.joda.time.DateTime;
 import org.joda.time.Days;
@@ -142,7 +140,7 @@ public class OrderApplyController {
             // 黑名单
             if (2 == blacklist.getType()) {
                 addOrder(uid, productId,
-                        productMoney, phoneType, paramValue, phoneModel, phoneMemory, OrderEnum.AUTO_AUDIT_REFUSE.getCode(), OrderPayConfirmEnum.NOT_CONFIRM.getCode(), new Date());
+                        productMoney, phoneType, paramValue, phoneModel, phoneMemory, OrderEnum.AUTO_AUDIT_REFUSE.getCode(), new Date());
                 return new ResultMessage(ResponseEnum.M2000);
             }
         }
@@ -162,7 +160,7 @@ public class OrderApplyController {
             blacklistInsert.setCreateTime(new Date());
             blacklistService.insert(blacklistInsert);
             addOrder(uid, productId,
-                    productMoney, phoneType, paramValue, phoneModel, phoneMemory, OrderEnum.AUTO_AUDIT_REFUSE.getCode(), OrderPayConfirmEnum.NOT_CONFIRM.getCode(), new Date());
+                    productMoney, phoneType, paramValue, phoneModel, phoneMemory, OrderEnum.AUTO_AUDIT_REFUSE.getCode(), new Date());
             return new ResultMessage(ResponseEnum.M2000);
         }
 
@@ -171,7 +169,7 @@ public class OrderApplyController {
         if (orderService.checkUnfinishOrderByCertNo(certNo)) {
             logger.info("存在进行中的订单，无法提单， certNo={}", certNo);
             addOrder(uid, productId,
-                    productMoney, phoneType, paramValue, phoneModel, phoneMemory, OrderEnum.AUTO_AUDIT_REFUSE.getCode(), OrderPayConfirmEnum.NOT_CONFIRM.getCode(), new Date());
+                    productMoney, phoneType, paramValue, phoneModel, phoneMemory, OrderEnum.AUTO_AUDIT_REFUSE.getCode(), new Date());
             return new ResultMessage(ResponseEnum.M2000);
         } else {
             // 整个系统没有查到进行的单子
@@ -194,14 +192,14 @@ public class OrderApplyController {
         if (dataCenterService.checkMultiLoan(null, certNo,merchantConfig)) {
             logger.info("存在多头借贷，无法提单， certNo={}", certNo);
             addOrder(uid, productId,
-                    productMoney, phoneType, paramValue, phoneModel, phoneMemory, OrderEnum.AUTO_AUDIT_REFUSE.getCode(), OrderPayConfirmEnum.NOT_CONFIRM.getCode(), new Date());
+                    productMoney, phoneType, paramValue, phoneModel, phoneMemory, OrderEnum.AUTO_AUDIT_REFUSE.getCode(), new Date());
             return new ResultMessage(ResponseEnum.M2000);
         }
 
         //灰名单客户直接进入人审
         if (blacklist != null && 1 == blacklist.getType()) {
             addOrder(uid, productId,
-                    productMoney, phoneType, paramValue, phoneModel, phoneMemory, OrderEnum.WAIT_AUDIT.getCode(), OrderPayConfirmEnum.NOT_CONFIRM.getCode(), new Date());
+                    productMoney, phoneType, paramValue, phoneModel, phoneMemory, OrderEnum.WAIT_AUDIT.getCode(), new Date());
             return new ResultMessage(ResponseEnum.M2000);
         }
 
@@ -211,13 +209,13 @@ public class OrderApplyController {
             Integer borrowType = orderService.countPaySuccessByUid(uid);
             if (borrowType != null && borrowType > 0) {
                 addOrder(uid, productId,
-                        productMoney, phoneType, paramValue, phoneModel, phoneMemory, OrderEnum.WAIT_LOAN.getCode(), OrderPayConfirmEnum.CONFIRM.getCode(), new Date());
+                        productMoney, phoneType, paramValue, phoneModel, phoneMemory, OrderEnum.WAIT_LOAN.getCode(), new Date());
                 return new ResultMessage(ResponseEnum.M2000);
             }
         }
 
         Order order = addOrder(uid, productId,
-                productMoney, phoneType, paramValue, phoneModel, phoneMemory, OrderEnum.DAI_FUKUAN.getCode(), OrderPayConfirmEnum.NOT_CONFIRM.getCode(), null);
+                productMoney, phoneType, paramValue, phoneModel, phoneMemory, OrderEnum.DAI_FUKUAN.getCode(), null);
         // 发送消息，等待请求风控
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("orderId", order.getId());
@@ -231,7 +229,7 @@ public class OrderApplyController {
 
     private Order addOrder(Long uid, Long productId, BigDecimal productMoney,
                            String phoneType, String paramValue,
-                           String phoneModel, Integer phoneMemory, Integer status, Integer payConfirmStatus, Date auditTime) {
+                           String phoneModel, Integer phoneMemory, Integer status, Date auditTime) {
         Order order = new Order();
         MerchantRate merchantRate = merchantRateService.selectByPrimaryKey(productId);
         BigDecimal totalFee = MoneyUtil.totalFee(productMoney, merchantRate.getTotalRate());// 综合费用
@@ -265,7 +263,6 @@ public class OrderApplyController {
             order.setAuditTime(new Date());
         }
         order.setStatus(status);
-        order.setPayConfirmStatus(payConfirmStatus);
         OrderPhone orderPhone = new OrderPhone();
         orderPhone.setParamValue(paramValue);
         orderPhone.setPhoneModel(phoneModel + "|" + phoneMemory);
