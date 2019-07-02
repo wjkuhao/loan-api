@@ -211,8 +211,7 @@ public class RegisterController {
             }
 
             // 检查是否存在多头借贷
-            MerchantConfig merchantConfig = merchantConfigService.selectByMerchant(alias);
-            if(dataCenterService.checkMultiLoan(phone, null,merchantConfig)){
+            if(dataCenterService.checkMultiLoan(phone, null,alias)){
                 logger.info("存在多头借贷，无法注册， phone={}", phone);
                 return new ResultMessage(ResponseEnum.M4000.getCode(), "审核不通过");
             }
@@ -291,8 +290,7 @@ public class RegisterController {
             }
 
             // 检查是否存在多头借贷
-            MerchantConfig merchantConfig = merchantConfigService.selectByMerchant(alias);
-            if(dataCenterService.checkMultiLoan(phone, null,merchantConfig)){
+            if(dataCenterService.checkMultiLoan(phone, null,alias)){
                 logger.info("存在多头借贷，无法注册， phone={}", phone);
                 return new ResultMessage(ResponseEnum.M4000.getCode(), "审核不通过");
             }

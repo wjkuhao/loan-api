@@ -2,6 +2,7 @@ package com.mod.loan.service.impl;
 
 import com.alibaba.fastjson.JSONObject;
 import com.mod.loan.config.Constant;
+import com.mod.loan.mapper.MerchantConfigMapper;
 import com.mod.loan.model.MerchantConfig;
 import com.mod.loan.service.DataCenterService;
 import com.mod.loan.util.OkHttpReader;
@@ -17,28 +18,29 @@ public class DataCenterServiceImpl implements DataCenterService {
 	private static Logger logger = LoggerFactory.getLogger(DataCenterServiceImpl.class);
 
 	private final OkHttpReader okHttpReader;
+	private final MerchantConfigMapper merchantConfigMapper;
 
 	@Autowired
-	public DataCenterServiceImpl(OkHttpReader okHttpReader) {
+	public DataCenterServiceImpl(OkHttpReader okHttpReader,MerchantConfigMapper merchantConfigMapper) {
 		this.okHttpReader = okHttpReader;
+		this.merchantConfigMapper = merchantConfigMapper;
 	}
 
-	public boolean checkMultiLoan(String phone, String certNo ,MerchantConfig merchantConfig){
+	public boolean checkMultiLoan(String phone, String certNo ,String merchant){
         try {
+            MerchantConfig merchantConfig = merchantConfigMapper.selectByMerchant(merchant);
             JSONObject reqJson = new JSONObject();
             reqJson.put("phone", phone);
             reqJson.put("idCard", certNo);
             if (merchantConfig == null) {
-                Boolean flag1 = countMultiLoan(reqJson, "0");
-                return flag1;
+                return countMultiLoan(reqJson, "0");
             }
             Integer multiLoanCount = 0;
             if (merchantConfig.getMultiLoanCount() != null) {
                 multiLoanCount = merchantConfig.getMultiLoanCount();
             }
             reqJson.put("merchant", merchantConfig.getMultiLoanMerchant());
-            Boolean flag2 = countMultiLoan(reqJson, multiLoanCount.toString());
-            return flag2;
+            return countMultiLoan(reqJson, multiLoanCount.toString());
 
         } catch (Exception e) {
             logger.error("checkMultiLoan Exception phone={}, err={}", phone, e);

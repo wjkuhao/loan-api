@@ -187,9 +187,8 @@ public class OrderApplyController {
                 }
             }
         }
-        MerchantConfig merchantConfig = merchantConfigService.selectByMerchant(user.getMerchant());
         // 检查是否存在多头借贷
-        if (dataCenterService.checkMultiLoan(null, certNo,merchantConfig)) {
+        if (dataCenterService.checkMultiLoan(null, certNo,user.getMerchant())) {
             logger.info("存在多头借贷，无法提单， certNo={}", certNo);
             addOrder(uid, productId,
                     productMoney, phoneType, paramValue, phoneModel, phoneMemory, OrderEnum.AUTO_AUDIT_REFUSE.getCode(), new Date());
@@ -203,7 +202,7 @@ public class OrderApplyController {
             return new ResultMessage(ResponseEnum.M2000);
         }
 
-
+        MerchantConfig merchantConfig = merchantConfigService.selectByMerchant(user.getMerchant());
         if (merchantConfig == null || merchantConfig.getOldCustomerRisk() == 0) {
             // 老客户不走风控，直接进入放款列表
             Integer borrowType = orderService.countPaySuccessByUid(uid);

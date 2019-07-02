@@ -561,7 +561,7 @@ CREATE TABLE `tb_merchant_config`  (
   `promote_quota_type` tinyint(1) DEFAULT 1 COMMENT '0-关闭提额 1-新老客都提额 2-只新客提额 3-只老客提额',
   `old_customer_risk` tinyint(1) DEFAULT 0 COMMENT '老客是否过风控:0-不过风控 1-过风控',
   `multi_loan_merchant` VARCHAR(1024) DEFAULT null COMMENT '共债检查商户。未设置就是检查所有；设置了就是检查指定商户，多个商户逗号分割',
-  `multi_loan_count` tinyint(1) DEFAULT 0 COMMENT '共债系统个数。大于设置的共债数量则拒绝',
+  `multi_loan_count` tinyint(1) DEFAULT 0 COMMENT '允许的共债系统个数。大于设置的共债数量则拒绝',
   `create_time` CHAR(19) DEFAULT NULL COMMENT '插入时间',
   `update_time` CHAR(19) DEFAULT NULL COMMENT '更新时间',
   PRIMARY KEY (`id`) USING BTREE,

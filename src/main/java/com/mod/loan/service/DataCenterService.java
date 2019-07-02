@@ -4,7 +4,7 @@ import com.mod.loan.model.MerchantConfig;
 
 public interface DataCenterService {
 
-	boolean checkMultiLoan(String phone, String certNo, MerchantConfig merchantConfig);
+	boolean checkMultiLoan(String phone, String certNo, String merchant);
 
 	void delMultiLoanOrder(String merchant, Long orderId);
 
