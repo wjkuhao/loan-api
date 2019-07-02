@@ -148,7 +148,7 @@ public class OrderServiceImpl  extends BaseServiceImpl<Order,Long> implements Or
 	public void updatePayConfirmLoan(Long orderId) {
 		Order order = new Order();
 		order.setId(orderId);
-		order.setStatus(OrderEnum.WAIT_CONFIRM_LOAN.getCode());
+		order.setStatus(OrderEnum.WAIT_LOAN.getCode());
 		orderMapper.updateByPrimaryKeySelective(order);
 	}
 
