@@ -133,7 +133,7 @@ public class LoanOrderController {
             LoanBefore loanBefore = new LoanBefore();
             loanBefore.setEvent("申请提交成功 ");
             loanBefore.setEventTime(createdTime);
-            loanBefore.setEventDescribe(String.format("应还金额%s元，借款期限%s天，到账金额%s元", order.getBorrowMoney(), order.getBorrowDay(), order.getTotalFee(), order.getActualMoney()));
+            loanBefore.setEventDescribe(String.format("应还金额%s元，借款期限%s天，到账金额%s元", order.getBorrowMoney(), order.getBorrowDay(), order.getActualMoney()));
 
             LoanBefore loanBefore2 = new LoanBefore();
             loanBefore2.setEvent("等待审核  ");
@@ -150,7 +150,7 @@ public class LoanOrderController {
             LoanBefore loanBefore = new LoanBefore();
             loanBefore.setEvent("申请提交成功 ");
             loanBefore.setEventTime(createdTime);
-            loanBefore.setEventDescribe(String.format("应还金额%s元，借款期限%s天，到账金额%s元", order.getBorrowMoney(), order.getBorrowDay(), order.getTotalFee(), order.getActualMoney()));
+            loanBefore.setEventDescribe(String.format("应还金额%s元，借款期限%s天，到账金额%s元", order.getBorrowMoney(), order.getBorrowDay(), order.getActualMoney()));
 
             LoanBefore loanBefore2 = new LoanBefore();
             loanBefore2.setEvent("审核通过");
@@ -169,7 +169,7 @@ public class LoanOrderController {
             LoanBefore loanBefore = new LoanBefore();
             loanBefore.setEvent("申请提交成功 ");
             loanBefore.setEventTime(createdTime);
-            loanBefore.setEventDescribe(String.format("应还金额%s元，借款期限%s天，到账金额%s元", order.getBorrowMoney(), order.getBorrowDay(), order.getTotalFee(), order.getActualMoney()));
+            loanBefore.setEventDescribe(String.format("应还金额%s元，借款期限%s天，到账金额%s元", order.getBorrowMoney(), order.getBorrowDay(), order.getActualMoney()));
 
             LoanBefore loanBefore2 = new LoanBefore();
             loanBefore2.setEvent("审核通过");
@@ -201,7 +201,7 @@ public class LoanOrderController {
             LoanBefore loanBefore = new LoanBefore();
             loanBefore.setEvent("申请提交成功 ");
             loanBefore.setEventTime(createdTime);
-            loanBefore.setEventDescribe(String.format("应还金额%s元，借款期限%s天，到账金额%s元", order.getBorrowMoney(), order.getBorrowDay(), order.getTotalFee(), order.getActualMoney()));
+            loanBefore.setEventDescribe(String.format("应还金额%s元，借款期限%s天，到账金额%s元", order.getBorrowMoney(), order.getBorrowDay(), order.getActualMoney()));
 
             LoanBefore loanBefore2 = new LoanBefore();
             loanBefore2.setEvent("初审通过");
