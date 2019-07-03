@@ -146,6 +146,9 @@ public class LoanOrderController {
             map.put("orderStatus", 1);//1-订单流程图
             map.put("loanBeforeList", loanBeforeList);
             return new ResultMessage(ResponseEnum.M2000, map);
+        } else if (OrderEnum.WAIT_CONFIRM_LOAN.getCode().equals(order.getStatus())) {//待放款确认
+            map.put("orderStatus", 5);//-1-待放款确认
+            return new ResultMessage(ResponseEnum.M2000, map);
         } else if (OrderEnum.WAIT_LOAN.getCode().equals(order.getStatus())
                 || OrderEnum.LOANING.getCode().equals(order.getStatus())
                 || OrderEnum.LOAN_FAILED.getCode().equals(order.getStatus())) {//待放款
