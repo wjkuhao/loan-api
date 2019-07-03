@@ -71,7 +71,7 @@ INSERT INTO `tb_merchant_resource`(`id`, `pid`, `resource_name`, `resource_url`,
 INSERT INTO `tb_merchant_resource`(`id`, `pid`, `resource_name`, `resource_url`, `resource_icon`, `resource_order`, `resource_status`) VALUES (29, 12, '信审工作台', 'order/order_audit_workbench', NULL, 2, 0);
 INSERT INTO `tb_merchant_resource`(`id`, `pid`, `resource_name`, `resource_url`, `resource_icon`, `resource_order`, `resource_status`) VALUES (30, 20, '还款报表', 'statistics/repay_report_list', NULL, 3, 0);
 INSERT INTO `tb_merchant_resource`(`id`, `pid`, `resource_name`, `resource_url`, `resource_icon`, `resource_order`, `resource_status`) VALUES (31, 20, '放款报表', 'statistics/loan_report_list', NULL, 2, 0);
-INSERT INTO `tb_merchant_resource`(`id`, `pid`, `resource_name`, `resource_url`, `resource_icon`, `resource_order`, `resource_status`) VALUES (32, 20, '渠道统计', 'statistics/partner_report_list', NULL, 4, 0);
+INSERT INTO `tb_merchant_resource`(`id`, `pid`, `resource_name`, `resource_url`, `resource_icon`, `resource_order`, `resource_status`) VALUES (32, 20, '渠道注册-放款统计', 'statistics/partner_report_list', NULL, 4, 0);
 INSERT INTO `tb_merchant_resource`(`id`, `pid`, `resource_name`, `resource_url`, `resource_icon`, `resource_order`, `resource_status`) VALUES (33, 10, '意见反馈', 'operation/feedback_list', NULL, 3, 0);
 INSERT INTO `tb_merchant_resource`(`id`, `pid`, `resource_name`, `resource_url`, `resource_icon`, `resource_order`, `resource_status`) VALUES (34, 20, '当日统计', 'statistics/day', NULL, 0, 0);
 INSERT INTO `tb_merchant_resource`(`id`, `pid`, `resource_name`, `resource_url`, `resource_icon`, `resource_order`, `resource_status`) VALUES (35, 0, '运营信息', '#', NULL, 10, 0);
