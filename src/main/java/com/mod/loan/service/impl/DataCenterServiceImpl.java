@@ -2,11 +2,10 @@ package com.mod.loan.service.impl;
 
 import com.alibaba.fastjson.JSONObject;
 import com.mod.loan.config.Constant;
-import com.mod.loan.mapper.MerchantConfigMapper;
 import com.mod.loan.model.MerchantConfig;
 import com.mod.loan.service.DataCenterService;
+import com.mod.loan.service.MerchantConfigService;
 import com.mod.loan.util.OkHttpReader;
-import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,29 +17,30 @@ public class DataCenterServiceImpl implements DataCenterService {
 	private static Logger logger = LoggerFactory.getLogger(DataCenterServiceImpl.class);
 
 	private final OkHttpReader okHttpReader;
-	private final MerchantConfigMapper merchantConfigMapper;
+	private final MerchantConfigService merchantConfigService;
 
 	@Autowired
-	public DataCenterServiceImpl(OkHttpReader okHttpReader,MerchantConfigMapper merchantConfigMapper) {
+	public DataCenterServiceImpl(OkHttpReader okHttpReader, MerchantConfigService merchantConfigService) {
 		this.okHttpReader = okHttpReader;
-		this.merchantConfigMapper = merchantConfigMapper;
+		this.merchantConfigService = merchantConfigService;
 	}
 
 	public boolean checkMultiLoan(String phone, String certNo ,String merchant){
         try {
-            MerchantConfig merchantConfig = merchantConfigMapper.selectByMerchant(merchant);
+            MerchantConfig merchantConfig = merchantConfigService.selectByMerchant(merchant);
             JSONObject reqJson = new JSONObject();
             reqJson.put("phone", phone);
             reqJson.put("idCard", certNo);
             if (merchantConfig == null) {
-                return countMultiLoan(reqJson, "0");
+                return checkMultiLoan(reqJson, 0);
             }
+
             Integer multiLoanCount = 0;
             if (merchantConfig.getMultiLoanCount() != null) {
                 multiLoanCount = merchantConfig.getMultiLoanCount();
             }
             reqJson.put("merchant", merchantConfig.getMultiLoanMerchant());
-            return countMultiLoan(reqJson, multiLoanCount.toString());
+            return checkMultiLoan(reqJson, multiLoanCount);
 
         } catch (Exception e) {
             logger.error("checkMultiLoan Exception phone={}, err={}", phone, e);
@@ -49,9 +49,9 @@ public class DataCenterServiceImpl implements DataCenterService {
 	}
 
 
-	private Boolean countMultiLoan(JSONObject reqJson,String countMulti){
+	private Boolean checkMultiLoan(JSONObject reqJson, int countMulti){
 
-		String result = okHttpReader.postJson(Constant.MULTI_LOAN_QUERY_URL, reqJson.toJSONString(), null);
+	    String result = okHttpReader.postJson(Constant.MULTI_LOAN_QUERY_URL, reqJson.toJSONString(), null);
 		// 请求异常
 		if ("".equals(result)) {
 			return false;
@@ -60,10 +60,8 @@ public class DataCenterServiceImpl implements DataCenterService {
 		JSONObject respObject = JSONObject.parseObject(result);
 		String status = respObject.getString("status");
 		if ("200".equals(status)){
-			String count = respObject.getJSONObject("data").getString("count");
-			if (StringUtils.isNotEmpty(count) && count.compareTo(countMulti)>0){
-				return true;
-			}
+			Integer count = respObject.getJSONObject("data").getInteger("count");
+			return (count != null && count > countMulti);
 		}else {
 			logger.error("checkMultiLoan err={}", respObject.getString("msg"));
 		}
