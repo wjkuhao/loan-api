@@ -147,6 +147,20 @@ public class LoanOrderController {
             map.put("loanBeforeList", loanBeforeList);
             return new ResultMessage(ResponseEnum.M2000, map);
         } else if (OrderEnum.WAIT_CONFIRM_LOAN.getCode().equals(order.getStatus())) {//待放款确认
+            LoanBefore loanBefore = new LoanBefore();
+            loanBefore.setEvent("申请提交成功 ");
+            loanBefore.setEventTime(createdTime);
+            loanBefore.setEventDescribe(String.format("申请周转资金%s元，周期%s天，服务费%s元，到账%s元", order.getBorrowMoney(), order.getBorrowDay(), order.getTotalFee(), order.getActualMoney()));
+
+            LoanBefore loanBefore2 = new LoanBefore();
+            loanBefore2.setEvent("审核通过");
+            loanBefore2.setEventTime(TimeUtils.parseTime(order.getAuditTime(), TimeUtils.dateformat0));
+            loanBefore2.setEventDescribe("恭喜您通过审核");
+
+            loanBeforeList.add(loanBefore);
+            loanBeforeList.add(loanBefore2);
+
+            map.put("loanBeforeList", loanBeforeList);
             map.put("orderStatus", 5);//-1-待放款确认
             return new ResultMessage(ResponseEnum.M2000, map);
         } else if (OrderEnum.WAIT_LOAN.getCode().equals(order.getStatus())
