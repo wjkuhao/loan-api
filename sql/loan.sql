@@ -1194,22 +1194,36 @@ CREATE TABLE `tb_order_risk_info`  (
 
 
 DROP TABLE IF EXISTS `report_partner_effect_deduction`;
-CREATE TABLE `report_partner_effect_deduction`  (
+CREATE TABLE `report_partner_effect_deduction` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键',
-  `day_key` date NULL DEFAULT NULL COMMENT '注册日期',
-  `merchant` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '商户',
-  `user_origin` varchar(16) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '注册渠道，来源',
-  `reg_cnt` int(11) NULL DEFAULT NULL COMMENT '注册人数',
-  `login_cnt` int(11) NULL DEFAULT NULL COMMENT '注册的登录数量',
-  `real_name_cnt` int(11) NULL DEFAULT NULL COMMENT '实名人数',
-  `submit_order_cnt` int(11) NULL DEFAULT NULL COMMENT '提单人数',
-  `first_submit_cnt` int(11) NULL DEFAULT NULL COMMENT '首借人数',
-  `first_submit_amount` decimal(20, 2) NULL DEFAULT NULL COMMENT '首借金额',
-  `create_time` timestamp(0) NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '插入时间',
+  `day_key` date DEFAULT NULL COMMENT '注册日期',
+  `merchant` varchar(50) DEFAULT NULL COMMENT '商户',
+  `user_origin` varchar(16) DEFAULT NULL COMMENT '注册渠道，来源',
+  `reg_cnt` int(11) DEFAULT NULL COMMENT '注册人数',
+  `login_cnt` int(11) DEFAULT NULL COMMENT '注册的登录数量',
+  `real_name_cnt` int(11) DEFAULT NULL COMMENT '实名人数',
+  `submit_order_cnt` int(11) DEFAULT NULL COMMENT '提单人数',
+  `first_submit_cnt` int(11) DEFAULT NULL COMMENT '首借人数',
+  `first_submit_amount` decimal(20,2) DEFAULT NULL COMMENT '首借金额',
+  `create_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '插入时间',
+  `personal_info_certi_cnt` int(11) DEFAULT NULL COMMENT '个人信息认证数',
+  `yys_cnt` int(11) DEFAULT NULL COMMENT '运营商认证数',
+  `bank_cnt` int(11) DEFAULT NULL COMMENT '银行卡绑定数',
+  `order_cnt` int(11) DEFAULT NULL COMMENT '申请订单数',
+  `pass_risk_cnt` int(11) DEFAULT NULL COMMENT '风控通过数',
+  `loan_success_cnt` int(11) DEFAULT NULL COMMENT '下款数',
+  `real_name_certi_rate` varchar(11) DEFAULT NULL COMMENT '实名认证率',
+  `personal_info_certi_rate` varchar(11) DEFAULT NULL COMMENT '个人信息认证率',
+  `yys_certi_rate` varchar(11) DEFAULT NULL COMMENT '运营商认证率',
+  `bank_bound_rate` varchar(11) DEFAULT NULL COMMENT '银行卡绑定率',
+  `reg_apply_trans_rate` varchar(11) DEFAULT NULL COMMENT '申请转化率',
+  `loan_rate` varchar(11) DEFAULT NULL COMMENT '下款率',
+  `audit_pass_rate` varchar(11) DEFAULT NULL COMMENT '审核通过率',
   PRIMARY KEY (`id`) USING BTREE,
-  UNIQUE INDEX `report_partner_effect_deduction`(`day_key`, `merchant`, `user_origin`) USING BTREE,
-  INDEX `idx_merchant`(`merchant`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '渠道统计报表(扣量)' ROW_FORMAT = Dynamic;
+  UNIQUE KEY `report_partner_effect_deduction` (`day_key`,`merchant`,`user_origin`) USING BTREE,
+  KEY `idx_merchant` (`merchant`) USING BTREE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC COMMENT='渠道统计报表(扣量)';
+
 
 DROP TABLE IF EXISTS `tb_user_deduction`;
 CREATE TABLE `tb_user_deduction`  (
