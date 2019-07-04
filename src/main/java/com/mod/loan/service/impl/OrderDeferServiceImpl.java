@@ -36,8 +36,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 
 @Service("orderDeferService")
 public class OrderDeferServiceImpl extends BaseServiceImpl<OrderDefer, Integer> implements OrderDeferService {
@@ -53,8 +51,6 @@ public class OrderDeferServiceImpl extends BaseServiceImpl<OrderDefer, Integer> 
 
     @Value("${yeepay.defer.callback.url:}")
     String yeepay_defer_callback_url;
-
-    final Lock lock = new ReentrantLock();
 
     @Autowired
     public OrderDeferServiceImpl(OrderDeferMapper orderDeferMapper,
@@ -394,7 +390,6 @@ public class OrderDeferServiceImpl extends BaseServiceImpl<OrderDefer, Integer> 
         String outerTradeNo = MapUtils.getString(map, "outer_trade_no");
         String tradeStatus = MapUtils.getString(map, "trade_status");
         logger.info("#[畅捷续期时订单协议支付还款异步回调-还款订单流水号、状态]-outerTradeNo={},tradeStatus={},sign={}", outerTradeNo, tradeStatus, sign);
-        lock.lock();
         try {
             //线程停滞1分钟
             Thread.sleep(60000);
@@ -445,8 +440,6 @@ public class OrderDeferServiceImpl extends BaseServiceImpl<OrderDefer, Integer> 
             }
         } catch (Exception e) {
             logger.error("#[异常]-e={}", e);
-        } finally {
-            lock.unlock();
         }
     }
 
