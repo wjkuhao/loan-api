@@ -1406,3 +1406,14 @@ CREATE TABLE `tb_merchant_quota_config`  (
   INDEX `idx_merchant_borrow_type`(`merchant`, borrow_type) USING BTREE
 ) ENGINE = InnoDB  CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '商户提额配置表' ROW_FORMAT = Dynamic;
 
+-- sms_record
+DROP TABLE IF EXISTS `sms_record`;
+CREATE TABLE `sms_record` (
+  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '主键',
+  `merchant` varchar(30) NOT NULL COMMENT '商户别名',
+  `channel` int(4) NOT NULL COMMENT '短信渠道 1 创蓝  2 飞鸽',
+  `content` varchar(255) DEFAULT NULL COMMENT '短信内容',
+  `create_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='短信发送历史表';
+
