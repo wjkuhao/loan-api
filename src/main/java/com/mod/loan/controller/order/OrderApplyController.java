@@ -117,7 +117,7 @@ public class OrderApplyController {
                                       @RequestParam(required = false) String phoneType, @RequestParam(required = false) String paramValue,
                                       @RequestParam(required = false) String phoneModel, @RequestParam(required = false) Integer phoneMemory) {
         Long uid = RequestThread.getUid();
-        if (!redisMapper.lock(RedisConst.lock_user_order + uid, 5)) {
+        if (!redisMapper.lock(RedisConst.lock_user_order + uid, 12)) {
             return new ResultMessage(ResponseEnum.M4005);
         }
 
