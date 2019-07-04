@@ -16,6 +16,8 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * 续期订单接口
@@ -280,10 +282,10 @@ public class OrderDeferController {
         String result = orderDeferService.changjieDeferRepay4Confirm(seriesNo, smsCode);
         if (null == result) {
             logger.error("#[畅捷续期时协议支付还款确认]-[异常]");
-            return new ResultMessage(ResponseEnum.M4000.getCode(), "还款失败");
+            return new ResultMessage(ResponseEnum.M4000.getCode(), "展期失败");
         } else if ("DOING".equals(result)) {
             logger.error("#[畅捷续期时协议支付还款确认]-[还款处理中]");
-            return new ResultMessage(ResponseEnum.M4000.getCode(), "还款处理中");
+            return new ResultMessage(ResponseEnum.M4000.getCode(), "展期处理中");
         }
         logger.info("#[畅捷续期时协议支付还款确认]-[结束]");
         return new ResultMessage(ResponseEnum.M2000, result);
@@ -322,8 +324,26 @@ public class OrderDeferController {
     public String changjieDeferRepayCallback(HttpServletRequest request, HttpServletResponse response) {
         logger.info("#[畅捷续期时协议支付还款异步回调]-[开始]");
         try {
-            orderDeferService.changjieDeferRepayCallback(request);
-            logger.info("#[畅捷续期时协议支付还款异步回调]-[结束]-request={}", request);
+            Map<String, String> map = new HashMap();
+            //异步回调-业务参数(post--request.getParameterMap()拿不到)
+            map.put("notify_id", request.getParameter("notify_id"));
+            map.put("notify_type", request.getParameter("notify_type"));
+            map.put("notify_time", request.getParameter("notify_time"));
+            map.put("_input_charset", request.getParameter("_input_charset"));
+            map.put("version", request.getParameter("version"));
+            map.put("outer_trade_no", request.getParameter("outer_trade_no"));
+            map.put("inner_trade_no", request.getParameter("inner_trade_no"));
+            map.put("trade_amount", request.getParameter("trade_amount"));
+            map.put("trade_status", request.getParameter("trade_status"));
+            map.put("gmt_create", request.getParameter("gmt_create"));
+            map.put("gmt_payment", request.getParameter("gmt_payment"));
+            map.put("gmt_close", request.getParameter("gmt_close"));
+            if (!org.springframework.util.StringUtils.isEmpty(request.getParameter("extension"))) {
+                map.put("extension", request.getParameter("extension"));
+            }
+            String sign = request.getParameter("sign");
+            orderDeferService.changjieDeferRepayCallback(map, sign);
+            logger.info("#[畅捷续期时协议支付还款异步回调]-[结束]");
         } catch (Exception e) {
             logger.error("#[畅捷续期时协议支付还款异步回调]-[异常]-e={}", e);
         }
