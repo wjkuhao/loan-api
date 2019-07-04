@@ -240,4 +240,138 @@ public class OrderDeferController {
         }
         return "";
     }
+
+    /**
+     * 畅捷续期时协议支付还款发送验证码
+     *
+     * @param orderId 订单id
+     * @return
+     */
+    @LoginRequired
+    @RequestMapping(value = "changjieDeferRepay4SendMsg")
+    public ResultMessage changjieDeferRepay4SendMsg(@RequestParam("orderId") Long orderId) {
+        logger.info("#[畅捷续期时协议支付还款发送验证码]-[开始]-request={}", orderId);
+        if (null == orderId) {
+            return new ResultMessage(ResponseEnum.M5000);
+        }
+        String result = orderDeferService.changjieDeferRepay4SendMsg(orderId);
+        if (null == result) {
+            logger.error("#[畅捷续期时协议支付还款发送验证码]-[异常]");
+            return new ResultMessage(ResponseEnum.M4000);
+        }
+        logger.info("#[畅捷续期时协议支付还款发送验证码]-[结束]");
+        return new ResultMessage(ResponseEnum.M2000, result);
+    }
+
+    /**
+     * 畅捷续期时协议支付还款确认
+     *
+     * @param seriesNo 协议支付的流水号
+     * @param smsCode  短信验证码
+     * @return
+     */
+    @LoginRequired
+    @RequestMapping(value = "changjieDeferRepay4Confirm")
+    public ResultMessage changjieDeferRepay4Confirm(String seriesNo, String smsCode) {
+        logger.info("#[畅捷续期时协议支付还款确认]-[开始]-seriesNo={},smsCode={}", seriesNo, smsCode);
+        if (StringUtils.isEmpty(seriesNo) || StringUtils.isEmpty(smsCode)) {
+            return new ResultMessage(ResponseEnum.M5000);
+        }
+        String result = orderDeferService.changjieDeferRepay4Confirm(seriesNo, smsCode);
+        if (null == result) {
+            logger.error("#[畅捷续期时协议支付还款确认]-[异常]");
+            return new ResultMessage(ResponseEnum.M4000.getCode(), "还款失败");
+        } else if ("DOING".equals(result)) {
+            logger.error("#[畅捷续期时协议支付还款确认]-[还款处理中]");
+            return new ResultMessage(ResponseEnum.M4000.getCode(), "还款处理中");
+        }
+        logger.info("#[畅捷续期时协议支付还款确认]-[结束]");
+        return new ResultMessage(ResponseEnum.M2000, result);
+    }
+
+    /**
+     * 畅捷续期时协议支付还款结果查询
+     *
+     * @param repayNo 还款流水号
+     * @return
+     */
+    @LoginRequired
+    @RequestMapping(value = "changjieDeferRepay4Query")
+    public ResultMessage changjieDeferRepay4Query(@RequestParam("repayNo") String repayNo) {
+        logger.info("#[畅捷续期时协议支付还款结果查询]-[开始]-request={}", repayNo);
+        if (StringUtils.isEmpty(repayNo)) {
+            return new ResultMessage(ResponseEnum.M5000);
+        }
+        String result = orderDeferService.changjieDeferRepay4Query(repayNo);
+        if (null == result) {
+            logger.error("#[畅捷续期时协议支付还款结果查询]-[异常]");
+            return new ResultMessage(ResponseEnum.M4000);
+        }
+        logger.info("#[畅捷续期时协议支付还款结果查询]-[结束]");
+        return new ResultMessage(ResponseEnum.M2000);
+    }
+
+    /**
+     * 畅捷续期时协议支付还款异步回调
+     *
+     * @param request
+     * @param response
+     * @return
+     */
+    @RequestMapping(value = "changjie_deferRepay_callback")
+    public String changjieDeferRepayCallback(HttpServletRequest request, HttpServletResponse response) {
+        logger.info("#[畅捷续期时协议支付还款异步回调]-[开始]");
+        try {
+            orderDeferService.changjieDeferRepayCallback(request);
+            logger.info("#[畅捷续期时协议支付还款异步回调]-[结束]-request={}", request);
+        } catch (Exception e) {
+            logger.error("#[畅捷续期时协议支付还款异步回调]-[异常]-e={}", e);
+        }
+        return "success";
+    }
+
+    /**
+     * 快钱续期时支付还款
+     *
+     * @param orderId 订单id
+     * @return
+     */
+    @LoginRequired
+    @RequestMapping(value = "kuaiqianDeferRepay")
+    public ResultMessage kuaiqianDeferRepay(@RequestParam("orderId") Long orderId) {
+        logger.info("#[快钱续期时支付还款]-[开始]-request={}", orderId);
+        if (null == orderId) {
+            return new ResultMessage(ResponseEnum.M5000);
+        }
+        String result = orderDeferService.kuaiqianDeferRepay(orderId);
+        if (null == result) {
+            logger.error("#[快钱续期时支付还款]-[异常]");
+            return new ResultMessage(ResponseEnum.M4000);
+        }
+        logger.info("#[快钱续期时支付还款]-[结束]");
+        return new ResultMessage(ResponseEnum.M2000, result);
+    }
+
+    /**
+     * 快钱续期时支付还款结果查询
+     *
+     * @param orderId 订单id
+     * @return
+     */
+    @LoginRequired
+    @RequestMapping(value = "kuaiqianDeferRepayQuery")
+    public ResultMessage kuaiqianDeferRepayQuery(@RequestParam("orderId") Long orderId) {
+        logger.info("#[快钱续期时支付还款结果查询]-[开始]-request={}", orderId);
+        if (null == orderId) {
+            return new ResultMessage(ResponseEnum.M5000);
+        }
+        String result = orderDeferService.kuaiqianDeferRepayQuery(orderId);
+        if (null == result) {
+            logger.error("#[快钱续期时支付还款结果查询]-[异常]");
+            return new ResultMessage(ResponseEnum.M4000);
+        }
+        logger.info("#[快钱续期时支付还款结果查询]-[结束]");
+        return new ResultMessage(ResponseEnum.M2000, result);
+    }
+
 }

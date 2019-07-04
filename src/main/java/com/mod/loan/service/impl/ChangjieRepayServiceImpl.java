@@ -47,6 +47,8 @@ public class ChangjieRepayServiceImpl implements ChangjieRepayService {
     String changjieBindBankCard4ResendMsg;
     @Value("${changjie.repayCallbackUrl}")
     String changjieRepayCallbackUrl;
+    @Value("${changjie.deferRepayCallbackUrl}")
+    String changjieDeferRepayCallbackUrl;
 
     @Override
     public String bindBankCard4SendMsg(BindBankCard4SendMsgRequest request) {
@@ -218,7 +220,13 @@ public class ChangjieRepayServiceImpl implements ChangjieRepayService {
         //交易类型 （交易类型（即时 11 担保 12））
         origMap.put("TradeType", "11");
         //回调地址
-        origMap.put("NotifyUrl", changjieRepayCallbackUrl);
+        if (request.getRequestSeriesNo().substring(0, 1).equals("r")) {
+            origMap.put("NotifyUrl", changjieRepayCallbackUrl);
+        }
+        //续期
+        else if (request.getRequestSeriesNo().substring(0, 1).equals("d")) {
+            origMap.put("NotifyUrl", changjieDeferRepayCallbackUrl);
+        }
         //发短信（0：不发送短信1：发送短信）
         origMap.put("SmsFlag", "1");
         logger.info("#[准备调畅捷协议支付还款发送验证码的请求参数]-origMap={}", origMap);

@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.mod.loan.common.mapper.BaseService;
 import com.mod.loan.model.OrderDefer;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
 public interface OrderDeferService extends BaseService<OrderDefer, Integer> {
@@ -53,4 +54,47 @@ public interface OrderDeferService extends BaseService<OrderDefer, Integer> {
      * 该用户在该商户下展期成功次数
      * */
     Integer deferSuccessCount(Long uid);
+
+    /**
+     * 畅捷续期时协议支付还款发送验证码
+     *
+     * @param orderId 订单id
+     */
+    String changjieDeferRepay4SendMsg(Long orderId);
+
+    /**
+     * 畅捷续期时协议支付还款确认
+     *
+     * @param seriesNo 协议支付的流水号
+     * @param smsCode  短信验证码
+     */
+    String changjieDeferRepay4Confirm(String seriesNo, String smsCode);
+
+    /**
+     * 畅捷续期时协议支付还款结果查询
+     *
+     * @param repayNo 还款流水号
+     */
+    String changjieDeferRepay4Query(String repayNo);
+
+    /**
+     * 畅捷续期时协议支付还款异步回调
+     *
+     * @param request
+     */
+    void changjieDeferRepayCallback(HttpServletRequest request);
+
+    /**
+     * 快钱续期时支付还款
+     *
+     * @param orderId 订单id
+     */
+    String kuaiqianDeferRepay(Long orderId);
+
+    /**
+     * 快钱续期时支付还款结果查询
+     *
+     * @param orderId 订单id
+     */
+    String kuaiqianDeferRepayQuery(Long orderId);
 }
