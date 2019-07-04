@@ -571,7 +571,7 @@ CREATE TABLE `tb_merchant_config`  (
   `ident_invalid_day` tinyint(2)   COMMENT '认证失效天数',
   `auto_apply_order` tinyint(1) DEFAULT 1 COMMENT '自动提单:0-关闭 1-自动提单',
   `service_phone` varchar(20) DEFAULT NULl COMMENT '客服电话',
-  `default_origin_status` tinyint(1) DEFAULT 1 COMMENT '默认渠道号(61)注册:0-拒绝 1-允许',
+  `default_origin_status` tinyint(1) DEFAULT 1 COMMENT 'app渠道号注册:0-拒绝 1-允许',
   `max_overdue_fee_rate` tinyint(4) DEFAULT 100 COMMENT '最大逾期费费率率,数值类型,例:30表示逾期费率为百分之三十(借款金额*最大逾期费率=最大逾期费)',
   `promote_quota_type` tinyint(1) DEFAULT 1 COMMENT '0-关闭提额 1-新老客都提额 2-只新客提额 3-只老客提额',
   `old_customer_risk` tinyint(1) DEFAULT 0 COMMENT '老客是否过风控:0-不过风控 1-过风控',
