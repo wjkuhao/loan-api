@@ -1431,6 +1431,7 @@ CREATE TABLE `sms_record` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='短信发送历史表';
 
+-- tb_merchant_moxie_config
 DROP TABLE IF EXISTS `tb_merchant_moxie_config`;
 CREATE TABLE `tb_merchant_moxie_config` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键',
@@ -1441,5 +1442,5 @@ CREATE TABLE `tb_merchant_moxie_config` (
   `update_time` datetime DEFAULT NULL COMMENT '更新时间',
   PRIMARY KEY (`id`),
   UNIQUE KEY `merchant` (`merchant`) USING BTREE
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE = InnoDB  CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '商户魔蝎配置表' ROW_FORMAT = Dynamic;
 
