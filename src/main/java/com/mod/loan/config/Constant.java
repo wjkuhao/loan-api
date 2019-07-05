@@ -9,7 +9,6 @@ public class Constant {
     public static String ENVIROMENT;
     public static String SERVER_API_URL;
     public static String SERVER_H5_URL;
-    public static String SERVER_ITF_URL;
     public static String SERVER_PREFIX_URL;
 
     public static String FUIOU_PAY_URL;
@@ -81,11 +80,6 @@ public class Constant {
     @Value("${server.h5.url:}")
     public void setServerH5Url(String serverH5Url) {
         SERVER_H5_URL = serverH5Url;
-    }
-
-    @Value("${server.itf.url:}")
-    public void setServerItfUrl(String serverItfUrl) {
-        SERVER_ITF_URL = serverItfUrl;
     }
 
     @Value("${oss.static.prefix:}")
