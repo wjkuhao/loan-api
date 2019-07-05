@@ -1434,13 +1434,13 @@ CREATE TABLE `sms_record` (
 -- tb_merchant_moxie_config
 DROP TABLE IF EXISTS `tb_merchant_moxie_config`;
 CREATE TABLE `tb_merchant_moxie_config` (
-  `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键',
+  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '主键',
   `merchant` varchar(16) NOT NULL COMMENT '商户名称',
   `moxie_token` varchar(2048) NOT NULL COMMENT '商户对应的魔蝎秘钥',
   `moxie_secret` varchar(2048) NOT NULL COMMENT '魔蝎的异步回调秘钥',
   `create_time` datetime DEFAULT NULL COMMENT '创建时间',
   `update_time` datetime DEFAULT NULL COMMENT '更新时间',
   PRIMARY KEY (`id`),
-  UNIQUE KEY `merchant` (`merchant`) USING BTREE
+  UNIQUE KEY `merchant` (`idx_merchant`) USING BTREE
 ) ENGINE = InnoDB  CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '商户魔蝎配置表' ROW_FORMAT = Dynamic;
 
