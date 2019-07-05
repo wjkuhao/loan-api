@@ -46,9 +46,15 @@ public class MerchantConfig {
     @Column(name = "default_origin_status")
     private Integer defaultOriginStatus;
 
+    /**
+     * 去哪些商户检查是否共债
+     */
     @Column(name = "multi_loan_merchant")
     private String multiLoanMerchant;
 
+    /**
+     * 允许共债的商户数量
+     */
     @Column(name = "multi_loan_count")
     private Integer multiLoanCount;
 
@@ -62,7 +68,7 @@ public class MerchantConfig {
     private Integer maxOverdueFeeRate;
 
     /**
-     *  是否需要放款，0：不需要，1：需要
+     * 是否需要放款，0：不需要，1：需要
      */
     @Column(name = "user_pay_confirm")
     private Integer userPayConfirm;

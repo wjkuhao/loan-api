@@ -13,8 +13,6 @@ import com.mod.loan.model.*;
 import com.mod.loan.service.*;
 import com.mod.loan.util.MoneyUtil;
 import com.mod.loan.util.StringUtil;
-import org.joda.time.DateTime;
-import org.joda.time.Days;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
@@ -164,31 +162,10 @@ public class OrderApplyController {
             return new ResultMessage(ResponseEnum.M2000);
         }
 
-//         是否在整个系统有正在进行的订单(查询所有商户)
+        // 是否在整个系统有正在进行的订单(查询所有商户)
         String certNo = user.getUserCertNo();
-        if (orderService.checkUnfinishOrderByCertNo(certNo)) {
-            logger.info("存在进行中的订单，无法提单， certNo={}", certNo);
-            addOrder(uid, productId,
-                    productMoney, phoneType, paramValue, phoneModel, phoneMemory, OrderEnum.AUTO_AUDIT_REFUSE.getCode(), new Date());
-            return new ResultMessage(ResponseEnum.M2000);
-        } else {
-            // 整个系统没有查到进行的单子
-            // 再检查一下是否最近风控拒绝了
-            Order orderIng = orderService.findUserLatestOrder(uid);
-            if (null != orderIng) {
-                // 审核拒绝的订单7天内无法再下单
-                if (orderIng.getStatus() == 51 || orderIng.getStatus() == 52) {
-                    DateTime applyTime = new DateTime(orderIng.getCreateTime()).plusDays(7);
-                    DateTime nowTime = new DateTime();
-                    Integer remainDays = Days.daysBetween(nowTime.withMillisOfDay(0), applyTime.withMillisOfDay(0)).getDays();
-                    if (0 < remainDays && remainDays <= 7) {
-                        return new ResultMessage(ResponseEnum.M4000.getCode(), "请" + remainDays + "天后重试提单");
-                    }
-                }
-            }
-        }
         // 检查是否存在多头借贷
-        if (dataCenterService.checkMultiLoan(null, certNo,user.getMerchant())) {
+        if (dataCenterService.isMultiLoan(null, certNo,user.getMerchant())) {
             logger.info("存在多头借贷，无法提单， certNo={}", certNo);
             addOrder(uid, productId,
                     productMoney, phoneType, paramValue, phoneModel, phoneMemory, OrderEnum.AUTO_AUDIT_REFUSE.getCode(), new Date());

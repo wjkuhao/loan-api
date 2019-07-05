@@ -1,11 +1,8 @@
 package com.mod.loan.controller.h5;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
 import com.google.code.kaptcha.impl.DefaultKaptcha;
 import com.mod.loan.common.enums.ResponseEnum;
 import com.mod.loan.common.model.ResultMessage;
-import com.mod.loan.config.Constant;
 import com.mod.loan.config.rabbitmq.RabbitConst;
 import com.mod.loan.config.redis.RedisConst;
 import com.mod.loan.config.redis.RedisMapper;
@@ -211,7 +208,7 @@ public class RegisterController {
             }
 
             // 检查是否存在多头借贷
-            if(dataCenterService.checkMultiLoan(phone, null,alias)){
+            if(dataCenterService.isMultiLoan(phone, null,alias)){
                 logger.info("存在多头借贷，无法注册， phone={}", phone);
                 return new ResultMessage(ResponseEnum.M4000.getCode(), "审核不通过");
             }
@@ -284,13 +281,8 @@ public class RegisterController {
         }
 
         if (merchantOrigin.getCheckRepay() == 1) {
-            if (orderService.checkUnfinishOrderByPhone(phone)) {
-                logger.info("存在进行中的订单，无法注册， phone={}", phone);
-                return new ResultMessage(ResponseEnum.M4000.getCode(), "审核不通过");
-            }
-
             // 检查是否存在多头借贷
-            if(dataCenterService.checkMultiLoan(phone, null,alias)){
+            if(dataCenterService.isMultiLoan(phone, null,alias)){
                 logger.info("存在多头借贷，无法注册， phone={}", phone);
                 return new ResultMessage(ResponseEnum.M4000.getCode(), "审核不通过");
             }
