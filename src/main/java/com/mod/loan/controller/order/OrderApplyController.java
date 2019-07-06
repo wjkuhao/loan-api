@@ -117,7 +117,7 @@ public class OrderApplyController {
                                       @RequestParam(required = false) String phoneType, @RequestParam(required = false) String paramValue,
                                       @RequestParam(required = false) String phoneModel, @RequestParam(required = false) Integer phoneMemory) {
         Long uid = RequestThread.getUid();
-        if (!redisMapper.lock(RedisConst.lock_user_order + uid, 12)) {
+        if (!redisMapper.lock(RedisConst.lock_user_order + uid, 5)) {
             return new ResultMessage(ResponseEnum.M4005);
         }
 
@@ -188,7 +188,7 @@ public class OrderApplyController {
             }
         }
         // 检查是否存在多头借贷
-        if (dataCenterService.checkMultiLoan(null, certNo,user.getMerchant())) {
+        if (dataCenterService.checkMultiLoan(null, certNo, user.getMerchant())) {
             logger.info("存在多头借贷，无法提单， certNo={}", certNo);
             addOrder(uid, productId,
                     productMoney, phoneType, paramValue, phoneModel, phoneMemory, OrderEnum.AUTO_AUDIT_REFUSE.getCode(), new Date());
