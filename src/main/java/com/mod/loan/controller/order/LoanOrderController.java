@@ -82,6 +82,10 @@ public class LoanOrderController {
         }
         String uid = String.valueOf(verifyToken.get("uid"));
         String merchant = String.valueOf(verifyToken.get("clientAlias"));
+        //信达钱包
+        if("dit".equalsIgnoreCase(merchant)){
+            map.put("amount", "3000-10000");
+        }
         UserIdent userIdent = userIdentService.selectByPrimaryKey(Long.parseLong(uid));
         if (null != userIdent && 2 == userIdent.getRealName() && 2 == userIdent.getUserDetails()
                 && 2 == userIdent.getMobile() && 2 == userIdent.getLiveness() && 2 == userIdent.getAlipay()) {
