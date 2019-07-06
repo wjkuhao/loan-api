@@ -4,8 +4,8 @@ import com.alibaba.fastjson.JSONObject;
 import com.mod.loan.common.mapper.BaseService;
 import com.mod.loan.model.OrderDefer;
 
-import javax.servlet.http.HttpServletRequest;
 import java.util.List;
+import java.util.Map;
 
 public interface OrderDeferService extends BaseService<OrderDefer, Integer> {
 
@@ -80,9 +80,10 @@ public interface OrderDeferService extends BaseService<OrderDefer, Integer> {
     /**
      * 畅捷续期时协议支付还款异步回调
      *
-     * @param request
+     * @param map
+     * @param sign
      */
-    void changjieDeferRepayCallback(HttpServletRequest request);
+    void changjieDeferRepayCallback(Map<String, String> map, String sign);
 
     /**
      * 快钱续期时支付还款

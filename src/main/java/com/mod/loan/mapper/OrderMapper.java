@@ -1,22 +1,25 @@
 package com.mod.loan.mapper;
 
-import java.util.List;
-
 import com.mod.loan.common.mapper.MyBaseMapper;
 import com.mod.loan.model.Order;
+import org.apache.ibatis.annotations.Param;
+
+import java.util.List;
 
 public interface OrderMapper extends MyBaseMapper<Order> {
-	
-	Order findUserLatestOrder(Long uid);
 
-	List<Order> getByUid(Long uid);
+    int countLoaningOrderByUid(@Param("uid") Long uid);
 
-	Integer judgeUserTypeByUid(Long uid);
+    Order findUserLatestOrder(Long uid);
 
-	Integer countPaySuccessByUid(Long uid);
+    List<Order> getByUid(Long uid);
 
-	List<Order> findOverdueOrder();
+    Integer judgeUserTypeByUid(Long uid);
 
-	Order findOneOverdueOrder(Long uid);
+    Integer countPaySuccessByUid(Long uid);
+
+    List<Order> findOverdueOrder();
+
+    Order findOneOverdueOrder(Long uid);
 
 }

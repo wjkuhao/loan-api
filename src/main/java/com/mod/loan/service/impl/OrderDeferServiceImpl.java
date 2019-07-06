@@ -28,16 +28,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
-import javax.servlet.http.HttpServletRequest;
 import java.math.BigDecimal;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 
 @Service("orderDeferService")
 public class OrderDeferServiceImpl extends BaseServiceImpl<OrderDefer, Integer> implements OrderDeferService {
@@ -309,12 +307,12 @@ public class OrderDeferServiceImpl extends BaseServiceImpl<OrderDefer, Integer> 
         if (StringUtils.equals("S", jsonObject.getString("Status"))) {
             //成功
             orderDefer.setPayStatus(OrderRepayStatusEnum.REPAY_SUCCESS.getCode());
-            orderDefer.setRemark("畅捷还款成功");
+            orderDefer.setRemark("畅捷展期成功");
             modifyOrderDeferByPayCallback(orderDefer);
         } else if (StringUtils.equals("F", jsonObject.getString("Status"))) {
             //失败
             orderDefer.setPayStatus(OrderRepayStatusEnum.REPAY_FAILED.getCode());
-            orderDefer.setRemark("畅捷还款失败：" + jsonObject.getString("RetMsg"));
+            orderDefer.setRemark("畅捷展期失败：" + jsonObject.getString("RetMsg"));
             modifyOrderDeferByPayCallback(orderDefer);
             return null;
         } else {
@@ -373,12 +371,12 @@ public class OrderDeferServiceImpl extends BaseServiceImpl<OrderDefer, Integer> 
         if (StringUtils.equals("S", jsonObject.getString("Status")) && (StringUtils.equals(ChangjiePayOrRepayOrQueryReturnCodeEnum.SUCCESS_QT000000.getCode(), jsonObject.getString("AppRetcode")))) {
             //成功
             orderDefer.setPayStatus(OrderRepayStatusEnum.REPAY_SUCCESS.getCode());
-            orderDefer.setRemark("畅捷还款成功");
+            orderDefer.setRemark("畅捷展期成功");
             modifyOrderDeferByPayCallback(orderDefer);
         } else if (StringUtils.equals("F", jsonObject.getString("Status"))) {
             //失败
             orderDefer.setPayStatus(OrderRepayStatusEnum.REPAY_FAILED.getCode());
-            orderDefer.setRemark("畅捷还款失败：" + jsonObject.getString("RetMsg"));
+            orderDefer.setRemark("畅捷展期失败：" + jsonObject.getString("RetMsg"));
             modifyOrderDeferByPayCallback(orderDefer);
             return null;
         }
@@ -387,88 +385,62 @@ public class OrderDeferServiceImpl extends BaseServiceImpl<OrderDefer, Integer> 
     }
 
     @Override
-    public void changjieDeferRepayCallback(HttpServletRequest request) {
-        String outerTradeNo = request.getParameter("outer_trade_no");
-        String tradeStatus = request.getParameter("trade_status");
-        String sign = request.getParameter("sign");
+    @Async
+    public void changjieDeferRepayCallback(Map<String, String> map, String sign) {
+        String outerTradeNo = MapUtils.getString(map, "outer_trade_no");
+        String tradeStatus = MapUtils.getString(map, "trade_status");
         logger.info("#[畅捷续期时订单协议支付还款异步回调-还款订单流水号、状态]-outerTradeNo={},tradeStatus={},sign={}", outerTradeNo, tradeStatus, sign);
-        Map<String, String> map = new HashMap();
-        //异步回调-业务参数(post--request.getParameterMap()拿不到)
-        map.put("notify_id", request.getParameter("notify_id"));
-        map.put("notify_type", request.getParameter("notify_type"));
-        map.put("notify_time", request.getParameter("notify_time"));
-        map.put("_input_charset", request.getParameter("_input_charset"));
-        map.put("version", request.getParameter("version"));
-        map.put("outer_trade_no", request.getParameter("outer_trade_no"));
-        map.put("inner_trade_no", request.getParameter("inner_trade_no"));
-        map.put("trade_amount", request.getParameter("trade_amount"));
-        map.put("trade_status", request.getParameter("trade_status"));
-        map.put("gmt_create", request.getParameter("gmt_create"));
-        map.put("gmt_payment", request.getParameter("gmt_payment"));
-        map.put("gmt_close", request.getParameter("gmt_close"));
-        if (!org.springframework.util.StringUtils.isEmpty(request.getParameter("extension"))) {
-            map.put("extension", request.getParameter("extension"));
-        }
-        final Lock lock = new ReentrantLock();
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                lock.lock();
-                try {
-                    //线程停滞1分钟
-                    Thread.sleep(60000);
-                    //根据支付流水号查询续期订单信息
-                    OrderDefer orderDefer = selectByPayNo(outerTradeNo);
-                    logger.info("#[根据支付流水号查询续期订单信息]-orderDefer={}", JSONObject.toJSON(orderDefer));
-                    if (orderDefer == null) {
-                        logger.info("根据支付流水号查询续期订单信息为空");
-                        return;
-                    }
-                    //幂等
-                    if (!orderDefer.getPayStatus().equals(OrderRepayStatusEnum.ACCEPT_SUCCESS.getCode())) {
-                        logger.info("该续期订单的状态不是受理成功的");
-                        return;
-                    }
-                    if (orderDefer.getPayStatus().equals(OrderRepayStatusEnum.REPAY_SUCCESS.getCode())) {
-                        logger.info("该续期订单的状态是已还款成功的");
-                        return;
-                    }
-                    //获取商户信息
-                    Merchant merchant = merchantService.findMerchantByAlias(orderDefer.getMerchant());
-                    if (null == merchant || StringUtils.isBlank(merchant.getCjPartnerId()) || StringUtils.isBlank(merchant.getCjPublicKey()) || StringUtils.isBlank(merchant.getCjMerchantPrivateKey())) {
-                        logger.info("#[该商户信息异常]-merchant={}", JSONObject.toJSON(merchant));
-                        return;
-                    }
-                    //把数组所有元素，按照“参数=参数值”的模式用“&”字符拼接成字符串
-                    String prestr = ChanPayUtil.createLinkString(map, false);
-                    logger.info("#[把数组所有元素，按照“参数=参数值”的模式用“&”字符拼接成字符串]-prestr={}", prestr);
-                    //验签
-                    boolean flag = true;
-                    try {
-                        flag = RSA.verify(prestr, sign, merchant.getCjPublicKey(), BaseConstant.CHARSET);
-                    } catch (Exception e) {
-                        logger.error("#[验签异常]-e={}", e);
-                        return;
-                    }
-                    if (flag) {
-                        //成功
-                        if (ChangjieRePayCallBackStatusEnum.TRADE_SUCCESS.getCode().equals(tradeStatus) || ChangjieRePayCallBackStatusEnum.TRADE_FINISHED.getCode().equals(tradeStatus)) {
-                            orderDefer.setPayStatus(OrderRepayStatusEnum.REPAY_SUCCESS.getCode());
-                            orderDefer.setRemark("畅捷还款成功");
-                            modifyOrderDeferByPayCallback(orderDefer);
-                        } else if (ChangjiePayCallBackStatusEnum.WITHDRAWAL_FAIL.getCode().equals(tradeStatus)) {
-                            orderDefer.setPayStatus(OrderRepayStatusEnum.REPAY_FAILED.getCode());
-                            orderDefer.setRemark("畅捷还款失败");
-                            modifyOrderDeferByPayCallback(orderDefer);
-                        }
-                    }
-                } catch (Exception e) {
-                    logger.error("#[异常]-e={}", e);
-                } finally {
-                    lock.unlock();
+        try {
+            //线程停滞1分钟
+            Thread.sleep(60000);
+            //根据支付流水号查询续期订单信息
+            OrderDefer orderDefer = selectByPayNo(outerTradeNo);
+            logger.info("#[根据支付流水号查询续期订单信息]-orderDefer={}", JSONObject.toJSON(orderDefer));
+            if (orderDefer == null) {
+                logger.info("根据支付流水号查询续期订单信息为空");
+                return;
+            }
+            //幂等
+            if (!orderDefer.getPayStatus().equals(OrderRepayStatusEnum.ACCEPT_SUCCESS.getCode())) {
+                logger.info("该续期订单的状态不是受理成功的");
+                return;
+            }
+            if (orderDefer.getPayStatus().equals(OrderRepayStatusEnum.REPAY_SUCCESS.getCode())) {
+                logger.info("该续期订单的状态是已还款成功的");
+                return;
+            }
+            //获取商户信息
+            Merchant merchant = merchantService.findMerchantByAlias(orderDefer.getMerchant());
+            if (null == merchant || StringUtils.isBlank(merchant.getCjPartnerId()) || StringUtils.isBlank(merchant.getCjPublicKey()) || StringUtils.isBlank(merchant.getCjMerchantPrivateKey())) {
+                logger.info("#[该商户信息异常]-merchant={}", JSONObject.toJSON(merchant));
+                return;
+            }
+            //把数组所有元素，按照“参数=参数值”的模式用“&”字符拼接成字符串
+            String prestr = ChanPayUtil.createLinkString(map, false);
+            logger.info("#[把数组所有元素，按照“参数=参数值”的模式用“&”字符拼接成字符串]-prestr={}", prestr);
+            //验签
+            boolean flag = true;
+            try {
+                flag = RSA.verify(prestr, sign, merchant.getCjPublicKey(), BaseConstant.CHARSET);
+            } catch (Exception e) {
+                logger.error("#[验签异常]-e={}", e);
+                return;
+            }
+            if (flag) {
+                //成功
+                if (ChangjieRePayCallBackStatusEnum.TRADE_SUCCESS.getCode().equals(tradeStatus) || ChangjieRePayCallBackStatusEnum.TRADE_FINISHED.getCode().equals(tradeStatus)) {
+                    orderDefer.setPayStatus(OrderRepayStatusEnum.REPAY_SUCCESS.getCode());
+                    orderDefer.setRemark("畅捷展期成功");
+                    modifyOrderDeferByPayCallback(orderDefer);
+                } else if (ChangjiePayCallBackStatusEnum.WITHDRAWAL_FAIL.getCode().equals(tradeStatus)) {
+                    orderDefer.setPayStatus(OrderRepayStatusEnum.REPAY_FAILED.getCode());
+                    orderDefer.setRemark("畅捷展期失败");
+                    modifyOrderDeferByPayCallback(orderDefer);
                 }
             }
-        }).start();
+        } catch (Exception e) {
+            logger.error("#[异常]-e={}", e);
+        }
     }
 
     @Override
@@ -565,7 +537,7 @@ public class OrderDeferServiceImpl extends BaseServiceImpl<OrderDefer, Integer> 
         //还款成功
         if ("00".equals(MapUtils.getString(respMap, "responseCode"))) {
             orderDefer.setPayStatus(OrderRepayStatusEnum.REPAY_SUCCESS.getCode());
-            orderDefer.setRemark("快钱还款成功");
+            orderDefer.setRemark("快钱展期成功");
             modifyOrderDeferByPayCallback(orderDefer);
             return repayNo;
         }
@@ -573,12 +545,12 @@ public class OrderDeferServiceImpl extends BaseServiceImpl<OrderDefer, Integer> 
         else if ("C0".equals(MapUtils.getString(respMap, "responseCode"))
                 || "68".equals(MapUtils.getString(respMap, "responseCode"))) {
             orderDefer.setPayStatus(OrderRepayStatusEnum.ACCEPT_SUCCESS.getCode());
-            orderDefer.setRemark("快钱还款处理中");
+            orderDefer.setRemark("快钱展期处理中");
             modifyOrderDeferByPayCallback(orderDefer);
             return repayNo;
         } else {
             orderDefer.setPayStatus(OrderRepayStatusEnum.REPAY_FAILED.getCode());
-            orderDefer.setRemark("快钱还款失败：" + MapUtils.getString(respMap, "responseTextMessage"));
+            orderDefer.setRemark("快钱展期失败：" + MapUtils.getString(respMap, "responseTextMessage"));
             modifyOrderDeferByPayCallback(orderDefer);
             return null;
         }
@@ -648,7 +620,7 @@ public class OrderDeferServiceImpl extends BaseServiceImpl<OrderDefer, Integer> 
         //还款成功
         if ("00".equals(MapUtils.getString(respMap, "responseCode"))) {
             orderDefer.setPayStatus(OrderRepayStatusEnum.REPAY_SUCCESS.getCode());
-            orderDefer.setRemark("快钱还款成功");
+            orderDefer.setRemark("快钱展期成功");
             modifyOrderDeferByPayCallback(orderDefer);
             return repayNo;
         }
@@ -658,7 +630,7 @@ public class OrderDeferServiceImpl extends BaseServiceImpl<OrderDefer, Integer> 
             return repayNo;
         } else {
             orderDefer.setPayStatus(OrderRepayStatusEnum.REPAY_FAILED.getCode());
-            orderDefer.setRemark("快钱还款失败：" + MapUtils.getString(respMap, "responseTextMessage"));
+            orderDefer.setRemark("快钱展期失败：" + MapUtils.getString(respMap, "responseTextMessage"));
             modifyOrderDeferByPayCallback(orderDefer);
             return null;
         }

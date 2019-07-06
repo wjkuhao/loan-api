@@ -6,6 +6,7 @@ import com.mod.loan.model.MerchantConfig;
 import com.mod.loan.service.DataCenterService;
 import com.mod.loan.service.MerchantConfigService;
 import com.mod.loan.util.OkHttpReader;
+import com.mod.loan.util.StringUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,14 +26,14 @@ public class DataCenterServiceImpl implements DataCenterService {
 		this.merchantConfigService = merchantConfigService;
 	}
 
-	public boolean checkMultiLoan(String phone, String certNo ,String merchant){
+	public boolean isMultiLoan(String phone, String certNo , String merchant){
         try {
             MerchantConfig merchantConfig = merchantConfigService.selectByMerchant(merchant);
             JSONObject reqJson = new JSONObject();
             reqJson.put("phone", phone);
             reqJson.put("idCard", certNo);
             if (merchantConfig == null) {
-                return checkMultiLoan(reqJson, 0);
+                return isMultiLoan(reqJson, 0);
             }
 
             Integer multiLoanCount = 0;
@@ -40,20 +41,20 @@ public class DataCenterServiceImpl implements DataCenterService {
                 multiLoanCount = merchantConfig.getMultiLoanCount();
             }
             reqJson.put("merchant", merchantConfig.getMultiLoanMerchant());
-            return checkMultiLoan(reqJson, multiLoanCount);
+            return isMultiLoan(reqJson, multiLoanCount);
 
         } catch (Exception e) {
-            logger.error("checkMultiLoan Exception phone={}, err={}", phone, e);
+            logger.error("isMultiLoan Exception phone={}, err={}", phone, e);
         }
         return false;
 	}
 
 
-	private Boolean checkMultiLoan(JSONObject reqJson, int countMulti){
+	private boolean isMultiLoan(JSONObject reqJson, int countMulti){
 
 	    String result = okHttpReader.postJson(Constant.MULTI_LOAN_QUERY_URL, reqJson.toJSONString(), null);
 		// 请求异常
-		if ("".equals(result)) {
+		if (null == result || result.length() < 1) {
 			return false;
 		}
 		//
@@ -63,7 +64,7 @@ public class DataCenterServiceImpl implements DataCenterService {
 			Integer count = respObject.getJSONObject("data").getInteger("count");
 			return (count != null && count > countMulti);
 		}else {
-			logger.error("checkMultiLoan err={}", respObject.getString("msg"));
+			logger.error("isMultiLoan err={}", respObject.getString("msg"));
 		}
 		return false;
 	}

@@ -7,25 +7,35 @@ import com.mod.loan.model.OrderPhone;
 
 import java.util.List;
 
-public interface OrderService extends BaseService<Order,Long> {
+public interface OrderService extends BaseService<Order, Long> {
 
-	/**
-	 * 查找用户最近一张订单
-	 * @return
-	 */
-	Order findUserLatestOrder(Long uid);
+    /**
+     * 查找用户在当前商户下进行中的订单数量
+     *
+     * @param uid 用户uid
+     * @return 进行中的订单数
+     */
+    int countLoaningOrderByUid(Long uid);
+
+    /**
+     * 查找用户最近一张订单
+     *
+     * @return
+     */
+    Order findUserLatestOrder(Long uid);
 
     /**
      * 查找用户历史订单
      */
 
     List<Order> getByUid(Long uid);
-    
-    
-    int addOrder(Order order ,OrderPhone orderPhone);
-    
-    
+
+
+    int addOrder(Order order, OrderPhone orderPhone);
+
+
     OrderPhone findOrderPhoneByOrderId(Long orderId);
+
     /**
      * 查找用户收款成功记录
      */
@@ -41,6 +51,7 @@ public interface OrderService extends BaseService<Order,Long> {
 
     /**
      * 通过身份证查询是否在系统中存在逾期订单， 提单的时候校验
+     *
      * @param certNo 手机号
      * @return 订单信息
      */
@@ -48,6 +59,7 @@ public interface OrderService extends BaseService<Order,Long> {
 
     /**
      * 通过手机号查询是否在系统中存在逾期订单， 注册的时候校验（渠道开关控制）
+     *
      * @param phone 手机号
      * @return 逾期的订单信息
      */
@@ -65,6 +77,7 @@ public interface OrderService extends BaseService<Order,Long> {
 
     /**
      * 根据当前订单状态更新支付成功后订单状态
+     *
      * @param status
      * @return
      */

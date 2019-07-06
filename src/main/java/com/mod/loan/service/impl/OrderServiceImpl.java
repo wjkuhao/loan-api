@@ -30,6 +30,11 @@ public class OrderServiceImpl  extends BaseServiceImpl<Order,Long> implements Or
     UserService userService;
 
 	@Override
+	public int countLoaningOrderByUid(Long uid) {
+		return orderMapper.countLoaningOrderByUid(uid);
+	}
+
+	@Override
 	public Order findUserLatestOrder(Long uid) {
 		return orderMapper.findUserLatestOrder(uid);
 	}

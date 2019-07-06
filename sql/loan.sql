@@ -571,7 +571,7 @@ CREATE TABLE `tb_merchant_config`  (
   `ident_invalid_day` tinyint(2)   COMMENT '认证失效天数',
   `auto_apply_order` tinyint(1) DEFAULT 1 COMMENT '自动提单:0-关闭 1-自动提单',
   `service_phone` varchar(20) DEFAULT NULl COMMENT '客服电话',
-  `default_origin_status` tinyint(1) DEFAULT 1 COMMENT '默认渠道号(61)注册:0-拒绝 1-允许',
+  `default_origin_status` tinyint(1) DEFAULT 1 COMMENT 'app渠道号注册:0-拒绝 1-允许',
   `max_overdue_fee_rate` tinyint(4) DEFAULT 100 COMMENT '最大逾期费费率率,数值类型,例:30表示逾期费率为百分之三十(借款金额*最大逾期费率=最大逾期费)',
   `promote_quota_type` tinyint(1) DEFAULT 1 COMMENT '0-关闭提额 1-新老客都提额 2-只新客提额 3-只老客提额',
   `old_customer_risk` tinyint(1) DEFAULT 0 COMMENT '老客是否过风控:0-不过风控 1-过风控',
@@ -1194,22 +1194,36 @@ CREATE TABLE `tb_order_risk_info`  (
 
 
 DROP TABLE IF EXISTS `report_partner_effect_deduction`;
-CREATE TABLE `report_partner_effect_deduction`  (
+CREATE TABLE `report_partner_effect_deduction` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键',
-  `day_key` date NULL DEFAULT NULL COMMENT '注册日期',
-  `merchant` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '商户',
-  `user_origin` varchar(16) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '注册渠道，来源',
-  `reg_cnt` int(11) NULL DEFAULT NULL COMMENT '注册人数',
-  `login_cnt` int(11) NULL DEFAULT NULL COMMENT '注册的登录数量',
-  `real_name_cnt` int(11) NULL DEFAULT NULL COMMENT '实名人数',
-  `submit_order_cnt` int(11) NULL DEFAULT NULL COMMENT '提单人数',
-  `first_submit_cnt` int(11) NULL DEFAULT NULL COMMENT '首借人数',
-  `first_submit_amount` decimal(20, 2) NULL DEFAULT NULL COMMENT '首借金额',
-  `create_time` timestamp(0) NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '插入时间',
+  `day_key` date DEFAULT NULL COMMENT '注册日期',
+  `merchant` varchar(50) DEFAULT NULL COMMENT '商户',
+  `user_origin` varchar(16) DEFAULT NULL COMMENT '注册渠道，来源',
+  `reg_cnt` int(11) DEFAULT NULL COMMENT '注册人数',
+  `login_cnt` int(11) DEFAULT NULL COMMENT '注册的登录数量',
+  `real_name_cnt` int(11) DEFAULT NULL COMMENT '实名人数',
+  `submit_order_cnt` int(11) DEFAULT NULL COMMENT '提单人数',
+  `first_submit_cnt` int(11) DEFAULT NULL COMMENT '首借人数',
+  `first_submit_amount` decimal(20,2) DEFAULT NULL COMMENT '首借金额',
+  `create_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '插入时间',
+  `personal_info_certi_cnt` int(11) DEFAULT NULL COMMENT '个人信息认证数',
+  `yys_cnt` int(11) DEFAULT NULL COMMENT '运营商认证数',
+  `bank_cnt` int(11) DEFAULT NULL COMMENT '银行卡绑定数',
+  `order_cnt` int(11) DEFAULT NULL COMMENT '申请订单数',
+  `pass_risk_cnt` int(11) DEFAULT NULL COMMENT '风控通过数',
+  `loan_success_cnt` int(11) DEFAULT NULL COMMENT '下款数',
+  `real_name_certi_rate` varchar(11) DEFAULT NULL COMMENT '实名认证率',
+  `personal_info_certi_rate` varchar(11) DEFAULT NULL COMMENT '个人信息认证率',
+  `yys_certi_rate` varchar(11) DEFAULT NULL COMMENT '运营商认证率',
+  `bank_bound_rate` varchar(11) DEFAULT NULL COMMENT '银行卡绑定率',
+  `reg_apply_trans_rate` varchar(11) DEFAULT NULL COMMENT '申请转化率',
+  `loan_rate` varchar(11) DEFAULT NULL COMMENT '下款率',
+  `audit_pass_rate` varchar(11) DEFAULT NULL COMMENT '审核通过率',
   PRIMARY KEY (`id`) USING BTREE,
-  UNIQUE INDEX `report_partner_effect_deduction`(`day_key`, `merchant`, `user_origin`) USING BTREE,
-  INDEX `idx_merchant`(`merchant`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '渠道统计报表(扣量)' ROW_FORMAT = Dynamic;
+  UNIQUE KEY `report_partner_effect_deduction` (`day_key`,`merchant`,`user_origin`) USING BTREE,
+  KEY `idx_merchant` (`merchant`) USING BTREE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC COMMENT='渠道统计报表(扣量)';
+
 
 DROP TABLE IF EXISTS `tb_user_deduction`;
 CREATE TABLE `tb_user_deduction`  (
@@ -1405,4 +1419,28 @@ CREATE TABLE `tb_merchant_quota_config`  (
   PRIMARY KEY (`id`) USING BTREE,
   INDEX `idx_merchant_borrow_type`(`merchant`, borrow_type) USING BTREE
 ) ENGINE = InnoDB  CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '商户提额配置表' ROW_FORMAT = Dynamic;
+
+-- sms_record
+DROP TABLE IF EXISTS `sms_record`;
+CREATE TABLE `sms_record` (
+  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '主键',
+  `merchant` varchar(30) NOT NULL COMMENT '商户别名',
+  `channel` int(4) NOT NULL COMMENT '短信渠道 1 创蓝  2 飞鸽',
+  `content` varchar(255) DEFAULT NULL COMMENT '短信内容',
+  `create_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='短信发送历史表';
+
+-- tb_merchant_moxie_config
+DROP TABLE IF EXISTS `tb_merchant_moxie_config`;
+CREATE TABLE `tb_merchant_moxie_config` (
+  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '主键',
+  `merchant` varchar(16) NOT NULL COMMENT '商户名称',
+  `moxie_token` varchar(2048) NOT NULL COMMENT '商户对应的魔蝎秘钥',
+  `moxie_secret` varchar(2048) NOT NULL COMMENT '魔蝎的异步回调秘钥',
+  `create_time` datetime DEFAULT NULL COMMENT '创建时间',
+  `update_time` datetime DEFAULT NULL COMMENT '更新时间',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `idx_merchant` (`merchant`) USING BTREE
+) ENGINE = InnoDB  CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '商户魔蝎配置表' ROW_FORMAT = Dynamic;
 
