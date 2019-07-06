@@ -108,17 +108,24 @@ public class OrderApplyController {
     /**
      * h5 借款确认 提交订单
      */
-    @LoginRequired(check = true)
+    @LoginRequired
     @RequestMapping(value = "order_submit")
     public ResultMessage order_submit(@RequestParam(required = true) Long productId,
                                       @RequestParam(required = true) Integer productDay, @RequestParam(required = true) BigDecimal productMoney,
                                       @RequestParam(required = false) String phoneType, @RequestParam(required = false) String paramValue,
                                       @RequestParam(required = false) String phoneModel, @RequestParam(required = false) Integer phoneMemory) {
         Long uid = RequestThread.getUid();
-        if (!redisMapper.lock(RedisConst.lock_user_order + uid, 10*60)) {
+        // 加锁: 防止忘记释放 给个ttl, 3个小时
+        if (!redisMapper.lock(RedisConst.lock_user_order + uid, 3 * 60 * 60)) {
             return new ResultMessage(ResponseEnum.M4005);
         }
 
+        // 检查当前商户下是否有未完成订单, 只要有未完成的直接返回
+        if (orderService.countLoaningOrderByUid(uid) > 0) {
+            return new ResultMessage(ResponseEnum.M4005);
+        }
+
+        //
         MerchantRate merchantRate = merchantRateService.selectByPrimaryKey(productId);
         if (null == merchantRate) {
             return new ResultMessage(ResponseEnum.M4000.getCode(), "未查到规则");
@@ -165,7 +172,7 @@ public class OrderApplyController {
         // 是否在整个系统有正在进行的订单(查询所有商户)
         String certNo = user.getUserCertNo();
         // 检查是否存在多头借贷
-        if (dataCenterService.isMultiLoan(null, certNo,user.getMerchant())) {
+        if (dataCenterService.isMultiLoan(null, certNo, user.getMerchant())) {
             logger.info("存在多头借贷，无法提单， certNo={}", certNo);
             addOrder(uid, productId,
                     productMoney, phoneType, paramValue, phoneModel, phoneMemory, OrderEnum.AUTO_AUDIT_REFUSE.getCode(), new Date());
@@ -198,6 +205,9 @@ public class OrderApplyController {
         jsonObject.put("merchant", order.getMerchant());
 
         rabbitTemplate.convertAndSend(RabbitConst.queue_risk_order_notify, jsonObject);
+
+        // 释放锁
+        redisMapper.unlock(RedisConst.lock_user_order + uid);
 
         return new ResultMessage(ResponseEnum.M2000);
     }

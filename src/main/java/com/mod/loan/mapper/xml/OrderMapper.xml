@@ -33,6 +33,10 @@
     <result column="follow_user_id" jdbcType="BIGINT" property="followUserId" />
   </resultMap>
 
+  <select id="countLoaningOrderByUid" resultMap="int">
+    SELECT COUNT(*) from tb_order WHERE uid = #{uid} AND `status` &lt; 40
+  </select>
+  
   <select id="findUserLatestOrder" resultMap="BaseResultMap">
     select * from tb_order where uid=#{uid} order by id desc limit 1
   </select>
