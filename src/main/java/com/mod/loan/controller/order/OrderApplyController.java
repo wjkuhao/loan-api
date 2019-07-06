@@ -169,16 +169,6 @@ public class OrderApplyController {
             return new ResultMessage(ResponseEnum.M2000);
         }
 
-        // 是否在整个系统有正在进行的订单(查询所有商户)
-        String certNo = user.getUserCertNo();
-        // 检查是否存在多头借贷
-        if (dataCenterService.isMultiLoan(null, certNo, user.getMerchant())) {
-            logger.info("存在多头借贷，无法提单， certNo={}", certNo);
-            addOrder(uid, productId,
-                    productMoney, phoneType, paramValue, phoneModel, phoneMemory, OrderEnum.AUTO_AUDIT_REFUSE.getCode(), new Date());
-            return new ResultMessage(ResponseEnum.M2000);
-        }
-
         //灰名单客户直接进入人审
         if (blacklist != null && 1 == blacklist.getType()) {
             addOrder(uid, productId,
@@ -195,6 +185,16 @@ public class OrderApplyController {
                         productMoney, phoneType, paramValue, phoneModel, phoneMemory, OrderEnum.WAIT_LOAN.getCode(), new Date());
                 return new ResultMessage(ResponseEnum.M2000);
             }
+        }
+
+        // 是否在整个系统有正在进行的订单(查询所有商户)
+        String certNo = user.getUserCertNo();
+        // 检查是否存在多头借贷
+        if (dataCenterService.isMultiLoan(null, certNo, user.getMerchant())) {
+            logger.info("存在多头借贷，无法提单， certNo={}", certNo);
+            addOrder(uid, productId,
+                    productMoney, phoneType, paramValue, phoneModel, phoneMemory, OrderEnum.AUTO_AUDIT_REFUSE.getCode(), new Date());
+            return new ResultMessage(ResponseEnum.M2000);
         }
 
         Order order = addOrder(uid, productId,
