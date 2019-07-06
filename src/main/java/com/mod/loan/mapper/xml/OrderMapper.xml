@@ -33,7 +33,7 @@
     <result column="follow_user_id" jdbcType="BIGINT" property="followUserId" />
   </resultMap>
 
-  <select id="countLoaningOrderByUid" resultMap="int">
+  <select id="countLoaningOrderByUid" resultType="integer">
     SELECT COUNT(*) from tb_order WHERE uid = #{uid} AND `status` &lt; 40
   </select>
   
