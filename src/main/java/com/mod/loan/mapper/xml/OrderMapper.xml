@@ -46,7 +46,7 @@
   </select>
 
   <select id="judgeUserTypeByUid" resultType="int">
-    select CASE WHEN count(*) > 3 THEN 3 WHEN count(*) &lt; 1 THEN 1 ELSE count(*) END AS userType FROM tb_order WHERE `uid` = #{uid} AND `status` IN (41, 42, 43)
+    select if(count(*) > 2, 2, count(*)) + 1 AS userType FROM tb_order WHERE uid=#{uid} AND `status` IN (41, 42, 43)
   </select>
 
   <select id="countPaySuccessByUid" resultType="int">
