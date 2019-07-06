@@ -16,7 +16,6 @@ import com.mod.loan.mapper.UserInfoMapper;
 import com.mod.loan.model.*;
 import com.mod.loan.model.dto.UserContact;
 import com.mod.loan.service.OrderService;
-//import com.mod.loan.service.ThirdCallHistoryService;
 import com.mod.loan.service.UserService;
 import com.mod.loan.util.Base64ToMultipartFileUtil;
 import com.mod.loan.util.CheckUtils;
@@ -65,8 +64,6 @@ public class RealNameController {
 	UserService userService;
 	@Autowired
 	private RabbitTemplate rabbitTemplate;
-//	@Autowired
-//	private ThirdCallHistoryService thirdCallHistoryService;
 
 
 	@Api
@@ -354,13 +351,6 @@ public class RealNameController {
             //app端透传uid
             Long uid = Long.parseLong(jsonObject.getString("partner_order_id"));
             UserIdent userIdent= userIdentMapper.selectByPrimaryKey(uid);
-//            if(userIdent!=null){
-//				User user = userService.selectByPrimaryKey(userIdent.getUid());
-//				if(user!=null){
-//                    logger.error("uid={},更新认证信息失败:{}！", uid, "用户不存在");
-//                    thirdCallHistoryService.addCount(user.getMerchant(),"1",uid);
-//				}
-//			}
             if (userIdent != null && (userIdent.getLiveness() == 2 || userIdent.getRealName() == 2)) {
                 return new ResultMessage(ResponseEnum.M4000.getCode(), "请不要重复认证");
             }
