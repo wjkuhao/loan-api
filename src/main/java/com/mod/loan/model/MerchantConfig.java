@@ -73,6 +73,12 @@ public class MerchantConfig {
     @Column(name = "user_pay_confirm")
     private Integer userPayConfirm;
 
+    /**
+     * 运营商类型：tongdun.同盾，moxie.魔蝎
+     */
+    @Column(name = "yys_operator_type")
+    private String yysOperatorType;
+
     public Integer getPromoteQuotaType() {
         return promoteQuotaType;
     }
@@ -223,5 +229,13 @@ public class MerchantConfig {
 
     public void setUserPayConfirm(Integer userPayConfirm) {
         this.userPayConfirm = userPayConfirm;
+    }
+
+    public String getYysOperatorType() {
+        return yysOperatorType;
+    }
+
+    public void setYysOperatorType(String yysOperatorType) {
+        this.yysOperatorType = yysOperatorType;
     }
 }

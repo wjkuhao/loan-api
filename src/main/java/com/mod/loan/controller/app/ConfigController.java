@@ -1,22 +1,24 @@
 package com.mod.loan.controller.app;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import com.mod.loan.common.annotation.LoginRequired;
-import com.mod.loan.mapper.OrderMapper;
-import com.mod.loan.model.*;
-import com.mod.loan.service.*;
+import com.mod.loan.common.annotation.Api;
+import com.mod.loan.common.enums.ResponseEnum;
+import com.mod.loan.common.model.RequestThread;
+import com.mod.loan.common.model.ResultMessage;
+import com.mod.loan.model.AppConfig;
+import com.mod.loan.model.AppStartup;
+import com.mod.loan.model.Merchant;
+import com.mod.loan.model.MerchantConfig;
+import com.mod.loan.service.AppConfigService;
+import com.mod.loan.service.AppService;
+import com.mod.loan.service.MerchantConfigService;
+import com.mod.loan.service.MerchantService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.mod.loan.common.annotation.Api;
-import com.mod.loan.common.enums.ResponseEnum;
-import com.mod.loan.common.model.RequestThread;
-import com.mod.loan.common.model.ResultMessage;
+import java.util.HashMap;
+import java.util.Map;
 
 @CrossOrigin("*")
 @RestController
@@ -28,6 +30,8 @@ public class ConfigController {
 	private MerchantService merchantService;
 	@Autowired
 	private AppConfigService appConfigService;
+    @Autowired
+    MerchantConfigService merchantConfigService;
 
 	/**
 	 * 启动页，首页图片弹窗
@@ -92,4 +96,13 @@ public class ConfigController {
         AppConfig appConfigNew = appConfigService.selectByClientAlias(clientAlias);
 		return new ResultMessage(ResponseEnum.M2000, appConfigNew);
 	}
+
+    /**
+     * app获取商户信息信息查询
+     */
+    @RequestMapping(value = "/merchantConfig")
+    public ResultMessage getMerchantConfig(String clientAlias) {
+        MerchantConfig merchantConfig = merchantConfigService.selectByMerchant(clientAlias);
+        return new ResultMessage(ResponseEnum.M2000, merchantConfig);
+    }
 }
