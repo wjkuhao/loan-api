@@ -1046,8 +1046,7 @@ CREATE TABLE `tb_user`  (
   PRIMARY KEY (`id`) USING BTREE,
   UNIQUE INDEX `idx_phone_merchant`(`user_phone`, `merchant`) USING BTREE,
   INDEX `idx_user_origin`(`user_origin`) USING BTREE,
-  INDEX `idx_merchant`(`merchant`) USING BTREE,
-  INDEX `idx_create_time`(`create_time`) USING BTREE,
+  INDEX `idx_create_time_merchant`(`create_time`, `merchant`) USING BTREE,
   INDEX `idx_user_cert_no`(`user_cert_no`) USING BTREE
 ) ENGINE = InnoDB  CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
 
@@ -1140,7 +1139,9 @@ CREATE TABLE `tb_user_ident`  (
   `create_time` datetime(0) NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   `update_time` datetime(0) NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP(0) COMMENT '更新时间',
   PRIMARY KEY (`uid`) USING BTREE,
-  INDEX `idx_real_name_time`(`real_name_time`) USING BTREE
+  INDEX `idx_real_name_time`(`real_name_time`) USING BTREE,
+  INDEX `idx_user_details_time`(`user_details_time`) USING BTREE,
+  INDEX `idx_bindbank_time`(`bindbank_time`) USING BTREE
 ) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '用户信息认证' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
