@@ -181,7 +181,7 @@ public class RegisterController {
 
 
     // 不需要验证码注册
-    @RequestMapping(value = "register_no_code")
+//    @RequestMapping(value = "register_no_code")
     public ResultMessage user_register_no_code(String phone, String password, String alias,
                                                String origin_id, String browser_type) {
         if (StringUtils.isBlank(origin_id)) {
