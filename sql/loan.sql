@@ -223,7 +223,8 @@ CREATE TABLE `tb_app_feedback`  (
   `create_time` datetime(0) NULL DEFAULT CURRENT_TIMESTAMP,
   `merchant` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL,
   PRIMARY KEY (`id`) USING BTREE,
-  INDEX `uid`(`uid`) USING BTREE
+  INDEX `uid`(`uid`) USING BTREE,
+  INDEX `idx_merchant_create_time`(`merchant`, `create_time`) USING BTREE
 ) ENGINE = InnoDB  CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '意见反馈' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
