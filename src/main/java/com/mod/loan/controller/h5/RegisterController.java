@@ -1,12 +1,16 @@
 package com.mod.loan.controller.h5;
 
+import com.alibaba.fastjson.JSON;
 import com.google.code.kaptcha.impl.DefaultKaptcha;
 import com.mod.loan.common.enums.ResponseEnum;
 import com.mod.loan.common.model.ResultMessage;
 import com.mod.loan.config.rabbitmq.RabbitConst;
 import com.mod.loan.config.redis.RedisConst;
 import com.mod.loan.config.redis.RedisMapper;
-import com.mod.loan.model.*;
+import com.mod.loan.model.Blacklist;
+import com.mod.loan.model.MerchantOrigin;
+import com.mod.loan.model.Order;
+import com.mod.loan.model.UserRegisterCodeStat;
 import com.mod.loan.service.*;
 import com.mod.loan.util.*;
 import com.mod.loan.util.sms.EnumSmsTemplate;
@@ -208,7 +212,7 @@ public class RegisterController {
             }
 
             // 检查是否存在多头借贷
-            if(dataCenterService.isMultiLoan(phone, null,alias)){
+            if (dataCenterService.isMultiLoan(phone, null, alias)) {
                 logger.info("存在多头借贷，无法注册， phone={}", phone);
                 return new ResultMessage(ResponseEnum.M4000.getCode(), "审核不通过");
             }
@@ -230,8 +234,8 @@ public class RegisterController {
 
     // 不需要验证码注册
     @RequestMapping(value = "register_no_code")
-    public ResultMessage user_register_no_code(String phone, String password,String alias,
-                                       String origin_id, String browser_type) {
+    public ResultMessage user_register_no_code(String phone, String password, String alias,
+                                               String origin_id, String browser_type) {
         if (StringUtils.isBlank(origin_id)) {
             origin_id = "android";
         }
@@ -272,6 +276,13 @@ public class RegisterController {
         }
 
         MerchantOrigin merchantOrigin = merchantOriginService.selectByPrimaryKey(Long.valueOf(origin_id));
+
+        // 检查是否该merchant的渠道号
+        if (null == alias || !alias.equals(merchantOrigin.getMerchant())) {
+            logger.error("渠道号异常: merchant:{}, merchantOrigin:{}", alias, JSON.toJSON(merchantOrigin));
+            return new ResultMessage(ResponseEnum.M4000.getCode(), "渠道编号异常");
+        }
+
         if (merchantOrigin.getCheckBlacklist() == 1) {
             Blacklist blacklist = blacklistService.getByPhone(phone);
             if (null != blacklist) {
@@ -282,7 +293,7 @@ public class RegisterController {
 
         if (merchantOrigin.getCheckRepay() == 1) {
             // 检查是否存在多头借贷
-            if(dataCenterService.isMultiLoan(phone, null,alias)){
+            if (dataCenterService.isMultiLoan(phone, null, alias)) {
                 logger.info("存在多头借贷，无法注册， phone={}", phone);
                 return new ResultMessage(ResponseEnum.M4000.getCode(), "审核不通过");
             }
