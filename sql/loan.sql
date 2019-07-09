@@ -223,7 +223,8 @@ CREATE TABLE `tb_app_feedback`  (
   `create_time` datetime(0) NULL DEFAULT CURRENT_TIMESTAMP,
   `merchant` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL,
   PRIMARY KEY (`id`) USING BTREE,
-  INDEX `uid`(`uid`) USING BTREE
+  INDEX `uid`(`uid`) USING BTREE,
+  INDEX `idx_merchant_create_time`(`merchant`, `create_time`) USING BTREE
 ) ENGINE = InnoDB  CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '意见反馈' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
@@ -577,6 +578,7 @@ CREATE TABLE `tb_merchant_config`  (
   `old_customer_risk` tinyint(1) DEFAULT 0 COMMENT '老客是否过风控:0-不过风控 1-过风控',
   `multi_loan_merchant` VARCHAR(1024) DEFAULT null COMMENT '共债检查商户。未设置就是检查所有；设置了就是检查指定商户，多个商户逗号分割',
   `multi_loan_count` tinyint(1) DEFAULT 0 COMMENT '允许的共债系统个数。大于设置的共债数量则拒绝',
+  `yys_operator_type` varchar(20) DEFAULT 'tongdun' COMMENT '运营商类型：tongdun.同盾，moxie.魔蝎',
   `create_time` CHAR(19) DEFAULT NULL COMMENT '插入时间',
   `update_time` CHAR(19) DEFAULT NULL COMMENT '更新时间',
   PRIMARY KEY (`id`) USING BTREE,
@@ -1044,8 +1046,7 @@ CREATE TABLE `tb_user`  (
   PRIMARY KEY (`id`) USING BTREE,
   UNIQUE INDEX `idx_phone_merchant`(`user_phone`, `merchant`) USING BTREE,
   INDEX `idx_user_origin`(`user_origin`) USING BTREE,
-  INDEX `idx_merchant`(`merchant`) USING BTREE,
-  INDEX `idx_create_time`(`create_time`) USING BTREE,
+  INDEX `idx_create_time_merchant`(`create_time`, `merchant`) USING BTREE,
   INDEX `idx_user_cert_no`(`user_cert_no`) USING BTREE
 ) ENGINE = InnoDB  CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
 
@@ -1138,7 +1139,9 @@ CREATE TABLE `tb_user_ident`  (
   `create_time` datetime(0) NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   `update_time` datetime(0) NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP(0) COMMENT '更新时间',
   PRIMARY KEY (`uid`) USING BTREE,
-  INDEX `idx_real_name_time`(`real_name_time`) USING BTREE
+  INDEX `idx_real_name_time`(`real_name_time`) USING BTREE,
+  INDEX `idx_user_details_time`(`user_details_time`) USING BTREE,
+  INDEX `idx_bindbank_time`(`bindbank_time`) USING BTREE
 ) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '用户信息认证' ROW_FORMAT = Dynamic;
 
 -- ----------------------------

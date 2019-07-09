@@ -12,10 +12,7 @@ import com.mod.loan.config.redis.RedisMapper;
 import com.mod.loan.mapper.AppFeedbackMapper;
 import com.mod.loan.mapper.UserDeviceMapper;
 import com.mod.loan.mapper.UserMapper;
-import com.mod.loan.model.AppFeedback;
-import com.mod.loan.model.MerchantConfig;
-import com.mod.loan.model.User;
-import com.mod.loan.model.UserDevice;
+import com.mod.loan.model.*;
 import com.mod.loan.service.*;
 import com.mod.loan.util.CheckUtils;
 import com.mod.loan.util.RandomUtils;
@@ -56,6 +53,8 @@ public class UserController {
     private RedisMapper redisMapper;
     @Autowired
     private UserService userService;
+    @Autowired
+    private UserIdentService userIdentService;
     @Autowired
     private RabbitTemplate rabbitTemplate;
     @Autowired
@@ -211,7 +210,7 @@ public class UserController {
         }
         //自然流量开关
         MerchantConfig merchantConfig = merchantConfigService.selectByMerchant(RequestThread.getClientAlias());
-        if (merchantConfig!=null && merchantConfig.getDefaultOriginStatus()==0){
+        if (merchantConfig != null && merchantConfig.getDefaultOriginStatus() == 0) {
             return new ResultMessage(ResponseEnum.M4000.getCode(), "当前渠道不能注册");
         }
 
@@ -324,17 +323,29 @@ public class UserController {
     @LoginRequired(check = true)
     @Api
     public ResultMessage feedback(String questionType, String questionDesc, String questionImg) {
-        if (!StringUtils.isBlank(questionDesc)) {
-            questionDesc = StringReplaceUtil.replaceInvaildString(questionDesc);
+        UserIdent userIdent = userIdentService.selectByPrimaryKey(RequestThread.getUid());
+        //实名认证通过的才能反馈
+        if (2 == userIdent.getLiveness()) {
+            //每十分钟才能反馈一次
+            int count = feedbackMapper.selectFeedbackCount(RequestThread.getUid());
+            if (count <= 0) {
+                if (!StringUtils.isBlank(questionDesc)) {
+                    questionDesc = StringReplaceUtil.replaceInvaildString(questionDesc);
+                }
+                AppFeedback appFeedback = new AppFeedback();
+                appFeedback.setUid(RequestThread.getUid());
+                appFeedback.setQuestionType(questionType);
+                appFeedback.setQuestionImg(questionImg);
+                appFeedback.setQuestionDesc(questionDesc);
+                appFeedback.setMerchant(RequestThread.getClientAlias());
+                feedbackMapper.insertSelective(appFeedback);
+                return new ResultMessage(ResponseEnum.M2000);
+            } else {
+                return new ResultMessage(ResponseEnum.M4005);
+            }
+        } else {
+            return new ResultMessage(ResponseEnum.M3006);
         }
-        AppFeedback appFeedback = new AppFeedback();
-        appFeedback.setUid(RequestThread.getUid());
-        appFeedback.setQuestionType(questionType);
-        appFeedback.setQuestionImg(questionImg);
-        appFeedback.setQuestionDesc(questionDesc);
-        appFeedback.setMerchant(RequestThread.getClientAlias());
-        feedbackMapper.insertSelective(appFeedback);
-        return new ResultMessage(ResponseEnum.M2000);
     }
 
     @LoginRequired(check = false)
@@ -360,8 +371,6 @@ public class UserController {
     /**
      * 点击PV、UV统计
      *
-     * @param userId        用户id
-     * @param merchant      商户名称
      * @param loanMarketUrl 贷超链接
      * @return
      * @author NIELIN 20190604

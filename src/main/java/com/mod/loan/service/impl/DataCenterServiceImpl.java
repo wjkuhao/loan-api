@@ -77,6 +77,7 @@ public class DataCenterServiceImpl implements DataCenterService {
 			reqJson.put("orderId", orderId);
 
 			String result = okHttpReader.postJson(Constant.MULTI_LOAN_DEL_URL, reqJson.toJSONString(), null);
+			logger.info("delMultiLoanOrder merchant={},orderId={}, result={}", merchant, orderId, result);
 
 			JSONObject respObject = JSONObject.parseObject(result);
 			String status = respObject.getString("status");
