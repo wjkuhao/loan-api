@@ -61,7 +61,7 @@ public class RedisMapper {
     }
 
     public boolean lock(String key, long expire) {
-        Boolean lock = redisTemplate.opsForValue().setIfAbsent(key, key);
+        Boolean lock = redisTemplate.opsForValue().setIfAbsent(key, "0");
         if (lock) {
             redisTemplate.expire(key, expire, TimeUnit.SECONDS);
         }
