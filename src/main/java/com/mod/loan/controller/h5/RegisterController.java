@@ -68,8 +68,6 @@ public class RegisterController {
     private UserRegisterCodeStatService userRegisterCodeStatService;
     @Autowired
     private DataCenterService dataCenterService;
-    @Autowired
-    private MerchantConfigService merchantConfigService;
 
     @RequestMapping(value = "graph_code")
     public ResultMessage graph_code() throws IOException {
