@@ -229,6 +229,12 @@ public class RegisterController {
 
         MerchantOrigin merchantOrigin = merchantOriginService.selectByPrimaryKey(Long.valueOf(origin_id));
 
+        // 检查渠道号是否禁用
+        if (null == merchantOrigin || merchantOrigin.getStatus() != 0) {
+            logger.error("渠道号异常: merchant: {}, merchantOrigin: {}", alias, JSON.toJSON(merchantOrigin));
+            return new ResultMessage(ResponseEnum.M4000.getCode(), "渠道编号异常");
+        }
+
         // 检查是否该merchant的渠道号
         if (null == alias || !alias.equals(merchantOrigin.getMerchant())) {
             logger.error("渠道号异常: merchant:{}, merchantOrigin:{}", alias, JSON.toJSON(merchantOrigin));
