@@ -83,7 +83,7 @@ public class LoanOrderController {
         String uid = String.valueOf(verifyToken.get("uid"));
         String merchant = String.valueOf(verifyToken.get("clientAlias"));
         //信达钱包
-        if("dit".equalsIgnoreCase(merchant)){
+        if ("dit".equalsIgnoreCase(merchant)) {
             map.put("amount", "3000-10000");
         }
         UserIdent userIdent = userIdentService.selectByPrimaryKey(Long.parseLong(uid));
@@ -521,23 +521,26 @@ public class LoanOrderController {
                 && merchantNeedLoanMarketButton.contains(alias)) {
             try {
                 OrderRiskInfo orderRiskInfo = orderRiskInfoService.getLastOneByOrderId(orderId);
-                String riskModelScore = orderRiskInfo.getRiskModelScore();
-                if (StringUtils.isEmpty(riskModelScore)) {
-                    riskModelScore = orderRiskInfoService.updateRiskMotelScore(orderRiskInfo.getId());
-                }
-                JSONObject riskModelScoreJson = JSON.parseObject(riskModelScore);
-                String tianjiScore = riskModelScoreJson.getString("天机-小额模型分");
-                //天机分520分以下显示按钮
-                if (Double.valueOf(tianjiScore) < 520) {
-                    showButton = 1;
+                // check null
+                if (null != orderRiskInfo) {
+                    String riskModelScore = orderRiskInfo.getRiskModelScore();
+                    if (StringUtils.isEmpty(riskModelScore)) {
+                        riskModelScore = orderRiskInfoService.updateRiskMotelScore(orderRiskInfo.getId());
+                    }
+                    JSONObject riskModelScoreJson = JSON.parseObject(riskModelScore);
+                    String tianjiScore = riskModelScoreJson.getString("天机-小额模型分");
+                    //天机分520分以下显示按钮
+                    if (Double.valueOf(tianjiScore) < 520) {
+                        showButton = 1;
 
-                    Merchant merchant = merchantService.findMerchantByAlias(alias);
-                    if (StringUtils.isBlank(merchant.getMerchantMarket())) {
-                        map.put("url", Constant.SERVER_H5_URL + "market.html?");
-                    } else if ("order".equals(merchant.getMerchantMarket())) {
-                        map.put("url", Constant.SERVER_H5_URL + "order/store_order_detail.html?orderId=" + orderId);
-                    } else {
-                        map.put("url", merchant.getMerchantMarket());
+                        Merchant merchant = merchantService.findMerchantByAlias(alias);
+                        if (StringUtils.isBlank(merchant.getMerchantMarket())) {
+                            map.put("url", Constant.SERVER_H5_URL + "market.html?");
+                        } else if ("order".equals(merchant.getMerchantMarket())) {
+                            map.put("url", Constant.SERVER_H5_URL + "order/store_order_detail.html?orderId=" + orderId);
+                        } else {
+                            map.put("url", merchant.getMerchantMarket());
+                        }
                     }
                 }
             } catch (Exception e) {
