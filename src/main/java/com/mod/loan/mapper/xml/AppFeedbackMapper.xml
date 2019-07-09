@@ -13,4 +13,12 @@
     <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
     <result column="merchant" jdbcType="VARCHAR" property="merchant" />
   </resultMap>
+
+  <select id="selectFeedbackCount" resultType="int">
+    SELECT COUNT(1) FROM (
+      SELECT create_time FROM tb_app_feedback WHERE uid = #{uid} ORDER BY id DESC LIMIT 1
+    ) a
+    WHERE TIMESTAMPDIFF(MINUTE, a.create_time, NOW()) <![CDATA[ <= ]]> 10;
+  </select>
+
 </mapper>
