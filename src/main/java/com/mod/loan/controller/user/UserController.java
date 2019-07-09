@@ -6,7 +6,6 @@ import com.mod.loan.common.annotation.LoginRequired;
 import com.mod.loan.common.enums.ResponseEnum;
 import com.mod.loan.common.model.RequestThread;
 import com.mod.loan.common.model.ResultMessage;
-import com.mod.loan.config.rabbitmq.RabbitConst;
 import com.mod.loan.config.redis.RedisConst;
 import com.mod.loan.config.redis.RedisMapper;
 import com.mod.loan.mapper.AppFeedbackMapper;
@@ -19,7 +18,6 @@ import com.mod.loan.util.RandomUtils;
 import com.mod.loan.util.StringReplaceUtil;
 import com.mod.loan.util.jwtUtil;
 import com.mod.loan.util.sms.EnumSmsTemplate;
-import com.mod.loan.util.sms.SmsMessage;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
 import org.slf4j.Logger;
@@ -323,29 +321,34 @@ public class UserController {
     @LoginRequired(check = true)
     @Api
     public ResultMessage feedback(String questionType, String questionDesc, String questionImg) {
-        UserIdent userIdent = userIdentService.selectByPrimaryKey(RequestThread.getUid());
-        //实名认证通过的才能反馈
-        if (2 == userIdent.getLiveness()) {
-            //每十分钟才能反馈一次
-            int count = feedbackMapper.selectFeedbackCount(RequestThread.getUid());
-            if (count <= 0) {
-                if (!StringUtils.isBlank(questionDesc)) {
-                    questionDesc = StringReplaceUtil.replaceInvaildString(questionDesc);
-                }
-                AppFeedback appFeedback = new AppFeedback();
-                appFeedback.setUid(RequestThread.getUid());
-                appFeedback.setQuestionType(questionType);
-                appFeedback.setQuestionImg(questionImg);
-                appFeedback.setQuestionDesc(questionDesc);
-                appFeedback.setMerchant(RequestThread.getClientAlias());
-                feedbackMapper.insertSelective(appFeedback);
-                return new ResultMessage(ResponseEnum.M2000);
-            } else {
-                return new ResultMessage(ResponseEnum.M4005);
-            }
-        } else {
-            return new ResultMessage(ResponseEnum.M3006);
+        Long uid = RequestThread.getUid();
+        UserIdent userIdent = userIdentService.selectByPrimaryKey(uid);
+        // 先检查实名认证
+        if (null == userIdent || 2 != userIdent.getRealName()) {
+            return new ResultMessage(ResponseEnum.M4000.getCode(), "请先完成实名认证在反馈");
         }
+        //
+        String feedbackCountKey = String.format(RedisConst.USER_FEEDBACK_COUNT, uid);
+        redisMapper.lock(feedbackCountKey, 60 * 60);// 设置计数的key和超时时间,,,不是锁
+        // 检查周期时间内的提交总次数
+        long feedbackCountByInterval = redisMapper.increment(feedbackCountKey, 1);
+        if (feedbackCountByInterval > 6) {
+            return new ResultMessage(ResponseEnum.M4000.getCode(), "操作过于频繁");
+        }
+
+        // 真正插入用户反馈
+        if (!StringUtils.isBlank(questionDesc)) {
+            questionDesc = StringReplaceUtil.replaceInvaildString(questionDesc);
+        }
+        AppFeedback appFeedback = new AppFeedback();
+        appFeedback.setUid(RequestThread.getUid());
+        appFeedback.setQuestionType(questionType);
+        appFeedback.setQuestionImg(questionImg);
+        appFeedback.setQuestionDesc(questionDesc);
+        appFeedback.setMerchant(RequestThread.getClientAlias());
+        feedbackMapper.insertSelective(appFeedback);
+        //
+        return new ResultMessage(ResponseEnum.M2000);
     }
 
     @LoginRequired(check = false)
