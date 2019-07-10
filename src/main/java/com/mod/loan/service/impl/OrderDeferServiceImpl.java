@@ -573,10 +573,11 @@ public class OrderDeferServiceImpl extends BaseServiceImpl<OrderDefer, Integer> 
         //幂等
         if (!orderDefer.getPayStatus().equals(OrderRepayStatusEnum.ACCEPT_SUCCESS.getCode())) {
             logger.info("该续期订单的状态不是受理成功的");
-            return null;
-        }
-        if (orderDefer.getPayStatus().equals(OrderRepayStatusEnum.REPAY_SUCCESS.getCode())) {
-            logger.info("该续期订单的状态是已还款成功的");
+            if (orderDefer.getPayStatus().equals(OrderRepayStatusEnum.REPAY_SUCCESS.getCode())) {
+                logger.info("该续期订单的状态是已还款成功的");
+                modifyOrderDeferByPayCallback(orderDefer);
+                return String.valueOf(orderId);
+            }
             return null;
         }
         //获取商户信息
