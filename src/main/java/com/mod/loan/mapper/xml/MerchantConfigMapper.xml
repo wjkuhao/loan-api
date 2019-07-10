@@ -18,8 +18,9 @@
     <result column="promote_quota_type" jdbcType="TINYINT" property="promoteQuotaType" />
     <result column="old_customer_risk" jdbcType="TINYINT" property="oldCustomerRisk" />
     <result column="multi_loan_merchant" jdbcType="VARCHAR" property="multiLoanMerchant" />
+    <result column="old_customer_20daysrest_risk" jdbcType="TINYINT" property="oldCustomer20DaysRestRisk" />
     <result column="multi_loan_count" jdbcType="TINYINT" property="multiLoanCount" />
-      <result column="yys_operator_type" jdbcType="VARCHAR" property="yysOperatorType"/>
+    <result column="yys_operator_type" jdbcType="VARCHAR" property="yysOperatorType"/>
     <result column="create_time" jdbcType="TINYINT" property="createTime" />
     <result column="update_time" jdbcType="VARCHAR" property="updateTime" />
   </resultMap>

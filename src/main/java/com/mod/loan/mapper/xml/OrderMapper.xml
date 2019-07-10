@@ -64,5 +64,7 @@
   <select id="findOneOverdueOrder" resultMap="BaseResultMap">
     select id from tb_order where uid=#{uid} and status in(33,34) limit 1
   </select>
-
+  <select id="findFinalRecordTime" resultType="date">
+   select * from (select real_repay_time from tb_order where uid = #{uid} order by  real_repay_time desc) as time limit 1;
+  </select>
 </mapper>

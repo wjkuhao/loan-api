@@ -1,5 +1,6 @@
 package com.mod.loan.service.impl;
 
+import java.util.Date;
 import java.util.List;
 
 import com.mod.loan.common.enums.OrderEnum;
@@ -155,6 +156,11 @@ public class OrderServiceImpl  extends BaseServiceImpl<Order,Long> implements Or
 		order.setId(orderId);
 		order.setStatus(OrderEnum.WAIT_LOAN.getCode());
 		orderMapper.updateByPrimaryKeySelective(order);
+	}
+
+	@Override
+	public Date findFinalRecordTime(Long uid) {
+		return orderMapper.findFinalRecordTime(uid);
 	}
 
 }

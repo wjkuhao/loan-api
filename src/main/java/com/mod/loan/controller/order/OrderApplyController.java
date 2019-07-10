@@ -13,6 +13,7 @@ import com.mod.loan.model.*;
 import com.mod.loan.service.*;
 import com.mod.loan.util.MoneyUtil;
 import com.mod.loan.util.StringUtil;
+import com.mod.loan.util.TimeUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
@@ -175,8 +176,19 @@ public class OrderApplyController {
                     productMoney, phoneType, paramValue, phoneModel, phoneMemory, OrderEnum.WAIT_AUDIT.getCode(), new Date());
             return new ResultMessage(ResponseEnum.M2000);
         }
-
+        //老客静置20天以下的不过风控
         MerchantConfig merchantConfig = merchantConfigService.selectByMerchant(user.getMerchant());
+        if(merchantConfig==null || merchantConfig.getOldCustomer20DaysRestRisk()==0){
+            Integer borrowType = orderService.countPaySuccessByUid(uid);
+            if (borrowType != null && borrowType > 0) {
+                Date finalRecordTime = orderService.findFinalRecordTime(uid);
+                if(TimeUtils.compareDate(finalRecordTime,20)){
+                    addOrder(uid, productId,
+                            productMoney, phoneType, paramValue, phoneModel, phoneMemory, OrderEnum.WAIT_LOAN.getCode(), new Date());
+                    return new ResultMessage(ResponseEnum.M2000);
+                }
+            }
+        }
         if (merchantConfig == null || merchantConfig.getOldCustomerRisk() == 0) {
             // 老客户不走风控，直接进入放款列表
             Integer borrowType = orderService.countPaySuccessByUid(uid);
