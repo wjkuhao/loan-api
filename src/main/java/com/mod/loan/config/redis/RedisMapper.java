@@ -13,86 +13,92 @@ import java.util.concurrent.TimeUnit;
 
 @Component
 public class RedisMapper {
-	private static ObjectMapper mapper = new ObjectMapper();
-	static {
-		mapper.setSerializationInclusion(Include.NON_NULL);
-		mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
-		mapper.configure(SerializationFeature.WRITE_NULL_MAP_VALUES, false);
-	}
-	@Autowired
-	StringRedisTemplate redisTemplate;
+    private static ObjectMapper mapper = new ObjectMapper();
 
-	public void expire(String key, long exp) {
-		redisTemplate.expire(key, exp, TimeUnit.SECONDS);
-	}
+    static {
+        mapper.setSerializationInclusion(Include.NON_NULL);
+        mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
+        mapper.configure(SerializationFeature.WRITE_NULL_MAP_VALUES, false);
+    }
 
-	public void remove(String key) {
-		redisTemplate.delete(key);
-	}
+    @Autowired
+    StringRedisTemplate redisTemplate;
 
-	public void set(String key, Object value) {
-		redisTemplate.opsForValue().set(key, serializer(value));
-	}
+    public void expire(String key, long exp) {
+        redisTemplate.expire(key, exp, TimeUnit.SECONDS);
+    }
 
-	public void set(String key, Object value, long exp) {
-		redisTemplate.opsForValue().set(key, serializer(value), exp, TimeUnit.SECONDS);
-	}
+    public void remove(String key) {
+        redisTemplate.delete(key);
+    }
 
-	public String get(String key) {
-		return redisTemplate.opsForValue().get(key);
-	}
+    public void set(String key, Object value) {
+        redisTemplate.opsForValue().set(key, serializer(value));
+    }
 
-	public void lpush(String key, Object value) {
-		redisTemplate.opsForList().leftPush(key, serializer(value));
-	}
+    public void set(String key, Object value, long exp) {
+        redisTemplate.opsForValue().set(key, serializer(value), exp, TimeUnit.SECONDS);
+    }
 
-	public String lpop(String key) {
-		return redisTemplate.opsForList().leftPop(key);
-	}
+    public String get(String key) {
+        return redisTemplate.opsForValue().get(key);
+    }
 
-	public <T> T lpop(String key, TypeReference<T> t) {
-		return deserializer(redisTemplate.opsForList().leftPop(key), t);
-	}
+    public void lpush(String key, Object value) {
+        redisTemplate.opsForList().leftPush(key, serializer(value));
+    }
 
-	public <T> T get(String key, TypeReference<T> t) {
-		return deserializer(redisTemplate.opsForValue().get(key), t);
-	}
+    public String lpop(String key) {
+        return redisTemplate.opsForList().leftPop(key);
+    }
 
-	public boolean lock(String key, long expire) {
-		Boolean lock = redisTemplate.opsForValue().setIfAbsent(key, key);
-		if (lock) {
-			redisTemplate.expire(key, expire, TimeUnit.SECONDS);
-		}
-		return lock;
-	}
-	
-	public void unlock(String key) {
-		redisTemplate.delete(key);
-	}
-	
-	private String serializer(Object value) {
-		try {
-			if (value instanceof String) {
-				return (String) value;
-			}
-			return mapper.writeValueAsString(value);
-		} catch (Exception ex) {
-			throw new RuntimeException("Could not write JSON: " + ex.getMessage(), ex);
-		}
-	}
+    public <T> T lpop(String key, TypeReference<T> t) {
+        return deserializer(redisTemplate.opsForList().leftPop(key), t);
+    }
 
-	public long increment(String key, long delta, long exp) {
-		Long current = redisTemplate.opsForValue().increment( key, delta);
-		redisTemplate.expire( key, exp, TimeUnit.SECONDS);
-		return current;
-	}
+    public <T> T get(String key, TypeReference<T> t) {
+        return deserializer(redisTemplate.opsForValue().get(key), t);
+    }
 
-	private <T> T deserializer(String value, TypeReference<T> t) {
-		try {
-			return value == null ? null : mapper.readValue(value, t);
-		} catch (Exception e) {
-			throw new RuntimeException("Could not write JSON: " + e.getMessage(), e);
-		}
-	}
+    public boolean lock(String key, long expire) {
+        Boolean lock = redisTemplate.opsForValue().setIfAbsent(key, "0");
+        if (lock) {
+            redisTemplate.expire(key, expire, TimeUnit.SECONDS);
+        }
+        return lock;
+    }
+
+    public void unlock(String key) {
+        redisTemplate.delete(key);
+    }
+
+    private String serializer(Object value) {
+        try {
+            if (value instanceof String) {
+                return (String) value;
+            }
+            return mapper.writeValueAsString(value);
+        } catch (Exception ex) {
+            throw new RuntimeException("Could not write JSON: " + ex.getMessage(), ex);
+        }
+    }
+
+    public long increment(String key, long delta, long exp) {
+        Long current = redisTemplate.opsForValue().increment(key, delta);
+        redisTemplate.expire(key, exp, TimeUnit.SECONDS);
+        return current;
+    }
+
+    public long increment(String key, long delta) {
+        return redisTemplate.opsForValue().increment(key, delta);
+    }
+
+    private <T> T deserializer(String value, TypeReference<T> t) {
+        try {
+            return value == null ? null : mapper.readValue(value, t);
+        } catch (Exception e) {
+            throw new RuntimeException("Could not write JSON: " + e.getMessage(), e);
+        }
+    }
 
 }

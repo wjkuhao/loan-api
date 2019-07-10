@@ -82,7 +82,7 @@ public class RegisterController {
         String uuid = UUID.randomUUID().toString();
         data.put("uuid", uuid);
         data.put("graph_code", "data:image/jpeg;base64," + base64String);
-        redisMapper.set("web_user_register_graph_code:" + uuid, createText, 120);
+        redisMapper.set(RedisConst.WEB_USER_GRAPH_CODE + uuid, createText, 120);
         return new ResultMessage(ResponseEnum.M2000, data);
     }
 
@@ -101,8 +101,8 @@ public class RegisterController {
             return new ResultMessage(ResponseEnum.M2001);
         }
 
-        String verifyCode = redisMapper.get("web_user_register_graph_code:" + uuid);
-        redisMapper.remove("web_user_register_graph_code:" + uuid);
+        String verifyCode = redisMapper.get(RedisConst.WEB_USER_GRAPH_CODE + uuid);
+        redisMapper.remove(RedisConst.WEB_USER_GRAPH_CODE + uuid);
         if (!graph_code.equals(verifyCode)) {
             return new ResultMessage(ResponseEnum.M2002);
         }
@@ -265,22 +265,16 @@ public class RegisterController {
 
         Long uid = userService.addUser(phone, MD5.toMD5(password), origin_id, alias, browser_type);
         userDeductionService.addUser(uid, origin_id, alias, phone);
-        //删缓存
+        // 删缓存
         redisMapper.remove(RedisConst.USER_PHONE_CODE + phone);
-        redisMapper.remove("web_user_register_graph_code:" + uuid);
+        redisMapper.remove(RedisConst.WEB_USER_GRAPH_CODE + uuid);
+        //
         return new ResultMessage(ResponseEnum.M2000);
     }
 
     /**
      * 带图形验证码的注册
      *
-     * @param phone
-     * @param password
-     * @param graph_code
-     * @param alias
-     * @param origin_id
-     * @param browser_type
-     * @param uuid
      * @return
      */
     @RequestMapping(value = "register_graph_code")
@@ -300,21 +294,17 @@ public class RegisterController {
             return new ResultMessage(ResponseEnum.M4000.getCode(), "密码至少6位");
         }
         if (StringUtils.isBlank(uuid)) {
-            return new ResultMessage(ResponseEnum.M4000.getCode(), "uuid不能为空");
+            return new ResultMessage(ResponseEnum.M4000.getCode(), "请求参数错误");
         }
         if (StringUtils.isBlank(graph_code)) {
-            return new ResultMessage(ResponseEnum.M4000.getCode(), "图形验证码不能为空");
+            return new ResultMessage(ResponseEnum.M4000.getCode(), "图形验证码错误");
         }
-        String verifyCode = redisMapper.get("web_user_register_graph_code:" + uuid);
+        String verifyCode = redisMapper.get(RedisConst.WEB_USER_GRAPH_CODE + uuid);
         if (verifyCode == null) {
             return new ResultMessage(ResponseEnum.M4000.getCode(), "图形验证码错误");
         }
         if (!graph_code.equals(verifyCode)) {
             return new ResultMessage(ResponseEnum.M2002);
-        }
-        UserRegisterCodeStat userRegisterCodeStat = userRegisterCodeStatService.selectDayCount(phone, alias);
-        if (userRegisterCodeStat.getDayCount().compareTo(3) > 0) {
-            return new ResultMessage(ResponseEnum.M4000.getCode(), "操作过于频繁");
         }
         if (merchantService.findMerchantByAlias(alias) == null) {
             return new ResultMessage(ResponseEnum.M4000.getCode(), "商户不存在");
