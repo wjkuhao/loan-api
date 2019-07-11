@@ -1448,3 +1448,57 @@ CREATE TABLE `tb_merchant_moxie_config` (
   UNIQUE KEY `idx_merchant` (`merchant`) USING BTREE
 ) ENGINE = InnoDB  CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '商户魔蝎配置表' ROW_FORMAT = Dynamic;
 
+
+-- tb_merchant_fee
+DROP TABLE IF EXISTS `tb_merchant_fee`;
+CREATE TABLE `tb_merchant_fee` (
+  `merchant_alias` varchar(20) CHARACTER SET utf8 NOT NULL COMMENT '商户号',
+  `sms1_price` decimal(6,2) DEFAULT NULL COMMENT '短信1创蓝单价',
+  `sms2_price` decimal(6,2) DEFAULT NULL COMMENT '短信2飞鸽单价',
+  `youdun_price` decimal(6,2) DEFAULT NULL COMMENT '有盾单价',
+  `operator_price` decimal(6,2) DEFAULT NULL COMMENT '运营商单价',
+  `risk_price` decimal(6,2) DEFAULT NULL COMMENT '风控单价',
+  `create_time` datetime DEFAULT NULL,
+  `update_time` datetime DEFAULT NULL COMMENT '修改时间',
+  PRIMARY KEY (`merchant_alias`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='商户费用项单价配置';
+
+
+-- tb_merchant_fee_statistics
+DROP TABLE IF EXISTS `tb_merchant_fee_statistics`;
+CREATE TABLE `tb_merchant_fee_statistics` (
+  `day` varchar(20) NOT NULL COMMENT '日期yyyy-MM-dd',
+  `merchant` varchar(20) NOT NULL COMMENT '商户别名',
+  `sms1_price` decimal(6,2) DEFAULT NULL COMMENT '短信1创蓝单价',
+  `sms1_count` int(11) DEFAULT NULL COMMENT '短信1创蓝条数',
+  `sms1_fee` decimal(12,2) DEFAULT NULL COMMENT '短信1创蓝总费用',
+  `sms2_price` decimal(6,2) DEFAULT NULL COMMENT '飞鸽单价',
+  `sms2_count` int(11) DEFAULT NULL COMMENT '飞鸽条数',
+  `sms2_fee` decimal(12,2) DEFAULT NULL COMMENT '飞鸽总费用',
+  `youdun_price` decimal(6,2) DEFAULT NULL COMMENT '有盾单价',
+  `youdun_count` int(11) DEFAULT NULL COMMENT '有盾次数',
+  `youdun_fee` decimal(12,2) DEFAULT NULL COMMENT '有盾总费用',
+  `operator_price` decimal(6,2) DEFAULT NULL COMMENT '运营商单价',
+  `operator_count` int(11) DEFAULT NULL COMMENT '运营商个数',
+  `operator_fee` decimal(12,2) DEFAULT NULL COMMENT '运营商费用',
+  `risk_price` decimal(6,2) DEFAULT NULL COMMENT '风控单价',
+  `risk_count` int(11) DEFAULT NULL COMMENT '风控个数',
+  `risk_fee` decimal(12,2) DEFAULT NULL COMMENT '风控费用',
+  `refused_count` int(11) DEFAULT NULL COMMENT '风控拒绝量',
+  PRIMARY KEY (`day`,`merchant`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='商户费用统计表';
+
+-- tb_third_call_history
+DROP TABLE IF EXISTS `tb_third_call_history`;
+CREATE TABLE `tb_third_call_history` (
+  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '主键',
+  `merchant` varchar(30) NOT NULL COMMENT '商户别名',
+  `day` varchar(20) NOT NULL COMMENT '日期yyyy-MM-dd',
+  `code` varchar(11) DEFAULT NULL COMMENT '区分不同第三方 1 有盾 2 运营商',
+  `create_time` datetime DEFAULT NULL,
+  `uid` bigint(20) NOT NULL COMMENT 'user表主键',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `idx_merchant_code_day` (`merchant`,`day`,`code`) USING BTREE,
+  KEY `idx_day` (`day`) USING BTREE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='第三方调用历史表';
+
