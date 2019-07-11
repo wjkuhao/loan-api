@@ -337,6 +337,26 @@ CREATE TABLE `tb_blacklist`  (
   INDEX `idx_tel`(`tel`) USING BTREE
 ) ENGINE = InnoDB  CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '商户自建黑名单' ROW_FORMAT = Dynamic;
 
+
+
+SET FOREIGN_KEY_CHECKS=0;
+
+-- ----------------------------
+-- Table structure for tb_whitelist
+-- ----------------------------
+DROP TABLE IF EXISTS `tb_whitelist`;
+CREATE TABLE `tb_whitelist` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `tel` varchar(20) DEFAULT NULL COMMENT '手机号',
+  `cert_no` varchar(20) DEFAULT NULL COMMENT '身份证',
+  `name` varchar(20) DEFAULT NULL COMMENT '姓名',
+  `create_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `update_time` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE=InnoDB AUTO_INCREMENT=523340 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC COMMENT='客户白名单';
+
+
+
 -- ----------------------------
 -- Table structure for tb_manager
 -- ----------------------------
@@ -837,7 +857,8 @@ CREATE TABLE `tb_order`  (
   INDEX `idx_uid`(`uid`) USING BTREE,
   INDEX `idx_merchant`(`merchant`) USING BTREE,
   INDEX `idx_status`(`status`) USING BTREE,
-  INDEX `idx_create_time`(`create_time`) USING BTREE
+  INDEX `idx_create_time`(`create_time`) USING BTREE,
+  INDEX `idx_update_time` (`update_time`) USING BTREE
 ) ENGINE = InnoDB  CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '订单表' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
@@ -1048,7 +1069,8 @@ CREATE TABLE `tb_user`  (
   UNIQUE INDEX `idx_phone_merchant`(`user_phone`, `merchant`) USING BTREE,
   INDEX `idx_user_origin`(`user_origin`) USING BTREE,
   INDEX `idx_create_time_merchant`(`create_time`, `merchant`) USING BTREE,
-  INDEX `idx_user_cert_no`(`user_cert_no`) USING BTREE
+  INDEX `idx_user_cert_no`(`user_cert_no`) USING BTREE,
+  INDEX `idx_update_time` (`update_time`) USING BTREE
 ) ENGINE = InnoDB  CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
@@ -1142,7 +1164,8 @@ CREATE TABLE `tb_user_ident`  (
   PRIMARY KEY (`uid`) USING BTREE,
   INDEX `idx_real_name_time`(`real_name_time`) USING BTREE,
   INDEX `idx_user_details_time`(`user_details_time`) USING BTREE,
-  INDEX `idx_bindbank_time`(`bindbank_time`) USING BTREE
+  INDEX `idx_bindbank_time`(`bindbank_time`) USING BTREE,
+  INDEX `idx_update_time` (`update_time`) USING BTREE
 ) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '用户信息认证' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
@@ -1171,7 +1194,8 @@ CREATE TABLE `tb_user_info`  (
   `update_time` datetime(0) NULL DEFAULT NULL,
   PRIMARY KEY (`uid`) USING BTREE,
   INDEX `index_direct`(`direct_contact_phone`) USING BTREE,
-  INDEX `index_others`(`others_contact_phone`) USING BTREE
+  INDEX `index_others`(`others_contact_phone`) USING BTREE,
+  INDEX `index_update_time` (`update_time`) USING BTREE
 ) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
@@ -1193,7 +1217,8 @@ CREATE TABLE `tb_order_risk_info`  (
   PRIMARY KEY (`id`) USING BTREE,
   INDEX `idx_risk_id`(`risk_id`) USING BTREE,
   INDEX `idx_phone`(`user_phone`) USING BTREE,
-  INDEX `idx_order_id`(`order_id`) USING BTREE
+  INDEX `idx_order_id`(`order_id`) USING BTREE,
+  INDEX `idx_update_time` (`update_time`) USING BTREE
 ) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '用户风控信息' ROW_FORMAT = Dynamic;
 
 
