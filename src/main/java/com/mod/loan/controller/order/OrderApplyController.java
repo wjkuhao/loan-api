@@ -109,36 +109,37 @@ public class OrderApplyController {
     /**
      * h5 借款确认 提交订单
      */
-    @LoginRequired
+//    @LoginRequired
     @RequestMapping(value = "order_submit")
     public ResultMessage order_submit(@RequestParam(required = true) Long productId,
                                       @RequestParam(required = true) Integer productDay, @RequestParam(required = true) BigDecimal productMoney,
                                       @RequestParam(required = false) String phoneType, @RequestParam(required = false) String paramValue,
                                       @RequestParam(required = false) String phoneModel, @RequestParam(required = false) Integer phoneMemory) {
-        Long uid = RequestThread.getUid();
+//        Long uid = RequestThread.getUid();
+        long uid = 7951993;
         // 加锁: 防止忘记释放 给个ttl, 3个小时
-        if (!redisMapper.lock(RedisConst.lock_user_order + uid, 3 * 60 * 60)) {
-            return new ResultMessage(ResponseEnum.M4005);
-        }
-
-        // 检查当前商户下是否有未完成订单, 只要有未完成的直接返回
-        if (orderService.countLoaningOrderByUid(uid) > 0) {
-            return new ResultMessage(ResponseEnum.M4005);
-        }
-
-        //
-        MerchantRate merchantRate = merchantRateService.selectByPrimaryKey(productId);
-        if (null == merchantRate) {
-            return new ResultMessage(ResponseEnum.M4000.getCode(), "未查到规则");
-        }
-
-        UserIdent userIdent = userIdentService.selectByPrimaryKey(uid);
-        if (2 != userIdent.getRealName() || 2 != userIdent.getUserDetails() || 2 != userIdent.getBindbank()
-                || 2 != userIdent.getMobile() || 2 != userIdent.getLiveness() || 2 != userIdent.getAlipay()
-                || 2 != userIdent.getTaobao()) {
-            // 提示认证未完成
-            return new ResultMessage(ResponseEnum.M4000.getCode(), "认证未完成");
-        }
+//        if (!redisMapper.lock(RedisConst.lock_user_order + uid, 3 * 60 * 60)) {
+//            return new ResultMessage(ResponseEnum.M4005);
+//        }
+//
+//        // 检查当前商户下是否有未完成订单, 只要有未完成的直接返回
+//        if (orderService.countLoaningOrderByUid(uid) > 0) {
+//            return new ResultMessage(ResponseEnum.M4005);
+//        }
+//
+//        //
+//        MerchantRate merchantRate = merchantRateService.selectByPrimaryKey(productId);
+//        if (null == merchantRate) {
+//            return new ResultMessage(ResponseEnum.M4000.getCode(), "未查到规则");
+//        }
+//
+//        UserIdent userIdent = userIdentService.selectByPrimaryKey(uid);
+//        if (2 != userIdent.getRealName() || 2 != userIdent.getUserDetails() || 2 != userIdent.getBindbank()
+//                || 2 != userIdent.getMobile() || 2 != userIdent.getLiveness() || 2 != userIdent.getAlipay()
+//                || 2 != userIdent.getTaobao()) {
+//            // 提示认证未完成
+//            return new ResultMessage(ResponseEnum.M4000.getCode(), "认证未完成");
+//        }
 
         User user = userService.selectByPrimaryKey(uid);
         Blacklist blacklist = blacklistService.getByPhone(user.getUserPhone());
@@ -176,13 +177,14 @@ public class OrderApplyController {
                     productMoney, phoneType, paramValue, phoneModel, phoneMemory, OrderEnum.WAIT_AUDIT.getCode(), new Date());
             return new ResultMessage(ResponseEnum.M2000);
         }
-        //老客静置20天以下的不过风控
+        //老客静置指定的天数以下的不过风控
         MerchantConfig merchantConfig = merchantConfigService.selectByMerchant(user.getMerchant());
-        if(merchantConfig==null || merchantConfig.getOldCustomer20DaysRestRisk()==0){
+        if(merchantConfig==null || merchantConfig.getOldCustomerDaysRestRisk()!=null){
             Integer borrowType = orderService.countPaySuccessByUid(uid);
             if (borrowType != null && borrowType > 0) {
-                Date finalRecordTime = orderService.findFinalRecordTime(uid);
-                if(TimeUtils.compareDate(finalRecordTime,20)){
+                Order userLatestOrder = orderService.findUserLatestOrder(uid);
+                System.out.println(userLatestOrder.getRealRepayTime());
+                if(TimeUtils.compareDate(userLatestOrder.getRealRepayTime(),merchantConfig.getOldCustomerDaysRestRisk())){
                     addOrder(uid, productId,
                             productMoney, phoneType, paramValue, phoneModel, phoneMemory, OrderEnum.WAIT_LOAN.getCode(), new Date());
                     return new ResultMessage(ResponseEnum.M2000);

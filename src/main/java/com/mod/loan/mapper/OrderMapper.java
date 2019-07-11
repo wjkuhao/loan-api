@@ -23,6 +23,4 @@ public interface OrderMapper extends MyBaseMapper<Order> {
 
     Order findOneOverdueOrder(Long uid);
 
-    Date findFinalRecordTime(Long uid);
-
 }

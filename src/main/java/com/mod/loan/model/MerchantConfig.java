@@ -69,8 +69,8 @@ public class MerchantConfig {
     /**
      * 老客静置20天风控，0 ：不风控 2 风控
      */
-    @Column(name = "old_customer_20daysrest_risk")
-    private Integer oldCustomer20DaysRestRisk;
+    @Column(name = "old_customer_daysrest_risk")
+    private Integer oldCustomerDaysRestRisk;
 
     @Column(name = "yys_operator_type")
     private String yysOperatorType;
@@ -227,12 +227,12 @@ public class MerchantConfig {
         this.userPayConfirm = userPayConfirm;
     }
 
-    public Integer getOldCustomer20DaysRestRisk() {
-        return oldCustomer20DaysRestRisk;
+    public Integer getOldCustomerDaysRestRisk() {
+        return oldCustomerDaysRestRisk;
     }
 
-    public void setOldCustomer20DaysRestRisk(Integer oldCustomer20DaysRestRisk) {
-        this.oldCustomer20DaysRestRisk = oldCustomer20DaysRestRisk;
+    public void setOldCustomerDaysRestRisk(Integer oldCustomerDaysRestRisk) {
+        this.oldCustomerDaysRestRisk = oldCustomerDaysRestRisk;
     }
 
     public String getYysOperatorType() {

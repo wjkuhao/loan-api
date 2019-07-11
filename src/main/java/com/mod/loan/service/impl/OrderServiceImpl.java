@@ -158,9 +158,4 @@ public class OrderServiceImpl  extends BaseServiceImpl<Order,Long> implements Or
 		orderMapper.updateByPrimaryKeySelective(order);
 	}
 
-	@Override
-	public Date findFinalRecordTime(Long uid) {
-		return orderMapper.findFinalRecordTime(uid);
-	}
-
 }

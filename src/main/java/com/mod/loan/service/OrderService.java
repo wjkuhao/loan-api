@@ -88,5 +88,4 @@ public interface OrderService extends BaseService<Order, Long> {
 
     void updatePayConfirmLoan(Long orderId);
 
-    Date findFinalRecordTime(Long uid);
 }

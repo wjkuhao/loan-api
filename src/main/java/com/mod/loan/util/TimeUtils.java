@@ -107,7 +107,7 @@ public class TimeUtils {
 		long milliseconds = (long) (DAY_TIME * days);
 		ca.add(Calendar.DAY_OF_MONTH, (int) (milliseconds / DAY_TIME));
 		ca.add(Calendar.MILLISECOND, (int) (milliseconds % DAY_TIME));
-		return ca.getTimeInMillis()>System.currentTimeMillis();
+		return ca.getTimeInMillis()>=System.currentTimeMillis();
 	}
 
 }
