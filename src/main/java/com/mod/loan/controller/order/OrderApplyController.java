@@ -144,8 +144,16 @@ public class OrderApplyController {
         }
 
         User user = userService.selectByPrimaryKey(uid);
-        Blacklist blacklist = blacklistService.getByPhone(user.getUserPhone());
         Whitelist whitelist = whitelistService.getByPhone(user.getUserPhone());
+
+        //白名单客户不走风控,直接进入放款列表
+        if (whitelist != null) {
+            addOrder(uid, productId,
+                    productMoney, phoneType, paramValue, phoneModel, phoneMemory, OrderEnum.WAIT_LOAN.getCode(), new Date());
+            return new ResultMessage(ResponseEnum.M2000);
+        }
+
+        Blacklist blacklist = blacklistService.getByPhone(user.getUserPhone());
         if (null != blacklist) {
             // 黑名单
             if (2 == blacklist.getType()) {
@@ -180,13 +188,6 @@ public class OrderApplyController {
             addOrder(uid, productId,
                     productMoney, phoneType, paramValue, phoneModel, phoneMemory, OrderEnum.WAIT_AUDIT.getCode(), new Date());
             return new ResultMessage(ResponseEnum.M2000);
-        }
-
-        //白名单客户不走风控,直接进入放款列表
-        if (whitelist != null) {
-                addOrder(uid, productId,
-                        productMoney, phoneType, paramValue, phoneModel, phoneMemory, OrderEnum.WAIT_LOAN.getCode(), new Date());
-                return new ResultMessage(ResponseEnum.M2000);
         }
 
         MerchantConfig merchantConfig = merchantConfigService.selectByMerchant(user.getMerchant());
