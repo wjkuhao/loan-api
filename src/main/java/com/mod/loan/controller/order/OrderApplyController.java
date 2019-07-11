@@ -176,26 +176,29 @@ public class OrderApplyController {
                     productMoney, phoneType, paramValue, phoneModel, phoneMemory, OrderEnum.WAIT_AUDIT.getCode(), new Date());
             return new ResultMessage(ResponseEnum.M2000);
         }
-        //老客静置指定的天数以下的不过风控
+
         MerchantConfig merchantConfig = merchantConfigService.selectByMerchant(user.getMerchant());
-        if(merchantConfig==null || merchantConfig.getOldCustomerDaysRestRisk()!=null){
-            Integer borrowType = orderService.countPaySuccessByUid(uid);
-            if (borrowType != null && borrowType > 0) {
-                Order userLatestOrder = orderService.findUserLatestOrder(uid);
-                if(TimeUtils.compareDate(userLatestOrder.getRealRepayTime(),merchantConfig.getOldCustomerDaysRestRisk())){
-                    addOrder(uid, productId,
-                            productMoney, phoneType, paramValue, phoneModel, phoneMemory, OrderEnum.WAIT_LOAN.getCode(), new Date());
-                    return new ResultMessage(ResponseEnum.M2000);
+        if (merchantConfig != null) {
+            //是否开启老客走风控
+            if(merchantConfig.getOldCustomerRisk()!=null && merchantConfig.getOldCustomerRisk()==0){
+                Integer borrowType = orderService.countPaySuccessByUid(uid);
+                if (borrowType != null && borrowType > 0) {
+                    // 老客户如果设置了老客静默天数，如果超过该天数则仍然需要风控
+                    if (merchantConfig.getOldCustomerRiskRenewDay()==null){
+                        addOrder(uid, productId, productMoney, phoneType, paramValue,
+                                phoneModel, phoneMemory, OrderEnum.WAIT_LOAN.getCode(), new Date());
+                        return new ResultMessage(ResponseEnum.M2000);
+                    }else {
+                        //设置了老客静默天数
+                        Order userLatestOrder = orderService.findUserLatestOrder(uid);
+                        //若在指定静默天数内，直接进入放款
+                        if (TimeUtils.compareDate(userLatestOrder.getRealRepayTime(), merchantConfig.getOldCustomerRiskRenewDay())){
+                            addOrder(uid, productId, productMoney, phoneType, paramValue,
+                                    phoneModel, phoneMemory, OrderEnum.WAIT_LOAN.getCode(), new Date());
+                            return new ResultMessage(ResponseEnum.M2000);
+                        }
+                    }
                 }
-            }
-        }
-        if (merchantConfig == null || merchantConfig.getOldCustomerRisk() == 0) {
-            // 老客户不走风控，直接进入放款列表
-            Integer borrowType = orderService.countPaySuccessByUid(uid);
-            if (borrowType != null && borrowType > 0) {
-                addOrder(uid, productId,
-                        productMoney, phoneType, paramValue, phoneModel, phoneMemory, OrderEnum.WAIT_LOAN.getCode(), new Date());
-                return new ResultMessage(ResponseEnum.M2000);
             }
         }
 
@@ -223,7 +226,6 @@ public class OrderApplyController {
 
         return new ResultMessage(ResponseEnum.M2000);
     }
-
 
     private Order addOrder(Long uid, Long productId, BigDecimal productMoney,
                            String phoneType, String paramValue,

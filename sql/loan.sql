@@ -579,7 +579,7 @@ CREATE TABLE `tb_merchant_config`  (
   `multi_loan_merchant` VARCHAR(1024) DEFAULT null COMMENT '共债检查商户。未设置就是检查所有；设置了就是检查指定商户，多个商户逗号分割',
   `multi_loan_count` tinyint(1) DEFAULT 0 COMMENT '允许的共债系统个数。大于设置的共债数量则拒绝',
   `yys_operator_type` varchar(20) DEFAULT 'tongdun' COMMENT '运营商类型：tongdun.同盾，moxie.魔蝎',
-  `old_customer_daysrest_risk` int(11) DEFAULT NULL COMMENT '可配置的老客过风控的静置天数',
+  `old_customer_risk_renew_day` int(11) DEFAULT NULL COMMENT '可配置的老客过风控的静置天数',
   `create_time` CHAR(19) DEFAULT NULL COMMENT '插入时间',
   `update_time` CHAR(19) DEFAULT NULL COMMENT '更新时间',
   PRIMARY KEY (`id`) USING BTREE,
