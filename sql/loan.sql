@@ -1498,7 +1498,7 @@ CREATE TABLE `tb_third_call_history` (
   `create_time` datetime DEFAULT NULL,
   `uid` bigint(20) NOT NULL COMMENT 'user表主键',
   PRIMARY KEY (`id`),
-  UNIQUE KEY `idx_merchant_code_day` (`merchant`,`day`,`code`) USING BTREE,
+  KEY `idx_merchant_code_day` (`merchant`,`day`,`code`) USING BTREE,
   KEY `idx_day` (`day`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='第三方调用历史表';
 
