@@ -337,6 +337,26 @@ CREATE TABLE `tb_blacklist`  (
   INDEX `idx_tel`(`tel`) USING BTREE
 ) ENGINE = InnoDB  CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '商户自建黑名单' ROW_FORMAT = Dynamic;
 
+
+
+SET FOREIGN_KEY_CHECKS=0;
+
+-- ----------------------------
+-- Table structure for tb_whitelist
+-- ----------------------------
+DROP TABLE IF EXISTS `tb_whitelist`;
+CREATE TABLE `tb_whitelist` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `tel` varchar(20) DEFAULT NULL COMMENT '手机号',
+  `cert_no` varchar(20) DEFAULT NULL COMMENT '身份证',
+  `name` varchar(20) DEFAULT NULL COMMENT '姓名',
+  `create_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `update_time` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE=InnoDB AUTO_INCREMENT=523340 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC COMMENT='客户白名单';
+
+
+
 -- ----------------------------
 -- Table structure for tb_manager
 -- ----------------------------
@@ -579,6 +599,7 @@ CREATE TABLE `tb_merchant_config`  (
   `multi_loan_merchant` VARCHAR(1024) DEFAULT null COMMENT '共债检查商户。未设置就是检查所有；设置了就是检查指定商户，多个商户逗号分割',
   `multi_loan_count` tinyint(1) DEFAULT 0 COMMENT '允许的共债系统个数。大于设置的共债数量则拒绝',
   `yys_operator_type` varchar(20) DEFAULT 'tongdun' COMMENT '运营商类型：tongdun.同盾，moxie.魔蝎',
+  `old_customer_risk_renew_day` int(11) DEFAULT NULL COMMENT '可配置的老客过风控的静置天数',
   `create_time` CHAR(19) DEFAULT NULL COMMENT '插入时间',
   `update_time` CHAR(19) DEFAULT NULL COMMENT '更新时间',
   PRIMARY KEY (`id`) USING BTREE,
@@ -836,7 +857,8 @@ CREATE TABLE `tb_order`  (
   INDEX `idx_uid`(`uid`) USING BTREE,
   INDEX `idx_merchant`(`merchant`) USING BTREE,
   INDEX `idx_status`(`status`) USING BTREE,
-  INDEX `idx_create_time`(`create_time`) USING BTREE
+  INDEX `idx_create_time`(`create_time`) USING BTREE,
+  INDEX `idx_update_time` (`update_time`) USING BTREE
 ) ENGINE = InnoDB  CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '订单表' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
@@ -1047,7 +1069,8 @@ CREATE TABLE `tb_user`  (
   UNIQUE INDEX `idx_phone_merchant`(`user_phone`, `merchant`) USING BTREE,
   INDEX `idx_user_origin`(`user_origin`) USING BTREE,
   INDEX `idx_create_time_merchant`(`create_time`, `merchant`) USING BTREE,
-  INDEX `idx_user_cert_no`(`user_cert_no`) USING BTREE
+  INDEX `idx_user_cert_no`(`user_cert_no`) USING BTREE,
+  INDEX `idx_update_time` (`update_time`) USING BTREE
 ) ENGINE = InnoDB  CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
@@ -1141,7 +1164,8 @@ CREATE TABLE `tb_user_ident`  (
   PRIMARY KEY (`uid`) USING BTREE,
   INDEX `idx_real_name_time`(`real_name_time`) USING BTREE,
   INDEX `idx_user_details_time`(`user_details_time`) USING BTREE,
-  INDEX `idx_bindbank_time`(`bindbank_time`) USING BTREE
+  INDEX `idx_bindbank_time`(`bindbank_time`) USING BTREE,
+  INDEX `idx_update_time` (`update_time`) USING BTREE
 ) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '用户信息认证' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
@@ -1170,7 +1194,8 @@ CREATE TABLE `tb_user_info`  (
   `update_time` datetime(0) NULL DEFAULT NULL,
   PRIMARY KEY (`uid`) USING BTREE,
   INDEX `index_direct`(`direct_contact_phone`) USING BTREE,
-  INDEX `index_others`(`others_contact_phone`) USING BTREE
+  INDEX `index_others`(`others_contact_phone`) USING BTREE,
+  INDEX `index_update_time` (`update_time`) USING BTREE
 ) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
@@ -1192,7 +1217,8 @@ CREATE TABLE `tb_order_risk_info`  (
   PRIMARY KEY (`id`) USING BTREE,
   INDEX `idx_risk_id`(`risk_id`) USING BTREE,
   INDEX `idx_phone`(`user_phone`) USING BTREE,
-  INDEX `idx_order_id`(`order_id`) USING BTREE
+  INDEX `idx_order_id`(`order_id`) USING BTREE,
+  INDEX `idx_update_time` (`update_time`) USING BTREE
 ) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '用户风控信息' ROW_FORMAT = Dynamic;
 
 
@@ -1446,4 +1472,58 @@ CREATE TABLE `tb_merchant_moxie_config` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `idx_merchant` (`merchant`) USING BTREE
 ) ENGINE = InnoDB  CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '商户魔蝎配置表' ROW_FORMAT = Dynamic;
+
+
+-- tb_merchant_fee
+DROP TABLE IF EXISTS `tb_merchant_fee`;
+CREATE TABLE `tb_merchant_fee` (
+  `merchant_alias` varchar(20) CHARACTER SET utf8 NOT NULL COMMENT '商户号',
+  `sms1_price` decimal(6,2) DEFAULT NULL COMMENT '短信1创蓝单价',
+  `sms2_price` decimal(6,2) DEFAULT NULL COMMENT '短信2飞鸽单价',
+  `youdun_price` decimal(6,2) DEFAULT NULL COMMENT '有盾单价',
+  `operator_price` decimal(6,2) DEFAULT NULL COMMENT '运营商单价',
+  `risk_price` decimal(6,2) DEFAULT NULL COMMENT '风控单价',
+  `create_time` datetime DEFAULT NULL,
+  `update_time` datetime DEFAULT NULL COMMENT '修改时间',
+  PRIMARY KEY (`merchant_alias`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='商户费用项单价配置';
+
+
+-- tb_merchant_fee_statistics
+DROP TABLE IF EXISTS `tb_merchant_fee_statistics`;
+CREATE TABLE `tb_merchant_fee_statistics` (
+  `day` varchar(20) NOT NULL COMMENT '日期yyyy-MM-dd',
+  `merchant` varchar(20) NOT NULL COMMENT '商户别名',
+  `sms1_price` decimal(6,2) DEFAULT NULL COMMENT '短信1创蓝单价',
+  `sms1_count` int(11) DEFAULT NULL COMMENT '短信1创蓝条数',
+  `sms1_fee` decimal(12,2) DEFAULT NULL COMMENT '短信1创蓝总费用',
+  `sms2_price` decimal(6,2) DEFAULT NULL COMMENT '飞鸽单价',
+  `sms2_count` int(11) DEFAULT NULL COMMENT '飞鸽条数',
+  `sms2_fee` decimal(12,2) DEFAULT NULL COMMENT '飞鸽总费用',
+  `youdun_price` decimal(6,2) DEFAULT NULL COMMENT '有盾单价',
+  `youdun_count` int(11) DEFAULT NULL COMMENT '有盾次数',
+  `youdun_fee` decimal(12,2) DEFAULT NULL COMMENT '有盾总费用',
+  `operator_price` decimal(6,2) DEFAULT NULL COMMENT '运营商单价',
+  `operator_count` int(11) DEFAULT NULL COMMENT '运营商个数',
+  `operator_fee` decimal(12,2) DEFAULT NULL COMMENT '运营商费用',
+  `risk_price` decimal(6,2) DEFAULT NULL COMMENT '风控单价',
+  `risk_count` int(11) DEFAULT NULL COMMENT '风控个数',
+  `risk_fee` decimal(12,2) DEFAULT NULL COMMENT '风控费用',
+  `refused_count` int(11) DEFAULT NULL COMMENT '风控拒绝量',
+  PRIMARY KEY (`day`,`merchant`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='商户费用统计表';
+
+-- tb_third_call_history
+DROP TABLE IF EXISTS `tb_third_call_history`;
+CREATE TABLE `tb_third_call_history` (
+  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '主键',
+  `merchant` varchar(30) NOT NULL COMMENT '商户别名',
+  `day` varchar(20) NOT NULL COMMENT '日期yyyy-MM-dd',
+  `code` varchar(11) DEFAULT NULL COMMENT '区分不同第三方 1 有盾 2 运营商',
+  `create_time` datetime DEFAULT NULL,
+  `uid` bigint(20) NOT NULL COMMENT 'user表主键',
+  PRIMARY KEY (`id`),
+  KEY `idx_merchant_code_day` (`merchant`,`day`,`code`) USING BTREE,
+  KEY `idx_day` (`day`) USING BTREE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='第三方调用历史表';
 

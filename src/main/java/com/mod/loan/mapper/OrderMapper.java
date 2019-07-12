@@ -4,6 +4,7 @@ import com.mod.loan.common.mapper.MyBaseMapper;
 import com.mod.loan.model.Order;
 import org.apache.ibatis.annotations.Param;
 
+import java.util.Date;
 import java.util.List;
 
 public interface OrderMapper extends MyBaseMapper<Order> {

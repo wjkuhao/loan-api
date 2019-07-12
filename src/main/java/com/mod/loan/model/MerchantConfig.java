@@ -46,15 +46,9 @@ public class MerchantConfig {
     @Column(name = "default_origin_status")
     private Integer defaultOriginStatus;
 
-    /**
-     * 去哪些商户检查是否共债
-     */
     @Column(name = "multi_loan_merchant")
     private String multiLoanMerchant;
 
-    /**
-     * 允许共债的商户数量
-     */
     @Column(name = "multi_loan_count")
     private Integer multiLoanCount;
 
@@ -68,14 +62,16 @@ public class MerchantConfig {
     private Integer maxOverdueFeeRate;
 
     /**
-     * 是否需要放款，0：不需要，1：需要
+     *  是否需要放款，0：不需要，1：需要
      */
     @Column(name = "user_pay_confirm")
     private Integer userPayConfirm;
-
     /**
-     * 运营商类型：tongdun.同盾，moxie.魔蝎
+     * 老客静置重新风控天数
      */
+    @Column(name = "old_customer_risk_renew_day")
+    private Integer oldCustomerRiskRenewDay;
+
     @Column(name = "yys_operator_type")
     private String yysOperatorType;
 
@@ -238,4 +234,13 @@ public class MerchantConfig {
     public void setYysOperatorType(String yysOperatorType) {
         this.yysOperatorType = yysOperatorType;
     }
+
+    public Integer getOldCustomerRiskRenewDay() {
+        return oldCustomerRiskRenewDay;
+    }
+
+    public void setOldCustomerRiskRenewDay(Integer oldCustomerRiskRenewDay) {
+        this.oldCustomerRiskRenewDay = oldCustomerRiskRenewDay;
+    }
+
 }

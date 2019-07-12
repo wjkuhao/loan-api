@@ -13,6 +13,7 @@ import com.mod.loan.model.*;
 import com.mod.loan.service.*;
 import com.mod.loan.util.MoneyUtil;
 import com.mod.loan.util.StringUtil;
+import com.mod.loan.util.TimeUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
@@ -49,6 +50,9 @@ public class OrderApplyController {
     private OrderService orderService;
     @Autowired
     private BlacklistService blacklistService;
+
+    @Autowired
+    private WhitelistService whitelistService;
     @Autowired
     private RedisMapper redisMapper;
     @Autowired
@@ -140,6 +144,15 @@ public class OrderApplyController {
         }
 
         User user = userService.selectByPrimaryKey(uid);
+        Whitelist whitelist = whitelistService.getByPhone(user.getUserPhone());
+
+        //白名单客户不走风控,直接进入放款列表
+        if (whitelist != null) {
+            addOrder(uid, productId,
+                    productMoney, phoneType, paramValue, phoneModel, phoneMemory, OrderEnum.WAIT_LOAN.getCode(), new Date());
+            return new ResultMessage(ResponseEnum.M2000);
+        }
+
         Blacklist blacklist = blacklistService.getByPhone(user.getUserPhone());
         if (null != blacklist) {
             // 黑名单
@@ -148,6 +161,7 @@ public class OrderApplyController {
                         productMoney, phoneType, paramValue, phoneModel, phoneMemory, OrderEnum.AUTO_AUDIT_REFUSE.getCode(), new Date());
                 return new ResultMessage(ResponseEnum.M2000);
             }
+
         }
 
         //公司、住宅地址是否包含拒绝关键字
@@ -177,13 +191,27 @@ public class OrderApplyController {
         }
 
         MerchantConfig merchantConfig = merchantConfigService.selectByMerchant(user.getMerchant());
-        if (merchantConfig == null || merchantConfig.getOldCustomerRisk() == 0) {
-            // 老客户不走风控，直接进入放款列表
-            Integer borrowType = orderService.countPaySuccessByUid(uid);
-            if (borrowType != null && borrowType > 0) {
-                addOrder(uid, productId,
-                        productMoney, phoneType, paramValue, phoneModel, phoneMemory, OrderEnum.WAIT_LOAN.getCode(), new Date());
-                return new ResultMessage(ResponseEnum.M2000);
+        if (merchantConfig != null) {
+            //是否开启老客走风控
+            if(merchantConfig.getOldCustomerRisk()!=null && merchantConfig.getOldCustomerRisk()==0){
+                Integer borrowType = orderService.countPaySuccessByUid(uid);
+                if (borrowType != null && borrowType > 0) {
+                    // 老客户如果设置了老客静默天数，如果超过该天数则仍然需要风控
+                    if (merchantConfig.getOldCustomerRiskRenewDay()==null){
+                        addOrder(uid, productId, productMoney, phoneType, paramValue,
+                                phoneModel, phoneMemory, OrderEnum.WAIT_LOAN.getCode(), new Date());
+                        return new ResultMessage(ResponseEnum.M2000);
+                    }else {
+                        //设置了老客静默天数
+                        Order userLatestOrder = orderService.findUserLatestOrder(uid);
+                        //若在指定静默天数内，直接进入放款
+                        if (TimeUtils.compareDate(userLatestOrder.getRealRepayTime(), merchantConfig.getOldCustomerRiskRenewDay())){
+                            addOrder(uid, productId, productMoney, phoneType, paramValue,
+                                    phoneModel, phoneMemory, OrderEnum.WAIT_LOAN.getCode(), new Date());
+                            return new ResultMessage(ResponseEnum.M2000);
+                        }
+                    }
+                }
             }
         }
 
@@ -211,7 +239,6 @@ public class OrderApplyController {
 
         return new ResultMessage(ResponseEnum.M2000);
     }
-
 
     private Order addOrder(Long uid, Long productId, BigDecimal productMoney,
                            String phoneType, String paramValue,

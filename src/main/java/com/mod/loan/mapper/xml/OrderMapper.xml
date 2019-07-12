@@ -64,5 +64,4 @@
   <select id="findOneOverdueOrder" resultMap="BaseResultMap">
     select id from tb_order where uid=#{uid} and status in(33,34) limit 1
   </select>
-
 </mapper>

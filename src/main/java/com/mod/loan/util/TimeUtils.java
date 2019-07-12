@@ -97,4 +97,17 @@ public class TimeUtils {
 		return d;
 	}
 
+	/**
+	 * 日期天数加减后与当前时间的比较
+	 */
+	public static boolean compareDate(Date d, double days) {
+		Calendar ca = Calendar.getInstance();
+		ca.setTime(d);
+		final long DAY_TIME = (24 * 60 * 60 * 1000);
+		long milliseconds = (long) (DAY_TIME * days);
+		ca.add(Calendar.DAY_OF_MONTH, (int) (milliseconds / DAY_TIME));
+		ca.add(Calendar.MILLISECOND, (int) (milliseconds % DAY_TIME));
+		return ca.getTimeInMillis()>=System.currentTimeMillis();
+	}
+
 }

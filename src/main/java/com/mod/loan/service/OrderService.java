@@ -5,6 +5,7 @@ import com.mod.loan.model.Order;
 import com.mod.loan.model.OrderPay;
 import com.mod.loan.model.OrderPhone;
 
+import java.util.Date;
 import java.util.List;
 
 public interface OrderService extends BaseService<Order, Long> {
@@ -86,4 +87,5 @@ public interface OrderService extends BaseService<Order, Long> {
     void updatePayCallbackInfo(Order order, OrderPay orderPay);
 
     void updatePayConfirmLoan(Long orderId);
+
 }
