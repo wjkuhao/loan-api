@@ -190,6 +190,16 @@ public class OrderApplyController {
             return new ResultMessage(ResponseEnum.M2000);
         }
 
+        // 是否在整个系统有正在进行的订单(查询所有商户)
+        String certNo = user.getUserCertNo();
+        // 检查是否在存在逾期
+        if (dataCenterService.isMultiLoanOverdue(null, certNo)) {
+            logger.info("存在逾期订单，无法提单， certNo={}", certNo);
+            addOrder(uid, productId,
+                    productMoney, phoneType, paramValue, phoneModel, phoneMemory, OrderEnum.AUTO_AUDIT_REFUSE.getCode(), new Date());
+            return new ResultMessage(ResponseEnum.M2000);
+        }
+
         MerchantConfig merchantConfig = merchantConfigService.selectByMerchant(user.getMerchant());
         if (merchantConfig != null) {
             //是否开启老客走风控
@@ -215,8 +225,6 @@ public class OrderApplyController {
             }
         }
 
-        // 是否在整个系统有正在进行的订单(查询所有商户)
-        String certNo = user.getUserCertNo();
         // 检查是否存在多头借贷
         if (dataCenterService.isMultiLoan(null, certNo, user.getMerchant())) {
             logger.info("存在多头借贷，无法提单， certNo={}", certNo);

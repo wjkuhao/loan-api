@@ -52,6 +52,8 @@ public class Constant {
      */
     public static String MULTI_LOAN_QUERY_URL;
     public static String MULTI_LOAN_DEL_URL;
+    public static String MULTI_LOAN_QUERY_OVERDUE_URL;
+
 
     /**
      * 商户最大额度限制
@@ -213,5 +215,10 @@ public class Constant {
     @Value("${merchant.need.loan.market.button:unk}")
     public void setMerchantNeedLoanMarketButton(String merchantNeedLoanMarketButton) {
         MERCHANT_NEED_LOAN_MARKET_BUTTON = merchantNeedLoanMarketButton;
+    }
+
+    @Value("${multi.loan.query.overdue.url:}")
+    public void setMultiLoanQueryOverdueUrl(String multiLoanQueryOverdueUrl) {
+        MULTI_LOAN_QUERY_OVERDUE_URL = multiLoanQueryOverdueUrl;
     }
 }
