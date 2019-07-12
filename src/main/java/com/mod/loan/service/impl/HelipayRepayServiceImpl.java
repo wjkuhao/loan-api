@@ -78,6 +78,11 @@ public class HelipayRepayServiceImpl implements HelipayRepayService {
         UserBank userBank = userBankService.selectUserCurrentBankCard(uid);
         Merchant merchant = merchantService.findMerchantByAlias(RequestThread.getClientAlias());
         if ("order".equals(type)) {
+            //幂等
+            if (orderRepayService.countRepaySuccess(NumberUtils.toLong(orderId)) >= 1) {
+                logger.error("orderId={}已存在还款中的记录", NumberUtils.toLong(orderId));
+                return new ResultMessage(ResponseEnum.M4000.getCode(), "请勿重复还款");
+            }
             Order order = orderService.selectByPrimaryKey(NumberUtils.toLong(orderId));
             // 已放款，逾期，坏账，展期，逾期后展期，展期逾期，展期坏账状态
             if (OrderEnum.REPAYING.getCode().equals(order.getStatus())
@@ -147,6 +152,11 @@ public class HelipayRepayServiceImpl implements HelipayRepayService {
         Merchant merchant = merchantService.findMerchantByAlias(RequestThread.getClientAlias());
         String amount = "";
         if ("order".equals(type)) {
+            //幂等
+            if (orderRepayService.countRepaySuccess(orderId) >= 1) {
+                logger.error("orderId={}已存在还款中的记录", orderId);
+                return new ResultMessage(ResponseEnum.M4000.getCode(), "请勿重复还款");
+            }
             Order order = orderService.selectByPrimaryKey(orderId);
             if (!order.getUid().equals(uid)) {
                 logger.info("订单异常，订单号为：{}", order.getId());
@@ -310,8 +320,9 @@ public class HelipayRepayServiceImpl implements HelipayRepayService {
             requestVo.setP16_serverCallbackUrl(dto.getCallBackUrl());
             requestVo.setP17_validateCode(dto.getValidateCode());
             requestVo.setSignatureType("MD5WITHRSA");
+            logger.info("helipay bindPayActive:{}", JSONObject.toJSON(requestVo));
             response = getHeliPayResponse(dto.getMerchant(), null, requestVo);
-            logger.info("helipay bindPayActive:{}", requestVo);
+            logger.info("helipay bindPayActive---返回结果response:{}", response);
             BindCardPayResponseVo responseVo = JSONObject.parseObject(response, BindCardPayResponseVo.class);
             if (!"0000".equals(responseVo.getRt2_retCode())) {
                 logger.error("绑卡支付受理失败，result={}", response);
@@ -326,12 +337,13 @@ public class HelipayRepayServiceImpl implements HelipayRepayService {
                 orderRepayService.updateByPrimaryKeySelective(orderRepay1);
                 return new ResultMessage(ResponseEnum.M4000.getCode(), responseVo.getRt3_retMsg());
             }
-            if ("SUCCESS".equalsIgnoreCase(responseVo.getRt9_orderStatus())) {
+            if ("SUCCESS".equalsIgnoreCase(responseVo.getRt9_orderStatus()) || "DOING".equalsIgnoreCase(responseVo.getRt9_orderStatus())) {
+                logger.info("绑卡支付受理成功");
+                OrderRepay orderRepay1 = new OrderRepay();
+                orderRepay1.setRepayNo(dto.getRepayNo());
+                orderRepay1.setRepayStatus(1);
+                orderRepayService.updateByPrimaryKeySelective(orderRepay1);
                 return new ResultMessage(ResponseEnum.M2000, dto.getOrderId());// 成功返回订单号，便于查看详情
-            }
-            if ("DOING".equalsIgnoreCase(responseVo.getRt9_orderStatus())) {
-                logger.info("绑卡支付受理中，result={}", response);
-                return new ResultMessage(ResponseEnum.M2000.getCode(), dto.getOrderId());// 处理中回订单号，便于查看详情
             }
             logger.info("绑卡支付状态异常，params={}，result={}", JSON.toJSONString(requestVo), response);
             message = new ResultMessage(ResponseEnum.M4000.getCode(), "绑卡支付失败，请重试！");
