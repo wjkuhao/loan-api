@@ -339,8 +339,6 @@ CREATE TABLE `tb_blacklist`  (
 
 
 
-SET FOREIGN_KEY_CHECKS=0;
-
 -- ----------------------------
 -- Table structure for tb_whitelist
 -- ----------------------------
@@ -353,7 +351,7 @@ CREATE TABLE `tb_whitelist` (
   `create_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   `update_time` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=523340 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC COMMENT='客户白名单';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC COMMENT='客户白名单';
 
 
 
