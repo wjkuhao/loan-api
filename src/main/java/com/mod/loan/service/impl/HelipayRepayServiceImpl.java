@@ -79,7 +79,7 @@ public class HelipayRepayServiceImpl implements HelipayRepayService {
         Merchant merchant = merchantService.findMerchantByAlias(RequestThread.getClientAlias());
         if ("order".equals(type)) {
             //幂等
-            if (orderRepayService.countRepaySuccess(NumberUtils.toLong(orderId)) >= 1) {
+            if (orderRepayService.countRepay(NumberUtils.toLong(orderId), 0) >= 1) {
                 logger.error("orderId={}已存在还款中的记录", NumberUtils.toLong(orderId));
                 return new ResultMessage(ResponseEnum.M4000.getCode(), "请勿重复还款");
             }
@@ -153,7 +153,7 @@ public class HelipayRepayServiceImpl implements HelipayRepayService {
         String amount = "";
         if ("order".equals(type)) {
             //幂等
-            if (orderRepayService.countRepaySuccess(orderId) >= 1) {
+            if (orderRepayService.countRepay(orderId, 0) >= 1) {
                 logger.error("orderId={}已存在还款中的记录", orderId);
                 return new ResultMessage(ResponseEnum.M4000.getCode(), "请勿重复还款");
             }
@@ -337,13 +337,12 @@ public class HelipayRepayServiceImpl implements HelipayRepayService {
                 orderRepayService.updateByPrimaryKeySelective(orderRepay1);
                 return new ResultMessage(ResponseEnum.M4000.getCode(), responseVo.getRt3_retMsg());
             }
-            if ("SUCCESS".equalsIgnoreCase(responseVo.getRt9_orderStatus()) || "DOING".equalsIgnoreCase(responseVo.getRt9_orderStatus())) {
-                logger.info("绑卡支付受理成功");
-                OrderRepay orderRepay1 = new OrderRepay();
-                orderRepay1.setRepayNo(dto.getRepayNo());
-                orderRepay1.setRepayStatus(1);
-                orderRepayService.updateByPrimaryKeySelective(orderRepay1);
+            if ("SUCCESS".equalsIgnoreCase(responseVo.getRt9_orderStatus())) {
                 return new ResultMessage(ResponseEnum.M2000, dto.getOrderId());// 成功返回订单号，便于查看详情
+            }
+            if ("DOING".equalsIgnoreCase(responseVo.getRt9_orderStatus())) {
+                logger.info("绑卡支付受理中，result={}", response);
+                return new ResultMessage(ResponseEnum.M2000.getCode(), dto.getOrderId());// 处理中回订单号，便于查看详情
             }
             logger.info("绑卡支付状态异常，params={}，result={}", JSON.toJSONString(requestVo), response);
             message = new ResultMessage(ResponseEnum.M4000.getCode(), "绑卡支付失败，请重试！");

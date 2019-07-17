@@ -273,4 +273,12 @@ public class OrderRepayServiceImpl extends BaseServiceImpl<OrderRepay, String> i
         return orderRepayMapper.huichaoRepay4AliAppH5OrWxScanQuery();
     }
 
+    @Override
+    public int countRepay(Long orderId, Integer repayStatus) {
+        OrderRepay orderRepay = new OrderRepay();
+        orderRepay.setOrderId(orderId);
+        orderRepay.setRepayStatus(repayStatus);
+        return orderRepayMapper.selectCount(orderRepay);
+    }
+
 }

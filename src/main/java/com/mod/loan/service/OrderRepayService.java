@@ -29,4 +29,13 @@ public interface OrderRepayService extends BaseService<OrderRepay,String>{
 
 	List<OrderRepay> huichaoRepay4AliAppH5OrWxScanQuery();
 
+	/**
+	 * 获取还款流水记录数
+	 *
+	 * @param orderId
+	 * @param repayStatus
+	 * @return
+	 */
+	int countRepay(Long orderId, Integer repayStatus);
+
 }
