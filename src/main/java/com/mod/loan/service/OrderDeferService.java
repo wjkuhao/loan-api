@@ -2,6 +2,7 @@ package com.mod.loan.service;
 
 import com.alibaba.fastjson.JSONObject;
 import com.mod.loan.common.mapper.BaseService;
+import com.mod.loan.common.model.ResultMessage;
 import com.mod.loan.model.OrderDefer;
 
 import java.util.List;
@@ -90,12 +91,12 @@ public interface OrderDeferService extends BaseService<OrderDefer, Integer> {
      *
      * @param orderId 订单id
      */
-    String kuaiqianDeferRepay(Long orderId);
+    ResultMessage kuaiqianDeferRepay(Long orderId);
 
     /**
      * 快钱续期时支付还款结果查询
      *
      * @param orderId 订单id
      */
-    String kuaiqianDeferRepayQuery(Long orderId);
+    ResultMessage kuaiqianDeferRepayQuery(Long orderId);
 }

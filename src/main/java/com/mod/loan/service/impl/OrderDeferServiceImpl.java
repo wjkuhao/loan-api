@@ -3,6 +3,7 @@ package com.mod.loan.service.impl;
 import com.alibaba.fastjson.JSONObject;
 import com.mod.loan.common.enums.*;
 import com.mod.loan.common.mapper.BaseServiceImpl;
+import com.mod.loan.common.model.ResultMessage;
 import com.mod.loan.config.Constant;
 import com.mod.loan.mapper.OrderDeferMapper;
 import com.mod.loan.model.Merchant;
@@ -444,33 +445,33 @@ public class OrderDeferServiceImpl extends BaseServiceImpl<OrderDefer, Integer> 
     }
 
     @Override
-    public String kuaiqianDeferRepay(Long orderId) {
+    public ResultMessage kuaiqianDeferRepay(Long orderId) {
         logger.info("#[快钱续期时订单支付还款]-[开始]-orderId={}", orderId);
         if (null == orderId) {
             logger.info("参数为空");
-            return null;
+            return new ResultMessage(ResponseEnum.M4000.getCode(), "参数为空");
         }
         //根据订单id查询续期订单信息
         OrderDefer orderDefer = findLastValidByOrderId(orderId);
         logger.info("#[根据订单id查询续期订单信息]-orderDefer={}", JSONObject.toJSON(orderDefer));
         if (orderDefer == null) {
             logger.info("根据订单id查询续期订单信息为空");
-            return null;
+            return new ResultMessage(ResponseEnum.M4000.getCode(), "续期订单信息为空");
         }
         //幂等
         if (orderDefer.getPayStatus().equals(OrderRepayStatusEnum.ACCEPT_SUCCESS.getCode())) {
             logger.info("该续期订单的状态是已受理成功的");
-            return null;
+            return new ResultMessage(ResponseEnum.M4000.getCode(), "该续期订单的状态是已受理成功的");
         }
         if (orderDefer.getPayStatus().equals(OrderRepayStatusEnum.REPAY_SUCCESS.getCode())) {
             logger.info("该续期订单的状态是已还款成功的");
-            return null;
+            return new ResultMessage(ResponseEnum.M4000.getCode(), "该续期订单的状态是已还款成功的");
         }
         //获取商户信息
         Merchant merchant = merchantService.findMerchantByAlias(orderDefer.getMerchant());
         if (null == merchant || StringUtils.isBlank(merchant.getKqMerchantId()) || StringUtils.isBlank(merchant.getKqTerminalId()) || StringUtils.isBlank(merchant.getKqCertPath()) || StringUtils.isBlank(merchant.getKqCertPwd())) {
             logger.info("#[该商户信息异常]-merchant={}", JSONObject.toJSON(merchant));
-            return null;
+            return new ResultMessage(ResponseEnum.M4000.getCode(), "该商户信息异常");
         }
         //获取该订单的银行卡号信息
         UserBank userBank = userBankService.selectUserCurrentBankCard(orderDefer.getUid());
@@ -532,7 +533,7 @@ public class OrderDeferServiceImpl extends BaseServiceImpl<OrderDefer, Integer> 
         } catch (Exception e) {
             logger.info("续期时快钱支付还款异常--订单号为{}，卡号为{}，银行名称为{}", orderId, userBank.getCardNo(), userBank.getCardName());
             logger.error("续期时快钱支付还款异常e={}", e);
-            return null;
+            return new ResultMessage(ResponseEnum.M4000.getCode(), "续期时支付还款异常");
         }
         orderDefer.setPayNo(repayNo);
         //还款成功
@@ -540,7 +541,7 @@ public class OrderDeferServiceImpl extends BaseServiceImpl<OrderDefer, Integer> 
             orderDefer.setPayStatus(OrderRepayStatusEnum.REPAY_SUCCESS.getCode());
             orderDefer.setRemark("快钱展期成功");
             modifyOrderDeferByPayCallback(orderDefer);
-            return repayNo;
+            return new ResultMessage(ResponseEnum.M2000, repayNo);
         }
         //订单已创建，受理中
         else if ("C0".equals(MapUtils.getString(respMap, "responseCode"))
@@ -548,28 +549,28 @@ public class OrderDeferServiceImpl extends BaseServiceImpl<OrderDefer, Integer> 
             orderDefer.setPayStatus(OrderRepayStatusEnum.ACCEPT_SUCCESS.getCode());
             orderDefer.setRemark("快钱展期处理中");
             modifyOrderDeferByPayCallback(orderDefer);
-            return repayNo;
+            return new ResultMessage(ResponseEnum.M2000, repayNo);
         } else {
             orderDefer.setPayStatus(OrderRepayStatusEnum.REPAY_FAILED.getCode());
             orderDefer.setRemark("快钱展期失败：" + MapUtils.getString(respMap, "responseTextMessage"));
             modifyOrderDeferByPayCallback(orderDefer);
-            return null;
+            return new ResultMessage(ResponseEnum.M4000.getCode(), MapUtils.getString(respMap, "responseTextMessage"));
         }
     }
 
     @Override
-    public String kuaiqianDeferRepayQuery(Long orderId) {
+    public ResultMessage kuaiqianDeferRepayQuery(Long orderId) {
         logger.info("#[快钱续期时订单支付还款结果查询]-[开始]-orderId={}", orderId);
         if (null == orderId) {
             logger.info("参数为空");
-            return null;
+            return new ResultMessage(ResponseEnum.M4000.getCode(), "参数为空");
         }
         //根据订单id查询续期订单信息
         OrderDefer orderDefer = findLastValidByOrderId(orderId);
         logger.info("#[根据订单id查询续期订单信息]-orderDefer={}", JSONObject.toJSON(orderDefer));
         if (orderDefer == null) {
             logger.info("根据订单id查询续期订单信息为空");
-            return null;
+            return new ResultMessage(ResponseEnum.M4000.getCode(), "续期订单信息为空");
         }
         //幂等
         if (!orderDefer.getPayStatus().equals(OrderRepayStatusEnum.ACCEPT_SUCCESS.getCode())) {
@@ -577,15 +578,15 @@ public class OrderDeferServiceImpl extends BaseServiceImpl<OrderDefer, Integer> 
             if (orderDefer.getPayStatus().equals(OrderRepayStatusEnum.REPAY_SUCCESS.getCode())) {
                 logger.info("该续期订单的状态是已还款成功的");
                 modifyOrderDeferByPayCallback(orderDefer);
-                return String.valueOf(orderId);
+                return new ResultMessage(ResponseEnum.M2000, String.valueOf(orderId));
             }
-            return null;
+            return new ResultMessage(ResponseEnum.M4000.getCode(), "该续期订单的状态不是受理成功的");
         }
         //获取商户信息
         Merchant merchant = merchantService.findMerchantByAlias(orderDefer.getMerchant());
         if (null == merchant || StringUtils.isBlank(merchant.getKqMerchantId()) || StringUtils.isBlank(merchant.getKqTerminalId()) || StringUtils.isBlank(merchant.getKqCertPath()) || StringUtils.isBlank(merchant.getKqCertPwd())) {
             logger.info("#[该商户信息异常]-merchant={}", JSONObject.toJSON(merchant));
-            return null;
+            return new ResultMessage(ResponseEnum.M4000.getCode(), "该商户信息异常");
         }
         HashMap respMap = null;
         //设置手机动态鉴权节点
@@ -618,24 +619,24 @@ public class OrderDeferServiceImpl extends BaseServiceImpl<OrderDefer, Integer> 
             logger.info("#[续期时快钱支付还款结果查询返回结果]-respMap={}", JSONObject.toJSON(respMap));
         } catch (Exception e) {
             logger.error("续期时快钱支付还款结果查询异常-e={}", e);
-            return null;
+            return new ResultMessage(ResponseEnum.M4000.getCode(), "续期时支付还款结果查询异常");
         }
         //还款成功
         if ("00".equals(MapUtils.getString(respMap, "responseCode"))) {
             orderDefer.setPayStatus(OrderRepayStatusEnum.REPAY_SUCCESS.getCode());
             orderDefer.setRemark("快钱展期成功");
             modifyOrderDeferByPayCallback(orderDefer);
-            return repayNo;
+            return new ResultMessage(ResponseEnum.M2000, repayNo);
         }
         //订单已创建，受理中
         else if ("C0".equals(MapUtils.getString(respMap, "responseCode"))
                 || "68".equals(MapUtils.getString(respMap, "responseCode"))) {
-            return repayNo;
+            return new ResultMessage(ResponseEnum.M2000, repayNo);
         } else {
             orderDefer.setPayStatus(OrderRepayStatusEnum.REPAY_FAILED.getCode());
             orderDefer.setRemark("快钱展期失败：" + MapUtils.getString(respMap, "responseTextMessage"));
             modifyOrderDeferByPayCallback(orderDefer);
-            return null;
+            return new ResultMessage(ResponseEnum.M4000.getCode(), MapUtils.getString(respMap, "responseTextMessage"));
         }
     }
 }

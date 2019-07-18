@@ -363,13 +363,9 @@ public class OrderDeferController {
         if (null == orderId) {
             return new ResultMessage(ResponseEnum.M5000);
         }
-        String result = orderDeferService.kuaiqianDeferRepay(orderId);
-        if (null == result) {
-            logger.error("#[快钱续期时支付还款]-[异常]");
-            return new ResultMessage(ResponseEnum.M4000.getCode(), "展期支付失败");
-        }
-        logger.info("#[快钱续期时支付还款]-[结束]");
-        return new ResultMessage(ResponseEnum.M2000, result);
+        ResultMessage result = orderDeferService.kuaiqianDeferRepay(orderId);
+        logger.info("#[快钱续期时支付还款]-[结束]-result={}", result);
+        return result;
     }
 
     /**
@@ -385,13 +381,9 @@ public class OrderDeferController {
         if (null == orderId) {
             return new ResultMessage(ResponseEnum.M5000);
         }
-        String result = orderDeferService.kuaiqianDeferRepayQuery(orderId);
-        if (null == result) {
-            logger.error("#[快钱续期时支付还款结果查询]-[异常]");
-            return new ResultMessage(ResponseEnum.M4000.getCode(), "展期支付失败");
-        }
-        logger.info("#[快钱续期时支付还款结果查询]-[结束]");
-        return new ResultMessage(ResponseEnum.M2000, result);
+        ResultMessage result = orderDeferService.kuaiqianDeferRepayQuery(orderId);
+        logger.info("#[快钱续期时支付还款结果查询]-[结束]-result={}", result);
+        return result;
     }
 
 }
