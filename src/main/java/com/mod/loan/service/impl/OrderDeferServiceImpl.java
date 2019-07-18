@@ -528,6 +528,7 @@ public class OrderDeferServiceImpl extends BaseServiceImpl<OrderDefer, Integer> 
                     .append("</TxnMsgContent>")
                     .append("</MasMessage>");
             respMap = KuaiqianPost.sendPost(merchant.getKqCertPath(), merchant.getKqCertPwd(), merchantId, Constant.KUAIQIAN_PAY_URL, orderPlain.toString(), transInfo);
+            logger.info("#[续期时快钱支付还款返回结果]-respMap={}", JSONObject.toJSON(respMap));
         } catch (Exception e) {
             logger.info("续期时快钱支付还款异常--订单号为{}，卡号为{}，银行名称为{}", orderId, userBank.getCardNo(), userBank.getCardName());
             logger.error("续期时快钱支付还款异常e={}", e);
@@ -614,6 +615,7 @@ public class OrderDeferServiceImpl extends BaseServiceImpl<OrderDefer, Integer> 
                     .append("</QryTxnMsgContent>")
                     .append("</MasMessage>");
             respMap = KuaiqianPost.sendPost(merchant.getKqCertPath(), merchant.getKqCertPwd(), merchantId, Constant.KUAIQIAN_PAY_QUERY_URL, orderPlain.toString(), transInfo);
+            logger.info("#[续期时快钱支付还款结果查询返回结果]-respMap={}", JSONObject.toJSON(respMap));
         } catch (Exception e) {
             logger.error("续期时快钱支付还款结果查询异常-e={}", e);
             return null;

@@ -259,7 +259,7 @@ public class OrderDeferController {
         String result = orderDeferService.changjieDeferRepay4SendMsg(orderId);
         if (null == result) {
             logger.error("#[畅捷续期时协议支付还款发送验证码]-[异常]");
-            return new ResultMessage(ResponseEnum.M4000);
+            return new ResultMessage(ResponseEnum.M4000.getCode(), "展期支付失败");
         }
         logger.info("#[畅捷续期时协议支付还款发送验证码]-[结束]");
         return new ResultMessage(ResponseEnum.M2000, result);
@@ -307,7 +307,7 @@ public class OrderDeferController {
         String result = orderDeferService.changjieDeferRepay4Query(repayNo);
         if (null == result) {
             logger.error("#[畅捷续期时协议支付还款结果查询]-[异常]");
-            return new ResultMessage(ResponseEnum.M4000);
+            return new ResultMessage(ResponseEnum.M4000.getCode(), "展期支付失败");
         }
         logger.info("#[畅捷续期时协议支付还款结果查询]-[结束]");
         return new ResultMessage(ResponseEnum.M2000);
@@ -366,7 +366,7 @@ public class OrderDeferController {
         String result = orderDeferService.kuaiqianDeferRepay(orderId);
         if (null == result) {
             logger.error("#[快钱续期时支付还款]-[异常]");
-            return new ResultMessage(ResponseEnum.M4000);
+            return new ResultMessage(ResponseEnum.M4000.getCode(), "展期支付失败");
         }
         logger.info("#[快钱续期时支付还款]-[结束]");
         return new ResultMessage(ResponseEnum.M2000, result);
@@ -388,7 +388,7 @@ public class OrderDeferController {
         String result = orderDeferService.kuaiqianDeferRepayQuery(orderId);
         if (null == result) {
             logger.error("#[快钱续期时支付还款结果查询]-[异常]");
-            return new ResultMessage(ResponseEnum.M4000);
+            return new ResultMessage(ResponseEnum.M4000.getCode(), "展期支付失败");
         }
         logger.info("#[快钱续期时支付还款结果查询]-[结束]");
         return new ResultMessage(ResponseEnum.M2000, result);
