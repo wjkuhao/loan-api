@@ -97,6 +97,7 @@ INSERT INTO `tb_merchant_resource`(`id`, `pid`, `resource_name`, `resource_url`,
 INSERT INTO `tb_merchant_resource`(`id`, `pid`, `resource_name`, `resource_url`, `resource_icon`, `resource_order`, `resource_status`) VALUES (60, 25, '坏账催收分配', '/recycle/recycle_fenpei_bad_list', NULL, 9, 0);
 
 INSERT INTO `tb_merchant_resource`(`id`, `pid`, `resource_name`, `resource_url`, `resource_icon`, `resource_order`, `resource_status`) VALUES (61, 20, '数据看板', 'statistics/data_view ', NULL, 10, 0);
+INSERT INTO `tb_merchant_resource`(`id`, `pid`, `resource_name`, `resource_url`, `resource_icon`, `resource_order`, `resource_status`) VALUES (62, 20, '费用项统计', '/statistics/fee_statistics_list', NULL, 11, 0);
 
 
 #report开头的四张表添加merchant-daykey组合唯一索引
