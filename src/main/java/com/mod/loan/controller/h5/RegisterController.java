@@ -86,7 +86,7 @@ public class RegisterController {
         return new ResultMessage(ResponseEnum.M2000, data);
     }
 
-    @RequestMapping(value = "mobile_code")
+    //@RequestMapping(value = "mobile_code")
     public ResultMessage mobile_code(String alias, String phone, String graph_code, String uuid) {
         if (!CheckUtils.isMobiPhoneNum(phone)) {
             return new ResultMessage(ResponseEnum.M4000.getCode(), "手机号码错误");
@@ -120,7 +120,7 @@ public class RegisterController {
         return new ResultMessage(ResponseEnum.M2000);
     }
 
-    @RequestMapping(value = "mobile_code_no_graph_code")
+   // @RequestMapping(value = "mobile_code_no_graph_code")
     public ResultMessage mobile_code(String alias, String phone) {
         if (!CheckUtils.isMobiPhoneNum(phone)) {
             return new ResultMessage(ResponseEnum.M4000.getCode(), "手机号码错误");
