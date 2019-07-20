@@ -116,6 +116,7 @@ public class UserServiceImpl  extends BaseServiceImpl< User,Long> implements Use
 		_ident.setUid(uid);
 		_ident.setBindbank(2);
 		_ident.setBindbankTime(new Date());
+		_ident.setUpdateTime(new Date());
 		userIdentMapper.updateByPrimaryKeySelective(_ident);
 
 		//2.把之前的老卡无效
@@ -167,6 +168,7 @@ public class UserServiceImpl  extends BaseServiceImpl< User,Long> implements Use
         userIdentUpd.setRealName(2);//有盾实名和活体一起认证的
         userIdentUpd.setLivenessTime(new Date());
         userIdentUpd.setRealNameTime(new Date());
+		userIdentUpd.setUpdateTime(new Date());
 
         User user = new User();
         user.setId(uid);
@@ -179,6 +181,7 @@ public class UserServiceImpl  extends BaseServiceImpl< User,Long> implements Use
         user.setImgFace(livingFilePath);
         user.setImgCertBack(idCardBackFilePath);
         user.setImgCertFront(idCardFrontPhotoFile);
+        user.setUpdateTime(new Date());
 
         updateUserRealName(user, userIdentUpd);
 

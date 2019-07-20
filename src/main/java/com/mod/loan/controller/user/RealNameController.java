@@ -163,6 +163,7 @@ public class RealNameController {
 		record.setUid(RequestThread.getUid());
 		record.setUserDetails(2);
 		record.setUserDetailsTime(new Date());
+		record.setUpdateTime(new Date());
 		userService.updateUserInfo(userInfo, record);
 		return new ResultMessage(ResponseEnum.M2000);
 	}
