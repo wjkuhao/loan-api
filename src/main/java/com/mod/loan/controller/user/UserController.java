@@ -232,6 +232,7 @@ public class UserController {
             return new ResultMessage(ResponseEnum.M4000.getCode(), "用户不存在");
         }
         long increment = NumberUtils.toLong(redisMapper.get(RedisConst.USER_LOGIN + user.getId()));
+
         if (increment > 5) {
             return new ResultMessage(ResponseEnum.M4000.getCode(), "错误次数过多，请稍后重试");
         }
