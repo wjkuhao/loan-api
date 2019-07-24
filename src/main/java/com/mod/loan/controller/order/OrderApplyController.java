@@ -119,6 +119,10 @@ public class OrderApplyController {
                                       @RequestParam(required = false) String phoneType, @RequestParam(required = false) String paramValue,
                                       @RequestParam(required = false) String phoneModel, @RequestParam(required = false) Integer phoneMemory) {
         Long uid = RequestThread.getUid();
+        // 加锁: 防止忘记释放 给个ttl, 3个小时
+        if (!redisMapper.lock(RedisConst.lock_user_order + uid, 3 * 60 * 60)) {
+            return new ResultMessage(ResponseEnum.M4005);
+        }
 
         // 检查当前商户下是否有未完成订单, 只要有未完成的直接返回
         if (orderService.countLoaningOrderByUid(uid) > 0) {
@@ -238,14 +242,15 @@ public class OrderApplyController {
 
         rabbitTemplate.convertAndSend(RabbitConst.queue_risk_order_notify, jsonObject);
 
+        // 释放锁
+        redisMapper.unlock(RedisConst.lock_user_order + uid);
+
         return new ResultMessage(ResponseEnum.M2000);
     }
 
     private Order addOrder(Long uid, Long productId, BigDecimal productMoney,
                            String phoneType, String paramValue,
                            String phoneModel, Integer phoneMemory, Integer status, Date auditTime) {
-        // 加锁: 防止忘记释放 给个ttl, 3个小时
-        redisMapper.lock(RedisConst.lock_user_order + uid, 3 * 60 * 60);
         Order order = new Order();
         MerchantRate merchantRate = merchantRateService.selectByPrimaryKey(productId);
         BigDecimal totalFee = MoneyUtil.totalFee(productMoney, merchantRate.getTotalRate());// 综合费用
