@@ -5,7 +5,7 @@ import java.io.IOException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.mod.loan.model.MerchantConfig;
+import com.mod.loan.model.Merchant;
 import com.mod.loan.service.MerchantConfigService;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -101,13 +101,13 @@ public class LoginInterceptor implements HandlerInterceptor {
 	}
 
 	private boolean isLogin(HttpServletRequest request){
-		String merchant = request.getParameter("clientAlias");
-		if(StringUtils.isBlank(merchant)){
+		String merchantAlias = request.getParameter("clientAlias");
+		if(StringUtils.isBlank(merchantAlias)){
 			return false;
 		}
-		MerchantConfig merchantConfig = merchantConfigService.selectByMerchant(merchant);
-		Integer appStatus = merchantConfig.getAppStatus();
-		if(appStatus==null || appStatus!=1){
+        Merchant merchantByAlias = merchantService.findMerchantByAlias(merchantAlias);
+        Integer merchantStatus = merchantByAlias.getMerchantStatus();
+        if(merchantStatus==null || merchantStatus!=1){
 			return false;
 		}
 		String token = request.getParameter("token");

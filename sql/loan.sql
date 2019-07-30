@@ -598,7 +598,6 @@ CREATE TABLE `tb_merchant_config`  (
   `multi_loan_count` tinyint(1) DEFAULT 0 COMMENT '允许的共债系统个数。大于设置的共债数量则拒绝',
   `yys_operator_type` varchar(20) DEFAULT 'tongdun' COMMENT '运营商类型：tongdun.同盾，moxie.魔蝎',
   `old_customer_risk_renew_day` int(11) DEFAULT NULL COMMENT '可配置的老客过风控的静置天数',
-  `app_status` tinyint(1) DEFAULT 1 COMMENT '商户登录判断:1：允许登录 0 ：不允许登录',
   `create_time` CHAR(19) DEFAULT NULL COMMENT '插入时间',
   `update_time` CHAR(19) DEFAULT NULL COMMENT '更新时间',
   PRIMARY KEY (`id`) USING BTREE,
