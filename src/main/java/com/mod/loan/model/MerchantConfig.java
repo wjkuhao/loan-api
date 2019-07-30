@@ -74,6 +74,8 @@ public class MerchantConfig {
 
     @Column(name = "yys_operator_type")
     private String yysOperatorType;
+    @Column(name="app_status")
+    private Integer appStatus;
 
     public Integer getPromoteQuotaType() {
         return promoteQuotaType;
@@ -243,4 +245,11 @@ public class MerchantConfig {
         this.oldCustomerRiskRenewDay = oldCustomerRiskRenewDay;
     }
 
+    public Integer getAppStatus() {
+        return appStatus;
+    }
+
+    public void setAppStatus(Integer appStatus) {
+        this.appStatus = appStatus;
+    }
 }

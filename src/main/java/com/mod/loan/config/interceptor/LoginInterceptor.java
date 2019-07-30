@@ -5,6 +5,8 @@ import java.io.IOException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.mod.loan.mapper.MerchantConfigMapper;
+import com.mod.loan.model.MerchantConfig;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,6 +43,8 @@ public class LoginInterceptor implements HandlerInterceptor {
 	UserService userService;
 	@Autowired
 	MerchantService merchantService;
+	@Autowired
+	MerchantConfigMapper merchantConfigMapper;
 
 	@Override
 	public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)
@@ -97,6 +101,15 @@ public class LoginInterceptor implements HandlerInterceptor {
 	}
 
 	private boolean isLogin(HttpServletRequest request){
+		String merchant = request.getParameter("merchant");
+		if(StringUtils.isBlank(merchant)){
+			return false;
+		}
+		MerchantConfig merchantConfig = merchantConfigMapper.selectByMerchant(merchant);
+		Integer appStatus = merchantConfig.getAppStatus();
+		if(appStatus==null || appStatus!=0){
+			return false;
+		}
 		String token = request.getParameter("token");
 		//logger.info("isLogin token:{}", token);
 		if(StringUtils.isBlank(token)){
