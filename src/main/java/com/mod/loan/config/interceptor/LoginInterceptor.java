@@ -101,15 +101,6 @@ public class LoginInterceptor implements HandlerInterceptor {
 	}
 
 	private boolean isLogin(HttpServletRequest request){
-		String merchantAlias = request.getParameter("clientAlias");
-		if(StringUtils.isBlank(merchantAlias)){
-			return false;
-		}
-        Merchant merchantByAlias = merchantService.findMerchantByAlias(merchantAlias);
-        Integer merchantStatus = merchantByAlias.getMerchantStatus();
-        if(merchantStatus==null || merchantStatus!=1){
-			return false;
-		}
 		String token = request.getParameter("token");
 		//logger.info("isLogin token:{}", token);
 		if(StringUtils.isBlank(token)){
@@ -127,6 +118,11 @@ public class LoginInterceptor implements HandlerInterceptor {
 		String token_redis =redisMapper.get(RedisConst.USER_TOKEN_PREFIX + uid);
 		//logger.info("isLogin token_redis:{}", token_redis);
 		if(!token.equals(token_redis)){
+			return false;
+		}
+		Merchant merchantByAlias = merchantService.findMerchantByAlias(clientAlias);
+		Integer merchantStatus = merchantByAlias.getMerchantStatus();
+		if(merchantStatus==null || merchantStatus!=1){
 			return false;
 		}
 		redisMapper.set(RedisConst.USER_TOKEN_PREFIX + uid, token_redis,3*86400);
