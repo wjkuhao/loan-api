@@ -33,7 +33,7 @@
 		<commons-lang.version>2.6</commons-lang.version>
 		<aspectjweaver.version>1.8.9</aspectjweaver.version>
 		<jsoup.version>1.9.2</jsoup.version>
-		<commons-beanutils.version>1.9.3</commons-beanutils.version>
+		<commons-beanutils.version>1.9.4</commons-beanutils.version>
 	</properties>
 
 	<dependencies>
